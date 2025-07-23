@@ -1,6 +1,13 @@
-﻿namespace UKParliament.CodeTest.Services;
+﻿using UKParliament.CodeTest.Data;
+
+namespace UKParliament.CodeTest.Services;
 
 public interface IPersonService
 {
-
+    Task<List<Person>> GetAllAsync();
+    Task<List<Department>> GetAllDepartmentsAsync();
+    Task<Person?> GetByIdAsync(int id);
+    Task<Person?> AddAsync(Person person);
+    Task<bool> UpdateAsync(int id, Person person);
+    Task<bool> DeleteAsync(int id);
 }

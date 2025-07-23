@@ -10,6 +10,7 @@
   "profiles": {
     "UKParliament.CodeTest.Web": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7048;http://localhost:5048",
       "environmentVariables": {
