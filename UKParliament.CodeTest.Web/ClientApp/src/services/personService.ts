@@ -1,72 +1,69 @@
+import axios from "axios";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
 
 const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api/person`;
 
-function getAuthHeaders(): HeadersInit {
+function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem("token");
   if (!token) {
     throw new Error("No authentication token found");
   }
 
-  const headers: HeadersInit = {
+  return {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
   };
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  return headers;
 }
 
 export class PersonService {
   private peopleCache: PersonViewModel[] = [];
   private departmentsCache: DepartmentViewModel[] = [];
 
+  // Use Axios to get all people
   async getAllPeople(): Promise<PersonViewModel[]> {
-    if (this.peopleCache.length > 0) {
+    if (this.peopleCache.length > 0) return this.peopleCache;
+
+    try {
+      const res = await axios.get<PersonViewModel[]>(BASE_URL, {
+        headers: getAuthHeaders(),
+        withCredentials: true,
+      });
+
+      this.peopleCache = res.data;
       return this.peopleCache;
+    } catch (error: any) {
+      const message =
+        error.response?.data || error.message || "Error fetching people";
+      throw new Error(message);
     }
-
-    const res = await fetch(BASE_URL, {
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Error fetching people: ${text || res.statusText}`);
-    }
-
-    this.peopleCache = await res.json();
-    return this.peopleCache;
   }
 
+  // Use Axios to get all departments
   async getAllDepartments(): Promise<DepartmentViewModel[]> {
-    if (this.departmentsCache.length > 0) {
+    if (this.departmentsCache.length > 0) return this.departmentsCache;
+
+    try {
+      const res = await axios.get<DepartmentViewModel[]>(
+        `${BASE_URL}/departments`,
+        {
+          headers: getAuthHeaders(),
+          withCredentials: true,
+        }
+      );
+
+      this.departmentsCache = res.data;
       return this.departmentsCache;
+    } catch (error: any) {
+      const message =
+        error.response?.data || error.message || "Error fetching departments";
+      throw new Error(message);
     }
-
-    const res = await fetch(`${BASE_URL}/departments`, {
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Error fetching departments: ${text || res.statusText}`);
-    }
-
-    this.departmentsCache = await res.json();
-    return this.departmentsCache;
   }
 
-  // The local search - filter cache by matching any field (case-insensitive)
+  // Local search in cache, unchanged
   searchPeople(query: string): PersonViewModel[] {
-    if (!query) {
-      return this.peopleCache;
-    }
+    if (!query) return this.peopleCache;
 
     const lowerQuery = query.toLowerCase();
 
@@ -80,74 +77,86 @@ export class PersonService {
     });
   }
 
-  // Invalidate cache (call after add/update/delete)
   invalidatePeopleCache() {
     this.peopleCache = [];
   }
 
-  // Similarly for other methods you still do with fetch
+  // Get one person by ID with Axios
   async getPerson(id: number): Promise<PersonViewModel> {
-    const res = await fetch(`${BASE_URL}/${id}`, {
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(
-        `Error fetching person with ID ${id}: ${text || res.statusText}`
-      );
+    try {
+      const res = await axios.get<PersonViewModel>(`${BASE_URL}/${id}`, {
+        headers: getAuthHeaders(),
+        withCredentials: true,
+      });
+      return res.data;
+    } catch (error: any) {
+      const message =
+        error.response?.data ||
+        `Error fetching person with ID ${id}: ${error.message}`;
+      throw new Error(message);
     }
-
-    return res.json();
   }
 
-  async addPerson(person: PersonViewModel): Promise<void> {
-    const res = await fetch(BASE_URL, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify(person),
-      credentials: "include",
-    });
+  // Add person with Axios post
+  async addPerson(
+    person: PersonViewModel,
+    setErrors: React.Dispatch<React.SetStateAction<{}>>
+  ): Promise<boolean> {
+    try {
+      const res = await axios.post(BASE_URL, person, {
+        headers: getAuthHeaders(),
+        withCredentials: true,
+      });
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Add person failed:", text);
-      throw new Error(`Failed to add person: ${text || res.statusText}`);
+      setErrors({});
+      this.invalidatePeopleCache();
+
+      return true;
+    } catch (error: any) {
+      const message = error.response?.data || error.message;
+      console.error("Add person failed:", message);
+      throw new Error(message);
+      return false;
     }
-
-    this.invalidatePeopleCache(); // Clear cache to fetch fresh later
   }
 
-  async updatePerson(person: PersonViewModel): Promise<void> {
-    const res = await fetch(`${BASE_URL}/${person.id}`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-      body: JSON.stringify(person),
-      credentials: "include",
-    });
+  // Update person
+  async updatePerson(
+    person: PersonViewModel,
+    setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string[] }>>
+  ): Promise<boolean> {
+    try {
+      const res = await axios.put(`${BASE_URL}/${person.id}`, person, {
+        headers: getAuthHeaders(),
+        withCredentials: true,
+      });
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Update failed:", text);
-      throw new Error(`Failed to update person: ${text || res.statusText}`);
+      setErrors({});
+      this.invalidatePeopleCache();
+
+      return true;
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        setErrors({ general: [error.message || "Unknown error"] });
+      }
+      return false;
     }
-
-    this.invalidatePeopleCache();
   }
 
+  // Delete person using Axios
   async deletePerson(id: number): Promise<void> {
-    const res = await fetch(`${BASE_URL}/${id}`, {
-      method: "DELETE",
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
+    try {
+      const res = await axios.delete(`${BASE_URL}/${id}`, {
+        headers: getAuthHeaders(),
+        withCredentials: true,
+      });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Failed to delete person: ${text || res.statusText}`);
+      this.invalidatePeopleCache();
+    } catch (error: any) {
+      const message = error.response?.data || error.message || "Delete failed";
+      throw new Error(message);
     }
-
-    this.invalidatePeopleCache();
   }
 }

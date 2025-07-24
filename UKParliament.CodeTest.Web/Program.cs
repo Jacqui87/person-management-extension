@@ -21,18 +21,18 @@ builder.Services.AddCors(options =>
     });
 });
 
-/*builder.Services
+builder.Services
     .AddControllersWithViews()
     .AddFluentValidation(fv =>
     {
         fv.RegisterValidatorsFromAssemblyContaining<PersonViewModelValidator>();
-    });*/
+    });
 
-builder.Services.AddControllers();
+/*builder.Services.AddControllers();
 
 // Add automatic validation and clientside adapters separately
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.AddFluentValidationClientsideAdapters();*/
 
 builder.Services.AddDbContext<PersonManagerContext>(op =>
     op.UseInMemoryDatabase("PersonManager"));

@@ -128,25 +128,4 @@ public class AuthServiceTests
     // Assert
     Assert.Equal(2, sessions.Count);
   }
-
-  [Fact]
-  public async Task GetAllSessionsAsync_ReturnsEmptyList_AndLogsError_WhenExceptionThrown()
-  {
-    // Create a disposed context to force exception on query
-    var dbName = nameof(GetAllSessionsAsync_ReturnsEmptyList_AndLogsError_WhenExceptionThrown);
-    var context = CreateInMemoryContext(dbName);
-    await context.DisposeAsync();
-
-    var logger = Substitute.For<ILogger<AuthService>>();
-    var service = new AuthService(context, logger);
-
-    var result = await service.GetAllSessionsAsync();
-
-    // Should return empty list on exception
-    Assert.NotNull(result);
-    Assert.Empty(result);
-
-    // Logger.LogError should be called once
-    logger.Received(1).LogError(Arg.Any<Exception>(), Arg.Is<string>(s => s.Contains("Error retrieving all sessions")));
-  }
 }

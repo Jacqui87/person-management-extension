@@ -43,26 +43,43 @@ public class PersonController(IPersonService personService) : ControllerBase
   }
 
   [HttpPost]
-  public async Task<ActionResult> AddPerson([FromBody] PersonViewModel person)
+  [ProducesResponseType((int)StatusCodes.Forbidden)]
+  [ProducesResponseType((int)StatusCodes.NotFound)]
+  [ProducesResponseType((int)StatusCodes.NoContent)]
+  [ProducesResponseType((int)StatusCodes.Unauthorised)]
+  [ProducesResponseType((int)StatusCodes.Success, Type = typeof(ActionResult<Person?>))]
+  [ProducesResponseType((int)StatusCodes.BadRequest)]
+  [ProducesResponseType((int)StatusCodes.Error)]
+  public async Task<ActionResult<Person?>> AddPerson([FromBody] PersonViewModel person)
   {
-    if (person.Id > 0) return BadRequest("New person must not have an ID.");
-
     var newPerson = await personService.AddAsync(MapToDomainModel(person));
-    if (newPerson == null) return BadRequest("Email must be unique.");
-
-    return CreatedAtAction(nameof(GetById), new { id = person.Id }, person);
+    return newPerson.StatusCode switch
+    {
+      StatusCodes.Forbidden => StatusCode((int)StatusCodes.Forbidden),
+      StatusCodes.NotFound => NotFound(),
+      StatusCodes.NoContent => NoContent(),
+      _ => Ok(newPerson.Data),
+    };
   }
 
   [HttpPut("{id:int}")]
-  public async Task<ActionResult> UpdatePerson(int id, [FromBody] PersonViewModel person)
+  [ProducesResponseType((int)StatusCodes.Forbidden)]
+  [ProducesResponseType((int)StatusCodes.NotFound)]
+  [ProducesResponseType((int)StatusCodes.NoContent)]
+  [ProducesResponseType((int)StatusCodes.Unauthorised)]
+  [ProducesResponseType((int)StatusCodes.Success, Type = typeof(bool))]
+  [ProducesResponseType((int)StatusCodes.BadRequest)]
+  [ProducesResponseType((int)StatusCodes.Error)]
+  public async Task<ActionResult<bool>> UpdatePerson(int id, [FromBody] PersonViewModel person)
   {
-    if (id <= 0 || id != person.Id)
-      return BadRequest("ID in URL and payload must match and be greater than 0.");
-
     var updated = await personService.UpdateAsync(id, MapToDomainModel(person));
-    if (!updated) return NotFound();
-
-    return NoContent();
+    return updated.StatusCode switch
+    {
+      StatusCodes.Forbidden => StatusCode((int)StatusCodes.Forbidden),
+      StatusCodes.NotFound => NotFound(),
+      StatusCodes.NoContent => NoContent(),
+      _ => Ok(updated.Data),
+    };
   }
 
   [HttpDelete("{id:int}")]

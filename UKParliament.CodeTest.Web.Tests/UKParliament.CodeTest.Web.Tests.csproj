@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UKParliament.CodeTest.Web\UKParliament.CodeTest.Web.csproj" />
+    <ProjectReference Include="..\UKParliament.CodeTest.Services\UKParliament.CodeTest.Services.csproj" />
     <ProjectReference Include="..\UKParliament.CodeTest.Data\UKParliament.CodeTest.Data.csproj" />
   </ItemGroup>
 

@@ -52,6 +52,7 @@ const MainPage = () => {
   const [departments, setDepartments] = useState<DepartmentViewModel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredPeople, setFilteredPeople] = useState<PersonViewModel[]>([]);
+  const [errors, setErrors] = useState({});
 
   const loadDepartments = async () => {
     const result = await personService.getAllDepartments();
@@ -83,13 +84,17 @@ const MainPage = () => {
   };
 
   const handleSave = async (person: PersonViewModel) => {
+    let success = false;
     if (person.id === 0 && loggedInUser) {
-      await personService.addPerson(person);
+      success = await personService.addPerson(person, setErrors);
     } else {
-      await personService.updatePerson(person);
+      success = await personService.updatePerson(person, setErrors);
     }
-    await loadPeople();
-    setSelectedPerson(null);
+
+    if (success) {
+      await loadPeople();
+      setSelectedPerson(null);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -184,6 +189,8 @@ const MainPage = () => {
                 onDelete={() => handleDelete(selectedPerson.id)}
                 currentUser={loggedInUser}
                 departments={departments}
+                errors={errors}
+                setErrors={setErrors}
               />
             ) : (
               <PersonSummary isAdmin={isAdmin} />
@@ -196,6 +203,8 @@ const MainPage = () => {
                 onCancel={() => setSelectedPerson(null)}
                 currentUser={loggedInUser}
                 departments={departments}
+                errors={errors}
+                setErrors={setErrors}
               />
             )}
           </RightPane>

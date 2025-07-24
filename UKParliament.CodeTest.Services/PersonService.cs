@@ -44,41 +44,85 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
         }
     }
 
-    public async Task<Person?> AddAsync(Person person)
+    public async Task<ServiceResult<Person?>> AddAsync(Person person)
     {
         try
         {
+            if (person.Id > 0)
+            {
+                logger.LogWarning("New person must not have an ID.");
+                return new ServiceResult<Person?>
+                {
+                    StatusCode = StatusCodes.Success,
+                    Data = null
+                };
+            }
+
             var emailUnique = await IsEmailUniqueAsync(person.Email);
-            if(emailUnique == false)
+            if (emailUnique == false)
             {
                 logger.LogWarning("Email {Email} is not unique.", person.Email);
-                return null;
+                return new ServiceResult<Person?>
+                {
+                    StatusCode = StatusCodes.Success,
+                    Data = null
+                };
             }
 
             context.People.Add(person);
             await context.SaveChangesAsync();
-            return person; // Includes generated ID
+
+            return new ServiceResult<Person?>
+            {
+                StatusCode = StatusCodes.Success,
+                Data = person
+            };
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error adding new person.");
-            throw;
+            return new ServiceResult<Person?>
+            {
+                StatusCode = StatusCodes.Error,
+                Data = person
+            };
         }
     }
 
-    public async Task<bool> UpdateAsync(int id, Person person)
+    public async Task<ServiceResult<bool>> UpdateAsync(int id, Person person)
     {
         try
         {
+            if (id <= 0 || id != person.Id)
+            {
+                logger.LogWarning("ID must match and be greater than 0.");
+                return new ServiceResult<bool>
+                {
+                    StatusCode = StatusCodes.Success,
+                    Data = false
+                };
+            }
+
             var emailUnique = await IsEmailUniqueAsync(person.Email);
-            if(emailUnique == false)
+            if (emailUnique == false)
             {
                 logger.LogWarning("Email {Email} is not unique.", person.Email);
-                return false;
+                return new ServiceResult<bool>
+                {
+                    StatusCode = StatusCodes.Success,
+                    Data = false
+                };
             }
 
             var updatePerson = await context.People.FindAsync(id);
-            if (updatePerson == null) return false;
+            if (updatePerson == null)
+            {
+                return new ServiceResult<bool>
+                {
+                    StatusCode = StatusCodes.Success,
+                    Data = false
+                };
+            }
 
             updatePerson.FirstName = person.FirstName;
             updatePerson.LastName = person.LastName;
@@ -89,12 +133,20 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
             updatePerson.DateOfBirth = person.DateOfBirth;
 
             await context.SaveChangesAsync();
-            return true;
+            return new ServiceResult<bool>
+            {
+                StatusCode = StatusCodes.Success,
+                Data = true
+            };
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error updating person with ID {Id}.", id);
-            return false;
+            return new ServiceResult<bool>
+            {
+                StatusCode = StatusCodes.Success,
+                Data = false
+            };
         }
     }
 

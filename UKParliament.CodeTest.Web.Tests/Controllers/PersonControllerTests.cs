@@ -7,303 +7,199 @@ using UKParliament.CodeTest.Web.ViewModels;
 
 namespace UKParliament.CodeTest.Web.Tests.Controllers
 {
-  public class PersonControllerTests
-  {
-    private readonly IPersonService _service;
-    private readonly PersonController _controller;
-
-    public PersonControllerTests()
+    public class PersonControllerTests
     {
-      _service = Substitute.For<IPersonService>();
-      _controller = new PersonController(_service);
-    }
+        private readonly IPersonService _personService;
+        private readonly PersonController _controller;
 
-    [Fact]
-    public async Task Get_ReturnsOkWithPersonViewModels()
-    {
-      var people = new List<Person>
-      {
-        new Person
+        public PersonControllerTests()
         {
-          Id = 1,
-          FirstName = "Alice",
-          LastName = "Smith",
-          Email = "alice@example.com",
-          Role = "User",
-          Department = 1,
-          DateOfBirth = new DateOnly(1980, 1, 1),
-          Password = "pass1"
-        },
-        new Person
-        {
-          Id = 2,
-          FirstName = "Bob",
-          LastName = "Jones",
-          Email = "bob@example.com",
-          Role = "Admin",
-          Department = 2,
-          DateOfBirth = new DateOnly(1990, 2, 2),
-          Password = "pass2"
+            _personService = Substitute.For<IPersonService>();
+            _controller = new PersonController(_personService);
         }
-      };
 
-      _service.GetAllAsync().Returns(people);
+        [Fact]
+        public async Task Get_ReturnsOkWithAllPeople_FullFields()
+        {
+            // Arrange
+            var people = new List<Person>
+            {
+                new Person
+                {
+                    Id = 1,
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Role = "user",
+                    Email = "john.doe@example.com",
+                    Password = "pass123",
+                    Department = 2,
+                    DateOfBirth = new DateOnly(1980, 5, 15)
+                },
+                new Person
+                {
+                    Id = 2,
+                    FirstName = "Jane",
+                    LastName = "Smith",
+                    Role = "admin",
+                    Email = "jane.smith@example.com",
+                    Password = "securepwd",
+                    Department = 1,
+                    DateOfBirth = new DateOnly(1990, 11, 22)
+                }
+            };
+            _personService.GetAllAsync().Returns(people);
 
-      var actionResult = await _controller.Get();
-      var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-      var resultValue = Assert.IsAssignableFrom<IEnumerable<PersonViewModel>>(okResult.Value);
+            // Act
+            var result = await _controller.Get();
 
-      var resultList = resultValue.ToList();
-      Assert.Equal(2, resultList.Count);
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnedPeople = Assert.IsAssignableFrom<IEnumerable<PersonViewModel>>(okResult.Value);
+            Assert.Equal(2, returnedPeople.Count());
 
-      // Verify first person
-      Assert.Equal(1, resultList[0].Id);
-      Assert.Equal("Alice", resultList[0].FirstName);
-      Assert.Equal("Smith", resultList[0].LastName);
-      Assert.Equal("alice@example.com", resultList[0].Email);
-      Assert.Equal("User", resultList[0].Role);
-      Assert.Equal(1, resultList[0].Department);
-      Assert.Equal(new DateOnly(1980, 1, 1), resultList[0].DateOfBirth);
-      Assert.Equal("pass1", resultList[0].Password);
+            var john = returnedPeople.First(p => p.Id == 1);
+            Assert.Equal("John", john.FirstName);
+            Assert.Equal("Doe", john.LastName);
+            Assert.Equal("user", john.Role);
+            Assert.Equal("john.doe@example.com", john.Email);
+            Assert.Equal("pass123", john.Password);
+            Assert.Equal(2, john.Department);
+            Assert.Equal(new DateOnly(1980, 5, 15), john.DateOfBirth);
 
-      // Verify second person
-      Assert.Equal(2, resultList[1].Id);
-      Assert.Equal("Bob", resultList[1].FirstName);
-      Assert.Equal("Jones", resultList[1].LastName);
-      Assert.Equal("bob@example.com", resultList[1].Email);
-      Assert.Equal("Admin", resultList[1].Role);
-      Assert.Equal(2, resultList[1].Department);
-      Assert.Equal(new DateOnly(1990, 2, 2), resultList[1].DateOfBirth);
-      Assert.Equal("pass2", resultList[1].Password);
+            var jane = returnedPeople.First(p => p.Id == 2);
+            Assert.Equal("Jane", jane.FirstName);
+            Assert.Equal("Smith", jane.LastName);
+            Assert.Equal("admin", jane.Role);
+            Assert.Equal("jane.smith@example.com", jane.Email);
+            Assert.Equal("securepwd", jane.Password);
+            Assert.Equal(1, jane.Department);
+            Assert.Equal(new DateOnly(1990, 11, 22), jane.DateOfBirth);
+        }
+
+        [Fact]
+        public async Task GetDepartments_ReturnsOkWithDepartments()
+        {
+            // Arrange
+            var departments = new List<Department>
+            {
+                new Department { Id = 1, Name = "HR" },
+                new Department { Id = 2, Name = "IT" }
+            };
+            _personService.GetAllDepartmentsAsync().Returns(departments);
+
+            // Act
+            var result = await _controller.GetDepartments();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnedDepartments = Assert.IsAssignableFrom<DepartmentViewModel[]>(okResult.Value);
+            Assert.Equal(2, returnedDepartments.Length);
+            Assert.Contains(returnedDepartments, d => d.Id == 1 && d.Name == "HR");
+            Assert.Contains(returnedDepartments, d => d.Id == 2 && d.Name == "IT");
+        }
+
+        [Fact]
+        public async Task GetById_ReturnsNotFound_WhenPersonIsNull()
+        {
+            // Arrange
+            _personService.GetByIdAsync(Arg.Any<int>()).Returns((Person)null);
+
+            // Act
+            var result = await _controller.GetById(1);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetById_ReturnsOkWithPerson_FullFields()
+        {
+            // Arrange
+            var person = new Person
+            {
+                Id = 1,
+                FirstName = "Alice",
+                LastName = "Walker",
+                Role = "user",
+                Email = "alice.walker@example.com",
+                Password = "alicepwd",
+                Department = 3,
+                DateOfBirth = new DateOnly(1985, 2, 3)
+            };
+            _personService.GetByIdAsync(1).Returns(person);
+
+            // Act
+            var result = await _controller.GetById(1);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnedPerson = Assert.IsType<PersonViewModel>(okResult.Value);
+            Assert.Equal(person.Id, returnedPerson.Id);
+            Assert.Equal(person.FirstName, returnedPerson.FirstName);
+            Assert.Equal(person.LastName, returnedPerson.LastName);
+            Assert.Equal(person.Role, returnedPerson.Role);
+            Assert.Equal(person.Email, returnedPerson.Email);
+            Assert.Equal(person.Password, returnedPerson.Password);
+            Assert.Equal(person.Department, returnedPerson.Department);
+            Assert.Equal(person.DateOfBirth, returnedPerson.DateOfBirth);
+        }
+
+        [Fact]
+        public async Task UpdatePerson_ReturnsOkWithTrue()
+        {
+            // Arrange
+            var serviceResult = new ServiceResult<bool>
+            {
+                StatusCode = StatusCodes.Success,
+                Data = true
+            };
+            var personViewModel = new PersonViewModel
+            {
+                Id = 1,
+                FirstName = "Updated",
+                LastName = "Name",
+                Role = "user",
+                Email = "updated.email@example.com",
+                Password = "newpassword",
+                Department = 4,
+                DateOfBirth = new DateOnly(1995, 7, 7)
+            };
+
+            _personService.UpdateAsync(1, Arg.Any<Person>()).Returns(serviceResult);
+
+            // Act
+            var result = await _controller.UpdatePerson(1, personViewModel);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnedValue = Assert.IsType<bool>(okResult.Value);
+            Assert.True(returnedValue);
+        }
+
+        [Fact]
+        public async Task DeletePerson_ReturnsNotFound_WhenDeletedIsFalse()
+        {
+            // Arrange
+            _personService.DeleteAsync(1).Returns(false);
+
+            // Act
+            var result = await _controller.DeletePerson(1);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task DeletePerson_ReturnsNoContent_WhenDeletedIsTrue()
+        {
+            // Arrange
+            _personService.DeleteAsync(1).Returns(true);
+
+            // Act
+            var result = await _controller.DeletePerson(1);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
     }
-
-    [Fact]
-    public async Task GetDepartments_ReturnsOkWithDepartmentViewModels()
-    {
-      var departments = new List<Department>
-      {
-        new Department { Id = 1, Name = "HR" },
-        new Department { Id = 2, Name = "IT" }
-      };
-      _service.GetAllDepartmentsAsync().Returns(departments);
-
-      var actionResult = await _controller.GetDepartments();
-
-      var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-      var resultValue = Assert.IsType<DepartmentViewModel[]>(okResult.Value);
-
-      Assert.Equal(2, resultValue.Length);
-      Assert.Equal(1, resultValue[0].Id);
-      Assert.Equal("HR", resultValue[0].Name);
-      Assert.Equal(2, resultValue[1].Id);
-      Assert.Equal("IT", resultValue[1].Name);
-    }
-
-    [Fact]
-    public async Task GetById_ReturnsOkWithPersonViewModel_WhenPersonExists()
-    {
-      var person = new Person
-      {
-        Id = 1,
-        FirstName = "Alice",
-        LastName = "Smith",
-        Email = "alice@example.com",
-        Role = "User",
-        Department = 1,
-        DateOfBirth = new DateOnly(1980, 1, 1),
-        Password = "pass1"
-      };
-
-      _service.GetByIdAsync(1).Returns(person);
-
-      var actionResult = await _controller.GetById(1);
-
-      var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-      var resultValue = Assert.IsType<PersonViewModel>(okResult.Value);
-
-      Assert.Equal(1, resultValue.Id);
-      Assert.Equal("Alice", resultValue.FirstName);
-      Assert.Equal("Smith", resultValue.LastName);
-      Assert.Equal("alice@example.com", resultValue.Email);
-      Assert.Equal("User", resultValue.Role);
-      Assert.Equal(1, resultValue.Department);
-      Assert.Equal(new DateOnly(1980, 1, 1), resultValue.DateOfBirth);
-      Assert.Equal("pass1", resultValue.Password);
-    }
-
-    [Fact]
-    public async Task GetById_ReturnsNotFound_WhenPersonDoesNotExist()
-    {
-      _service.GetByIdAsync(42).Returns((Person?)null);
-
-      var actionResult = await _controller.GetById(42);
-
-      Assert.IsType<NotFoundResult>(actionResult.Result);
-    }
-
-    [Fact]
-    public async Task AddPerson_ReturnsBadRequest_WhenPersonHasId()
-    {
-      var vm = new PersonViewModel
-      {
-        Id = 5,
-        FirstName = "New",
-        LastName = "Person",
-        Role = "role",
-        Email = "aa@aa.com",
-        Password = "password"
-      };
-
-      var actionResult = await _controller.AddPerson(vm);
-
-      var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult);
-      Assert.Equal("New person must not have an ID.", badRequestResult.Value);
-    }
-
-    [Fact]
-    public async Task AddPerson_ReturnsBadRequest_WhenAddAsyncReturnsNull()
-    {
-      var vm = new PersonViewModel
-      {
-        Id = 0,
-        FirstName = "New",
-        LastName = "Person",
-        Role = "role",
-        Email = "aa@aa.com",
-        Password = "password"
-      };
-
-      _service.AddAsync(Arg.Any<Person>()).Returns(Task.FromResult<Person?>(null));
-
-      var actionResult = await _controller.AddPerson(vm);
-
-      var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult);
-      Assert.Equal("Email must be unique.", badRequestResult.Value);
-    }
-
-    [Fact]
-    public async Task AddPerson_ReturnsCreatedAtAction_WhenSuccessful()
-    {
-      var vm = new PersonViewModel
-      {
-        Id = 0,
-        FirstName = "New",
-        LastName = "Person",
-        Email = "new@example.com",
-        Role = "User",
-        Department = 1,
-        DateOfBirth = new DateOnly(2000, 1, 1),
-        Password = "password"
-      };
-
-      var addedPerson = new Person
-      {
-        Id = 10,
-        FirstName = vm.FirstName,
-        LastName = vm.LastName,
-        Email = vm.Email,
-        Role = vm.Role,
-        Department = vm.Department,
-        DateOfBirth = vm.DateOfBirth,
-        Password = vm.Password
-      };
-      _service.AddAsync(Arg.Any<Person>()).Returns(Task.FromResult(addedPerson));
-
-      var actionResult = await _controller.AddPerson(vm);
-
-      var createdResult = Assert.IsType<CreatedAtActionResult>(actionResult);
-      Assert.Equal(nameof(PersonController.GetById), createdResult.ActionName);
-
-      var returnVm = Assert.IsType<PersonViewModel>(createdResult.Value);
-      Assert.Equal(0, returnVm.Id); // Matches your controller returning original vm.Id
-      Assert.Equal("New", returnVm.FirstName);
-    }
-
-    [Theory]
-    [InlineData(0, 1)] // id <= 0
-    [InlineData(2, 1)] // id != person.Id
-    public async Task UpdatePerson_ReturnsBadRequest_OnInvalidId(int id, int personViewModelId)
-    {
-      var vm = new PersonViewModel
-      {
-        Id = personViewModelId,
-        FirstName = "Update",
-        LastName = "Person",
-        Email = "update@example.com",
-        Role = "User",
-        Department = 1,
-        DateOfBirth = new DateOnly(1995, 1, 1),
-        Password = "pass"
-      };
-
-      var actionResult = await _controller.UpdatePerson(id, vm);
-
-      var badRequestResult = Assert.IsType<BadRequestObjectResult>(actionResult);
-      Assert.Equal("ID in URL and payload must match and be greater than 0.", badRequestResult.Value);
-    }
-
-    [Fact]
-    public async Task UpdatePerson_ReturnsNotFound_WhenServiceUpdateFails()
-    {
-      var vm = new PersonViewModel
-      {
-        Id = 1,
-        FirstName = "Update",
-        LastName = "Person",
-        Email = "update@example.com",
-        Role = "User",
-        Department = 1,
-        DateOfBirth = new DateOnly(1995, 1, 1),
-        Password = "pass"
-      };
-
-      _service.UpdateAsync(1, Arg.Any<Person>()).Returns(false);
-
-      var actionResult = await _controller.UpdatePerson(1, vm);
-
-      Assert.IsType<NotFoundResult>(actionResult);
-    }
-
-    [Fact]
-    public async Task UpdatePerson_ReturnsNoContent_WhenUpdateSucceeds()
-    {
-      var vm = new PersonViewModel
-      {
-        Id = 1,
-        FirstName = "Update",
-        LastName = "Person",
-        Email = "update@example.com",
-        Role = "User",
-        Department = 1,
-        DateOfBirth = new DateOnly(1995, 1, 1),
-        Password = "pass"
-      };
-
-      _service.UpdateAsync(1, Arg.Any<Person>()).Returns(true);
-
-      var actionResult = await _controller.UpdatePerson(1, vm);
-
-      Assert.IsType<NoContentResult>(actionResult);
-    }
-
-    [Fact]
-    public async Task DeletePerson_ReturnsNotFound_WhenDeleteFails()
-    {
-      _service.DeleteAsync(123).Returns(false);
-
-      var actionResult = await _controller.DeletePerson(123);
-
-      Assert.IsType<NotFoundResult>(actionResult);
-    }
-
-    [Fact]
-    public async Task DeletePerson_ReturnsNoContent_WhenDeleteSucceeds()
-    {
-      _service.DeleteAsync(123).Returns(true);
-
-      var actionResult = await _controller.DeletePerson(123);
-
-      Assert.IsType<NoContentResult>(actionResult);
-    }
-  }
 }

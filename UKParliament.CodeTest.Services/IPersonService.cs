@@ -7,7 +7,7 @@ public interface IPersonService
     Task<List<Person>> GetAllAsync();
     Task<List<Department>> GetAllDepartmentsAsync();
     Task<Person?> GetByIdAsync(int id);
-    Task<Person?> AddAsync(Person person);
-    Task<bool> UpdateAsync(int id, Person person);
+    Task<ServiceResult<Person?>> AddAsync(Person person);
+    Task<ServiceResult<bool>> UpdateAsync(int id, Person person);
     Task<bool> DeleteAsync(int id);
 }
