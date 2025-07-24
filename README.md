@@ -1,19 +1,57 @@
-# UK Parliament - Product Team Home Exercise for Senior Developer
+# Person Manager Application
 
-## Dependencies
-Please ensure you have the following installed:
-* .NET 8 SDK (you may need to ensure your Visual Studio installation is fully up to date)
-* Node v20.16.0 LTS
+A full-stack web application for managing person records with secure authentication, validation, and admin/user role handling.
 
-## Introduction
+## Features
 
-Thanks for doing our recruitment home exercise. We have written a template solution for you, to save you from having to do too much setup.
+- User login/logout with JWT authentication  
+- Admin view and edit functionality for all persons  
+- Users can view and edit their own profile only  
+- Search and filter persons  
+- Department management  
+- Backend validation with FluentValidation  
+- Frontend validation and error display with React and Material UI  
+- Axios used for HTTP requests  
+- Comprehensive error handling and user feedback
 
-* Clone this repository, and open the solution
-* Set **UKParliament.CodeTest.Web** as the startup project
-* Build and run it (NPM should install all the dependencies automatically)
-* Instructions have been provided for you within the solution and these will display on the home page. The home page also shows the assessment criteria for the test. **You should aim to satisfy all points on it.**
+## Tech Stack
 
-## Submitting your test
-* After you have complete this test please host your solution on GitHub (or another git based hosting platform)
-* Provide us with a link so we can clone your solution
+- **Frontend:** React, TypeScript, Material UI, Axios  
+- **Backend:** ASP.NET Core 7, C#, FluentValidation  
+- **Authentication:** JWT Bearer Tokens  
+- **Build tools:** Vite, Visual Studio Code  
+- **API:** RESTful with ASP.NET Core Controllers
+
+## Installation Instructions
+
+### Prerequisites
+
+Ensure you have installed:
+
+- [.NET 7 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)  
+- [Node.js 18+](https://nodejs.org/en/download/)
+- [Git](https://git-scm.com/downloads)  
+
+### Backend Setup
+
+* cd to the root folder i.e. where the solution file is.
+* Run: dotnet build
+* Run: dotnet run --project UKParliament.CodeTest.Web
+
+### Frontend Setup
+
+* Open a new terminal
+* From the root cd UKParliament.CodeTest.Web\ClientApp
+* Run: npm install
+* Run: npm run dev
+
+### Running the Application
+
+- Login with an existing user or create a new user as Admin.
+- Use the interface to add, edit, delete persons.
+- Invalid data such as malformed emails will show validation errors on both frontend and backend.
+- Errors from the backend validation will appear next to form fields for correction.
+
+## Testing
+
+* You can test backend API endpoints using tools like [Postman](https://www.postman.com/) or Swagger: https://localhost:7048/swagger/index.html
