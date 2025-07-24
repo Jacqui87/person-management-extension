@@ -21,81 +21,81 @@ namespace UKParliament.CodeTest.Web.Tests.Controllers
         [Fact]
         public async Task Get_ReturnsOkWithAllPeople_FullFields()
         {
-            // Arrange
-            var people = new List<Person>
+          // Arrange
+          var people = new List<Person>
+          {
+            new Person
             {
-                new Person
-                {
-                    Id = 1,
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Role = "user",
-                    Email = "john.doe@example.com",
-                    Password = "pass123",
-                    Department = 2,
-                    DateOfBirth = new DateOnly(1980, 5, 15)
-                },
-                new Person
-                {
-                    Id = 2,
-                    FirstName = "Jane",
-                    LastName = "Smith",
-                    Role = "admin",
-                    Email = "jane.smith@example.com",
-                    Password = "securepwd",
-                    Department = 1,
-                    DateOfBirth = new DateOnly(1990, 11, 22)
-                }
-            };
-            _personService.GetAllAsync().Returns(people);
+              Id = 1,
+              FirstName = "John",
+              LastName = "Doe",
+              Role = 1,
+              Email = "john.doe@example.com",
+              Password = "pass123",
+              Department = 2,
+              DateOfBirth = new DateOnly(1980, 5, 15)
+            },
+            new Person
+            {
+              Id = 2,
+              FirstName = "Jane",
+              LastName = "Smith",
+              Role = 2,
+              Email = "jane.smith@example.com",
+              Password = "securepwd",
+              Department = 1,
+              DateOfBirth = new DateOnly(1990, 11, 22)
+            }
+          };
+          _personService.GetAllAsync().Returns(people);
 
-            // Act
-            var result = await _controller.Get();
+          // Act
+          var result = await _controller.Get();
 
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedPeople = Assert.IsAssignableFrom<IEnumerable<PersonViewModel>>(okResult.Value);
-            Assert.Equal(2, returnedPeople.Count());
+          // Assert
+          var okResult = Assert.IsType<OkObjectResult>(result.Result);
+          var returnedPeople = Assert.IsAssignableFrom<IEnumerable<PersonViewModel>>(okResult.Value);
+          Assert.Equal(2, returnedPeople.Count());
 
-            var john = returnedPeople.First(p => p.Id == 1);
-            Assert.Equal("John", john.FirstName);
-            Assert.Equal("Doe", john.LastName);
-            Assert.Equal("user", john.Role);
-            Assert.Equal("john.doe@example.com", john.Email);
-            Assert.Equal("pass123", john.Password);
-            Assert.Equal(2, john.Department);
-            Assert.Equal(new DateOnly(1980, 5, 15), john.DateOfBirth);
+          var john = returnedPeople.First(p => p.Id == (int)Roles.User);
+          Assert.Equal("John", john.FirstName);
+          Assert.Equal("Doe", john.LastName);
+          Assert.Equal(1, john.Role);
+          Assert.Equal("john.doe@example.com", john.Email);
+          Assert.Equal("pass123", john.Password);
+          Assert.Equal(2, john.Department);
+          Assert.Equal(new DateOnly(1980, 5, 15), john.DateOfBirth);
 
-            var jane = returnedPeople.First(p => p.Id == 2);
-            Assert.Equal("Jane", jane.FirstName);
-            Assert.Equal("Smith", jane.LastName);
-            Assert.Equal("admin", jane.Role);
-            Assert.Equal("jane.smith@example.com", jane.Email);
-            Assert.Equal("securepwd", jane.Password);
-            Assert.Equal(1, jane.Department);
-            Assert.Equal(new DateOnly(1990, 11, 22), jane.DateOfBirth);
+          var jane = returnedPeople.First(p => p.Id == (int)Roles.Admin);
+          Assert.Equal("Jane", jane.FirstName);
+          Assert.Equal("Smith", jane.LastName);
+          Assert.Equal(2, jane.Role);
+          Assert.Equal("jane.smith@example.com", jane.Email);
+          Assert.Equal("securepwd", jane.Password);
+          Assert.Equal(1, jane.Department);
+          Assert.Equal(new DateOnly(1990, 11, 22), jane.DateOfBirth);
         }
 
         [Fact]
         public async Task GetDepartments_ReturnsOkWithDepartments()
         {
-            // Arrange
-            var departments = new List<Department>
-            {
-                new Department { Id = 1, Name = "HR" },
-                new Department { Id = 2, Name = "IT" }
-            };
-            _personService.GetAllDepartmentsAsync().Returns(departments);
+          // Arrange
+          var departments = new List<Department>
+          {
+            new Department { Id = 1, Name = "HR" },
+            new Department { Id = 2, Name = "IT" }
+          };
+          _personService.GetAllDepartmentsAsync().Returns(departments);
 
-            // Act
-            var result = await _controller.GetDepartments();
+          // Act
+          var result = await _controller.GetDepartments();
 
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnedDepartments = Assert.IsAssignableFrom<DepartmentViewModel[]>(okResult.Value);
-            Assert.Equal(2, returnedDepartments.Length);
-            Assert.Contains(returnedDepartments, d => d.Id == 1 && d.Name == "HR");
-            Assert.Contains(returnedDepartments, d => d.Id == 2 && d.Name == "IT");
+          // Assert
+          var okResult = Assert.IsType<OkObjectResult>(result.Result);
+          var returnedDepartments = Assert.IsAssignableFrom<DepartmentViewModel[]>(okResult.Value);
+          Assert.Equal(2, returnedDepartments.Length);
+          Assert.Contains(returnedDepartments, d => d.Id == (int)Roles.User && d.Name == "HR");
+          Assert.Contains(returnedDepartments, d => d.Id == (int)Roles.Admin && d.Name == "IT");
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace UKParliament.CodeTest.Web.Tests.Controllers
                 Id = 1,
                 FirstName = "Alice",
                 LastName = "Walker",
-                Role = "user",
+                Role = 1,
                 Email = "alice.walker@example.com",
                 Password = "alicepwd",
                 Department = 3,
@@ -158,7 +158,7 @@ namespace UKParliament.CodeTest.Web.Tests.Controllers
                 Id = 1,
                 FirstName = "Updated",
                 LastName = "Name",
-                Role = "user",
+                Role = 1,
                 Email = "updated.email@example.com",
                 Password = "newpassword",
                 Department = 4,

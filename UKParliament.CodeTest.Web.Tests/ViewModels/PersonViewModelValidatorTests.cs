@@ -9,7 +9,7 @@ public class PersonViewModelValidatorTests
     {
         FirstName = "Jane",
         LastName = "Doe",
-        Role = "Admin",
+        Role = 2,
         Email = "jane.doe@parliament.uk",
         Department = 1,
         DateOfBirth = new DateOnly(1990, 1, 1),   // <-- Use DateOnly here
@@ -39,15 +39,6 @@ public class PersonViewModelValidatorTests
         model.LastName = "";
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.LastName);
-    }
-
-    [Fact]
-    public void Should_Have_Error_When_Role_Is_Empty()
-    {
-        var model = ValidModel();
-        model.Role = "";
-        var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(x => x.Role);
     }
 
     [Fact]
@@ -93,14 +84,5 @@ public class PersonViewModelValidatorTests
         model.LastName = new string('X', 51);
         var result = _validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(x => x.LastName);
-    }
-
-    [Fact]
-    public void Should_Have_Error_When_Role_Too_Long()
-    {
-        var model = ValidModel();
-        model.Role = new string('X', 51);
-        var result = _validator.TestValidate(model);
-        result.ShouldHaveValidationErrorFor(x => x.Role);
     }
 }

@@ -6,5 +6,6 @@ export interface PersonViewModel {
   email: string;
   department: number;
   password: string;
-  role: string;
+  role: number;
+  biography?: string;
 }

@@ -16,50 +16,58 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         new Department { Id = 3, Name = "Finance" },
         new Department { Id = 4, Name = "HR" });
 
+    modelBuilder.Entity<Role>().HasData(
+      new Role { Id = 1, Type = "User" },
+      new Role { Id = 2, Type = "Admin" });
+
     modelBuilder.Entity<Person>().HasData(
       new Person
       {
         Id = 1,
         FirstName = "Alice",
         LastName = "Smith",
-        Role = "user",
+        Role = 1,
         Email = "alice.smith@test.net",
         Department = 1,
         Password = "password123",
-        DateOfBirth = new DateOnly(1980, 10, 25)
+        DateOfBirth = new DateOnly(1980, 10, 25),
+        Biography = "Trail running, world cuisines, community projects"
       },
       new Person
       {
         Id = 2,
         FirstName = "Robert",
         LastName = "Jones",
-        Role = "user",
+        Role = 1,
         Email = "robert.jones@test.net",
         Department = 2,
         Password = "securepassword",
-        DateOfBirth = new DateOnly(1987, 3, 1)
+        DateOfBirth = new DateOnly(1987, 3, 1),
+        Biography = "Photography, urban gardening, local arts & music"
       },
       new Person
       {
         Id = 3,
         FirstName = "Amy",
         LastName = "Johnson",
-        Role = "admin",
+        Role = 2,
         Email = "amy.johnson@test.net",
         Department = 3,
         Password = "adminpassword",
-        DateOfBirth = new DateOnly(1990, 5, 15)
+        DateOfBirth = new DateOnly(1990, 5, 15),
+        Biography = "Board games, travel, trivia nights"
       },
       new Person
       {
         Id = 4,
         FirstName = "John",
         LastName = "Doe",
-        Role = "user",
+        Role = 1,
         Email = "john.doe@test.net",
         Department = 4,
         Password = "userpassword",
-        DateOfBirth = new DateOnly(1985, 8, 20)
+        DateOfBirth = new DateOnly(1985, 8, 20),
+        Biography = "Long-distance cycling, creative writing, community clean-ups"
       });
   }
 
@@ -68,4 +76,6 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
   public DbSet<Department> Departments { get; set; }
 
   public  DbSet<Session> Sessions { get; set; }
+
+  public DbSet<Role> Roles { get; set; }
 }

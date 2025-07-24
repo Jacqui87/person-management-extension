@@ -14,7 +14,7 @@ type Props = {
     id: number;
     firstName: string;
     lastName: string;
-    role: string;
+    role: number;
     email: string;
     password: string;
   }) => void;

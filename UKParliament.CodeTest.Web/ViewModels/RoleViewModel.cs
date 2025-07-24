@@ -1,0 +1,8 @@
+namespace UKParliament.CodeTest.Web.ViewModels;
+
+public class RoleViewModel
+{
+    public int Id { get; set; }
+
+    public required string Type { get; set; }
+}

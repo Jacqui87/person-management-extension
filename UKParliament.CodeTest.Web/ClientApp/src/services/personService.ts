@@ -1,6 +1,7 @@
 import axios from "axios";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
+import { RoleViewModel } from "../models/RoleViewModel";
 
 const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api/person`;
 
@@ -18,10 +19,12 @@ function getAuthHeaders(): Record<string, string> {
 
 export class PersonService {
   private peopleCache: PersonViewModel[] = [];
+  private rolesCache: RoleViewModel[] = [];
   private departmentsCache: DepartmentViewModel[] = [];
 
   // Use Axios to get all people
-  async getAllPeople(): Promise<PersonViewModel[]> {
+  async getAllPeople(clear: boolean): Promise<PersonViewModel[]> {
+    if (clear) return (this.peopleCache = []);
     if (this.peopleCache.length > 0) return this.peopleCache;
 
     try {
@@ -61,22 +64,51 @@ export class PersonService {
     }
   }
 
-  // Local search in cache, unchanged
-  searchPeople(query: string): PersonViewModel[] {
-    if (!query) return this.peopleCache;
+  // Use Axios to get all roles
+  async getAllRoles(): Promise<RoleViewModel[]> {
+    if (this.rolesCache.length > 0) return this.rolesCache;
 
-    const lowerQuery = query.toLowerCase();
+    try {
+      const res = await axios.get<RoleViewModel[]>(`${BASE_URL}/roles`, {
+        headers: getAuthHeaders(),
+        withCredentials: true,
+      });
+
+      this.rolesCache = res.data;
+      return this.rolesCache;
+    } catch (error: any) {
+      const message =
+        error.response?.data || error.message || "Error fetching roles";
+      throw new Error(message);
+    }
+  }
+
+  // Search people based on search term and filters
+  filterPeople(
+    searchTerm: string,
+    roleFilter: number,
+    departmentFilter: number
+  ): PersonViewModel[] {
+    const loweredSearch = searchTerm.toLowerCase().trim();
 
     return this.peopleCache.filter((p) => {
-      return (
-        p.firstName.toLowerCase().includes(lowerQuery) ||
-        p.lastName.toLowerCase().includes(lowerQuery) ||
-        p.email.toLowerCase().includes(lowerQuery) ||
-        p.role.toLowerCase().includes(lowerQuery)
-      );
+      const matchesSearch =
+        loweredSearch.length === 0 ||
+        p.firstName.toLowerCase().includes(loweredSearch) ||
+        p.lastName.toLowerCase().includes(loweredSearch) ||
+        p.email.toLowerCase().includes(loweredSearch);
+
+      const matchesRole = roleFilter === 0 || p.role === roleFilter;
+
+      const matchesDepartment =
+        departmentFilter === 0 || p.department === departmentFilter;
+
+      // Include if ANY filter matches:
+      return matchesSearch && matchesRole && matchesDepartment;
     });
   }
 
+  // Invalidate the people cache
   invalidatePeopleCache() {
     this.peopleCache = [];
   }
@@ -125,6 +157,8 @@ export class PersonService {
     person: PersonViewModel,
     setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string[] }>>
   ): Promise<boolean> {
+    console.log("Updating person:", person);
+
     try {
       const res = await axios.put(`${BASE_URL}/${person.id}`, person, {
         headers: getAuthHeaders(),

@@ -33,8 +33,8 @@ namespace UKParliament.CodeTest.Services.Tests
 
             var people = new List<Person>
             {
-                new Person { FirstName = "Alice", LastName = "Smith", Email = "alice@example.com", Password = "pass1", Role = "User", Department = 1, DateOfBirth = new DateOnly(1990, 1, 1) },
-                new Person { FirstName = "Bob", LastName = "Jones", Email = "bob@example.com", Password = "pass2", Role = "Admin", Department = 2, DateOfBirth = new DateOnly(1988, 5, 5) }
+                new Person { FirstName = "Alice", LastName = "Smith", Email = "alice@example.com", Password = "pass1", Role = 1, Department = 1, DateOfBirth = new DateOnly(1990, 1, 1) },
+                new Person { FirstName = "Bob", LastName = "Jones", Email = "bob@example.com", Password = "pass2", Role = 2, Department = 2, DateOfBirth = new DateOnly(1988, 5, 5) }
             };
             context.People.AddRange(people);
             await context.SaveChangesAsync();
@@ -92,7 +92,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 LastName = "User",
                 Email = "test@test.com",
                 Password = "testpass",
-                Role = "User",
+                Role = 1,
                 Department = 3,
                 DateOfBirth = new DateOnly(1970, 6, 15)
             };
@@ -137,7 +137,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 LastName = "User",
                 Email = "newuser@example.com",
                 Password = "password",
-                Role = "User",
+                Role = 1,
                 Department = 4,
                 DateOfBirth = new DateOnly(1999, 12, 31)
             };
@@ -167,7 +167,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 LastName = "Person",
                 Email = "exists@example.com",
                 Password = "pass",
-                Role = "User",
+                Role = 1,
                 Department = 2,
                 DateOfBirth = new DateOnly(1990, 5, 20)
             };
@@ -195,7 +195,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 LastName = "Name",
                 Email = "old@example.com",
                 Password = "oldpass",
-                Role = "User",
+                Role = 1,
                 Department = 2,
                 DateOfBirth = new DateOnly(1987, 8, 15)
             };
@@ -209,7 +209,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 LastName = "Name",
                 Email = "new@example.com",
                 Password = "newpass",
-                Role = "Admin",
+                Role = 2,
                 Department = 3,
                 DateOfBirth = new DateOnly(1987, 8, 15)
             };
@@ -224,7 +224,7 @@ namespace UKParliament.CodeTest.Services.Tests
             Assert.NotNull(savedPerson);
             Assert.Equal("New", savedPerson!.FirstName);
             Assert.Equal("new@example.com", savedPerson.Email);
-            Assert.Equal("Admin", savedPerson.Role);
+            Assert.Equal(2, savedPerson.Role);
         }
 
         [Fact]
@@ -242,7 +242,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 FirstName = "Missing",
                 LastName = "Person",
                 Password = "pass",
-                Role = "User",
+                Role = 1,
                 Department = 1,
                 DateOfBirth = new DateOnly(1990, 1, 1)
             };
@@ -268,7 +268,7 @@ namespace UKParliament.CodeTest.Services.Tests
                 LastName = "Me",
                 Email = "delete@me.com",
                 Password = "delpass",
-                Role = "user",
+                Role = 1,
                 Department = 1,
                 DateOfBirth = new DateOnly(1992, 4, 4)
             };

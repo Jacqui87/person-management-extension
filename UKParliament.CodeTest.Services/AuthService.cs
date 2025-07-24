@@ -54,7 +54,8 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
                 Role = user.Role,
                 Password = user.Password,
                 Department = user.Department,
-                DateOfBirth = user.DateOfBirth
+                DateOfBirth = user.DateOfBirth,
+                Biography = user.Biography
             }
         };
     }

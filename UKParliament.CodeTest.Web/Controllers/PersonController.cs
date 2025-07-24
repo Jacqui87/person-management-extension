@@ -33,6 +33,19 @@ public class PersonController(IPersonService personService) : ControllerBase
     }).ToArray());
   }
 
+  [HttpGet("roles")]
+  public async Task<ActionResult<RoleViewModel[]>> GetRoles()
+  {
+    var roles = await personService.GetAllRolesAsync();
+
+    // Returning an empty array with 200 OK is preferred REST behavior
+    return Ok(roles.Select(d => new RoleViewModel
+    {
+      Id = d.Id,
+      Type = d.Type
+    }).ToArray());
+  }
+
   [HttpGet("{id:int}")]
   public async Task<ActionResult<PersonViewModel>> GetById(int id)
   {
@@ -101,7 +114,8 @@ public class PersonController(IPersonService personService) : ControllerBase
     Role = p.Role,
     Password = p.Password,
     Department = p.Department,
-    DateOfBirth = p.DateOfBirth
+    DateOfBirth = p.DateOfBirth,
+    Biography = p.Biography
   };
 
   private static Person MapToDomainModel(PersonViewModel vm) => new()
@@ -113,6 +127,7 @@ public class PersonController(IPersonService personService) : ControllerBase
     Role = vm.Role,
     Password = vm.Password,
     Department = vm.Department,
-    DateOfBirth = vm.DateOfBirth
+    DateOfBirth = vm.DateOfBirth,
+    Biography = vm.Biography
   };
 }

@@ -24,7 +24,7 @@ const PersonList = ({
         <ListItemButton key={p.id} onClick={() => onSelect(p.id)}>
           <ListItemText
             primary={`${p.firstName} ${p.lastName}`}
-            secondary={`${p.role} - email: ${p.email}`}
+            secondary={`email: ${p.email}`}
           />
         </ListItemButton>
       ))}

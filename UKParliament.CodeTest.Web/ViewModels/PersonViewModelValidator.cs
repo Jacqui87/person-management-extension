@@ -15,8 +15,7 @@ public class PersonViewModelValidator : AbstractValidator<PersonViewModel>
             .MaximumLength(50);
 
         RuleFor(x => x.Role)
-            .NotEmpty().WithMessage("Role is required.")
-            .MaximumLength(50);
+            .NotEmpty().WithMessage("Role is required.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")

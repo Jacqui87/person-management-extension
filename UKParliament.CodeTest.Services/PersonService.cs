@@ -31,6 +31,18 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
         }
     }
 
+    public async Task<List<Role>> GetAllRolesAsync()
+    {
+        try {
+            return await context.Roles.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving all roles.");
+            return new List<Role>();
+        }
+    }
+
     public async Task<Person?> GetByIdAsync(int id)
     {
         try
@@ -58,7 +70,7 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
                 };
             }
 
-            var emailUnique = await IsEmailUniqueAsync(person.Email);
+            var emailUnique = await IsEmailUniqueAsync(person.Id, person.Email);
             if (emailUnique == false)
             {
                 logger.LogWarning("Email {Email} is not unique.", person.Email);
@@ -103,7 +115,7 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
                 };
             }
 
-            var emailUnique = await IsEmailUniqueAsync(person.Email);
+            var emailUnique = await IsEmailUniqueAsync(person.Id, person.Email);
             if (emailUnique == false)
             {
                 logger.LogWarning("Email {Email} is not unique.", person.Email);
@@ -131,6 +143,7 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
             updatePerson.Password = person.Password;
             updatePerson.Department = person.Department;
             updatePerson.DateOfBirth = person.DateOfBirth;
+            updatePerson.Biography = person.Biography;
 
             await context.SaveChangesAsync();
             return new ServiceResult<bool>
@@ -157,10 +170,10 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
             var person = await context.People.FindAsync(id);
             if (person == null) return false;
 
-            if (person.Role == "admin")
+            if (person.Role == (int)Roles.Admin)
             {
-                logger.LogWarning("Attempted to delete admin user with ID {Id}.", id);
-                return false;
+              logger.LogWarning("Attempted to delete admin user with ID {Id}.", id);
+              return false;
             }
 
             context.People.Remove(person);
@@ -174,16 +187,15 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
         }
     }
 
-    internal async Task<bool> IsEmailUniqueAsync(string email)
+    internal async Task<bool> IsEmailUniqueAsync(int? excludingPersonId, string email)
     {
-        try
-        {
-            return !await context.People.AnyAsync(p => p.Email == email);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error checking email uniqueness for {Email}.", email);
-            return false;
-        }
+      if (excludingPersonId.HasValue)
+      {
+        return !await context.People.AnyAsync(p => p.Email == email && p.Id != excludingPersonId.Value);
+      }
+      else
+      {
+        return !await context.People.AnyAsync(p => p.Email == email);
+      }
     }
 }

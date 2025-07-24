@@ -37,7 +37,7 @@ public class AuthServiceTests
       LastName = "Doe",
       Email = "jane.doe@example.com",
       Password = "Secret123!",
-      Role = "Admin",
+      Role = 2,
       Department = 1,
       DateOfBirth = new DateOnly(1990, 1, 1)
     };
@@ -74,7 +74,7 @@ public class AuthServiceTests
     // Arrange user with correct credentials
     var user = new Person
     {
-      Email = "user@example.com", Password = "correctpass", FirstName = "User", Role = "User", LastName = "Test"
+      Email = "user@example.com", Password = "correctpass", FirstName = "User", Role = 1, LastName = "Test"
     };
     context.People.Add(user);
     await context.SaveChangesAsync();

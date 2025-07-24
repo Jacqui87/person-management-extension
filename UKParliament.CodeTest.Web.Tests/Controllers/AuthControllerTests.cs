@@ -43,7 +43,7 @@ public class AuthControllerTests
     var loginRequest = new LoginRequest { Email = "test@user.com", Password = "pass" };
     var loginCredentials = new LoginCredentials
     {
-      User = new Person { Email = loginRequest.Email, FirstName = "Test", LastName="Last", Password="pass", Role="user" },
+      User = new Person { Email = loginRequest.Email, FirstName = "Test", LastName="Last", Password="pass", Role=1 },
       Session = new Session { Token = "abc123" }
     };
     _authService.LoginAsync(loginRequest).Returns(Task.FromResult<LoginCredentials?>(loginCredentials));
