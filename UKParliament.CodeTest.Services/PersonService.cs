@@ -84,6 +84,7 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
             updatePerson.LastName = person.LastName;
             updatePerson.Email = person.Email;
             updatePerson.Role = person.Role;
+            updatePerson.Password = person.Password;
             updatePerson.Department = person.Department;
             updatePerson.DateOfBirth = person.DateOfBirth;
 

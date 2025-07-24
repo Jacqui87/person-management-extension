@@ -1,99 +1,152 @@
-namespace UKParliament.CodeTest.Services.Tests
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using UKParliament.CodeTest.Data;
+
+namespace UKParliament.CodeTest.Services.Tests;
+
+public class AuthServiceTests
 {
-    [TestFixture]
-    public class AuthServiceTests : IDisposable
+  // Helper to create fresh in-memory context with unique DB name per test for isolation
+  private static PersonManagerContext CreateInMemoryContext(string dbName)
+  {
+    var options = new DbContextOptionsBuilder<PersonManagerContext>()
+      .UseInMemoryDatabase(databaseName: dbName)
+      .Options;
+
+    return new PersonManagerContext(options);
+  }
+
+  // Helper to create AuthService with mocked logger and provided context
+  private static AuthService CreateService(PersonManagerContext context, out ILogger<AuthService> logger)
+  {
+    logger = Substitute.For<ILogger<AuthService>>();
+    return new AuthService(context, logger);
+  }
+
+  [Fact]
+  public async Task LoginAsync_ReturnsCredentials_AndCreatesSession_WhenCredentialsValid()
+  {
+    var dbName = nameof(LoginAsync_ReturnsCredentials_AndCreatesSession_WhenCredentialsValid);
+    using var context = CreateInMemoryContext(dbName);
+
+    // Arrange user
+    var user = new Person
     {
-        private PersonManagerContext _context = null!;
-        private AuthService _authService = null!;
-        private ILogger<AuthService> _logger = null!;
+      FirstName = "Jane",
+      LastName = "Doe",
+      Email = "jane.doe@example.com",
+      Password = "Secret123!",
+      Role = "Admin",
+      Department = 1,
+      DateOfBirth = new DateOnly(1990, 1, 1)
+    };
+    context.People.Add(user);
+    await context.SaveChangesAsync();
 
-        [SetUp]
-        public void Setup()
-        {
-            var options = new DbContextOptionsBuilder<PersonManagerContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()) // unique DB per test suite instance
-                .Options;
+    var service = CreateService(context, out _);
 
-            _context = new PersonManagerContext(options);
+    var request = new LoginRequest { Email = user.Email, Password = user.Password };
 
-            // Seed test people
-            _context.People.AddRange(
-                new Person
-                {
-                    Id = 1,
-                    FirstName = "Alice",
-                    LastName = "Smith",
-                    Email = "alice@example.com",
-                    Role = "user",
-                    Department = 1,
-                    DateOfBirth = new DateOnly(1990, 1, 1)
-                },
-                new Person
-                {
-                    Id = 2,
-                    FirstName = "Bob",
-                    LastName = "Jones",
-                    Email = "bob@example.com",
-                    Role = "admin",
-                    Department = 2,
-                    DateOfBirth = new DateOnly(1985, 5, 23)
-                }
-            );
-            _context.SaveChanges();
+    // Act
+    var result = await service.LoginAsync(request);
 
-            _logger = Substitute.For<ILogger<AuthService>>();
-            _authService = new AuthService(_context, _logger);
-        }
+    // Assert
+    Assert.NotNull(result);
+    Assert.NotNull(result.Session);
+    Assert.Equal(user.Email, result.User.Email);
+    Assert.Equal(user.FirstName, result.User.FirstName);
+    Assert.False(string.IsNullOrWhiteSpace(result.Session.Token));
+    Assert.Equal(user.Id, result.Session.UserId);
 
-        [TearDown]
-        public void TearDown()
-        {
-            _context.Dispose();
-        }
+    // The session should be saved in DB
+    var savedSession = await context.Sessions.FirstOrDefaultAsync(s => s.UserId == user.Id);
+    Assert.NotNull(savedSession);
+    Assert.Equal(result.Session.Token, savedSession.Token);
+  }
 
-        [Test]
-        public async Task LoginAsync_WithValidUser_ReturnsLoginCredentialsAndCreatesSession()
-        {
-            var request = new LoginRequest { FirstName = "Alice", Email = "alice@example.com" };
+  [Fact]
+  public async Task LoginAsync_ReturnsNull_WhenPasswordIncorrect()
+  {
+    var dbName = nameof(LoginAsync_ReturnsNull_WhenPasswordIncorrect);
+    using var context = CreateInMemoryContext(dbName);
 
-            var result = await _authService.LoginAsync(request);
+    // Arrange user with correct credentials
+    var user = new Person
+    {
+      Email = "user@example.com", Password = "correctpass", FirstName = "User", Role = "User", LastName = "Test"
+    };
+    context.People.Add(user);
+    await context.SaveChangesAsync();
 
-            result.Should().NotBeNull();
-            result!.User.FirstName.Should().Be("Alice");
-            result.Session.Should().NotBeNull();
-            result.Session.UserId.Should().Be(result.User.Id);
-            Guid.TryParse(result.Session.Token, out _).Should().BeTrue();
+    var service = CreateService(context, out _);
 
-            var sessions = await _context.Sessions.ToListAsync();
-            sessions.Should().ContainSingle(s => s.UserId == result.User.Id);
-        }
+    var request = new LoginRequest { Email = user.Email, Password = "wrongpass" };
 
-        [Test]
-        public async Task LoginAsync_WithInvalidUser_ReturnsNull()
-        {
-            var request = new LoginRequest { FirstName = "NonExistent", Email = "noemail@example.com" };
+    // Act
+    var result = await service.LoginAsync(request);
 
-            var result = await _authService.LoginAsync(request);
+    // Assert
+    Assert.Null(result);
 
-            result.Should().BeNull();
+    // No session should be created
+    Assert.Empty(context.Sessions);
+  }
 
-            var sessionsCount = await _context.Sessions.CountAsync();
-            sessionsCount.Should().Be(0);
-        }
+  [Fact]
+  public async Task LoginAsync_ReturnsNull_WhenEmailNotFound()
+  {
+    var dbName = nameof(LoginAsync_ReturnsNull_WhenEmailNotFound);
+    using var context = CreateInMemoryContext(dbName);
 
-        [Test]
-        public async Task GetAllSessionsAsync_ReturnsAllSessions()
-        {
-            _context.Sessions.AddRange(
-                new Session { UserId = 1, Token = Guid.NewGuid().ToString() },
-                new Session { UserId = 2, Token = Guid.NewGuid().ToString() }
-            );
-            await _context.SaveChangesAsync();
+    var service = CreateService(context, out _);
 
-            var sessions = await _authService.GetAllSessionsAsync();
+    var request = new LoginRequest { Email = "nonexistent@example.com", Password = "any" };
 
-            sessions.Should().HaveCount(2);
-            sessions.Select(s => s.UserId).Should().Contain(new[] { 1, 2 });
-        }
-    }
+    var result = await service.LoginAsync(request);
+
+    Assert.Null(result);
+  }
+
+  [Fact]
+  public async Task GetAllSessionsAsync_ReturnsAllSessions()
+  {
+    var dbName = nameof(GetAllSessionsAsync_ReturnsAllSessions);
+    using var context = CreateInMemoryContext(dbName);
+
+    // Arrange some sessions
+    context.Sessions.AddRange(
+      new Session { UserId = 1, Token = Guid.NewGuid().ToString() },
+      new Session { UserId = 2, Token = Guid.NewGuid().ToString() });
+    await context.SaveChangesAsync();
+
+    var service = CreateService(context, out _);
+
+    // Act
+    var sessions = await service.GetAllSessionsAsync();
+
+    // Assert
+    Assert.Equal(2, sessions.Count);
+  }
+
+  [Fact]
+  public async Task GetAllSessionsAsync_ReturnsEmptyList_AndLogsError_WhenExceptionThrown()
+  {
+    // Create a disposed context to force exception on query
+    var dbName = nameof(GetAllSessionsAsync_ReturnsEmptyList_AndLogsError_WhenExceptionThrown);
+    var context = CreateInMemoryContext(dbName);
+    await context.DisposeAsync();
+
+    var logger = Substitute.For<ILogger<AuthService>>();
+    var service = new AuthService(context, logger);
+
+    var result = await service.GetAllSessionsAsync();
+
+    // Should return empty list on exception
+    Assert.NotNull(result);
+    Assert.Empty(result);
+
+    // Logger.LogError should be called once
+    logger.Received(1).LogError(Arg.Any<Exception>(), Arg.Is<string>(s => s.Contains("Error retrieving all sessions")));
+  }
 }

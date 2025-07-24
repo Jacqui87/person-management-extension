@@ -23,8 +23,9 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         FirstName = "Alice",
         LastName = "Smith",
         Role = "user",
-        Email = "aa@aa.com",
+        Email = "alice.smith@test.net",
         Department = 1,
+        Password = "password123",
         DateOfBirth = new DateOnly(1980, 10, 25)
       },
       new Person
@@ -33,8 +34,9 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         FirstName = "Robert",
         LastName = "Jones",
         Role = "user",
-        Email = "bb@bb.com",
+        Email = "robert.jones@test.net",
         Department = 2,
+        Password = "securepassword",
         DateOfBirth = new DateOnly(1987, 3, 1)
       },
       new Person
@@ -43,8 +45,9 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         FirstName = "Amy",
         LastName = "Johnson",
         Role = "admin",
-        Email = "cc@cc.com",
+        Email = "amy.johnson@test.net",
         Department = 3,
+        Password = "adminpassword",
         DateOfBirth = new DateOnly(1990, 5, 15)
       },
       new Person
@@ -53,15 +56,16 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         FirstName = "John",
         LastName = "Doe",
         Role = "user",
-        Email = "dd@dd.com",
+        Email = "john.doe@test.net",
         Department = 4,
+        Password = "userpassword",
         DateOfBirth = new DateOnly(1985, 8, 20)
       });
   }
 
-  public required DbSet<Person> People { get; set; }
+  public DbSet<Person> People { get; set; }
 
-  public required DbSet<Department> Departments { get; set; }
+  public DbSet<Department> Departments { get; set; }
 
-  public required DbSet<Session> Sessions { get; set; }
+  public  DbSet<Session> Sessions { get; set; }
 }

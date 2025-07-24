@@ -1,85 +1,91 @@
-namespace UKParliament.CodeTest.Web.Tests.Controllers
+using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
+using UKParliament.CodeTest.Data;
+using UKParliament.CodeTest.Services;
+using UKParliament.CodeTest.Web.Controllers;
+
+namespace UKParliament.CodeTest.Web.Tests.Controllers;
+
+public class AuthControllerTests
 {
-    [TestFixture]
-    public class AuthControllerTests
+  private readonly IAuthService _authService = Substitute.For<IAuthService>();
+  private readonly AuthController _controller;
+
+  public AuthControllerTests()
+  {
+    _controller = new AuthController(_authService);
+  }
+
+  [Fact]
+  public async Task Get_ReturnsOkWithSessions()
+  {
+    // Arrange
+    var sessions = new List<Session>
     {
-        private IAuthService _authService = null!;
-        private AuthController _controller = null!;
+      new Session { UserId = 1, Token = "token1" },
+      new Session { UserId = 2, Token = "token2" }
+    };
+    _authService.GetAllSessionsAsync().Returns(Task.FromResult(sessions));
 
-        [SetUp]
-        public void Setup()
-        {
-            _authService = Substitute.For<IAuthService>();
-            _controller = new AuthController(_authService);
-        }
+    // Act
+    var result = await _controller.Get();
 
-        [Test]
-        public async Task Get_ReturnsOkResult_WithListOfSessions()
-        {
-            var fakeSessions = new List<Session>
-            {
-                new Session { Id = Guid.NewGuid(), UserId = 1, Token = "token1" },
-                new Session { Id = Guid.NewGuid(), UserId = 2, Token = "token2" }
-            };
-            _authService.GetAllSessionsAsync().Returns(Task.FromResult((IReadOnlyList<Session>)fakeSessions));
+    // Assert
+    var okResult = Assert.IsType<OkObjectResult>(result.Result);
+    var returnSessions = Assert.IsAssignableFrom<List<Session>>(okResult.Value);
+    Assert.Equal(2, returnSessions.Count);
+  }
 
-            var result = await _controller.Get();
+  [Fact]
+  public async Task Login_ReturnsOkWithCredentials_WhenLoginSucceeds()
+  {
+    // Arrange
+    var loginRequest = new LoginRequest { Email = "test@user.com", Password = "pass" };
+    var loginCredentials = new LoginCredentials
+    {
+      User = new Person { Email = loginRequest.Email, FirstName = "Test", LastName="Last", Password="pass", Role="user" },
+      Session = new Session { Token = "abc123" }
+    };
+    _authService.LoginAsync(loginRequest).Returns(Task.FromResult<LoginCredentials?>(loginCredentials));
 
-            Assert.IsInstanceOf<OkObjectResult>(result.Result);
-            var okResult = result.Result as OkObjectResult;
-            Assert.IsAssignableFrom<List<Session>>(okResult?.Value);
-            var returnValue = okResult!.Value as List<Session>;
-            returnValue.Should().BeEquivalentTo(fakeSessions);
-        }
+    // Act
+    var result = await _controller.Login(loginRequest);
 
-        [Test]
-        public async Task Login_ValidUser_ReturnsOkWithLoginCredentials()
-        {
-            var request = new LoginRequest { FirstName = "Alice", Email = "alice@example.com" };
-            var loginCredentials = new LoginCredentials
-            {
-                Session = new Session { Id = Guid.NewGuid(), UserId = 1, Token = "token" },
-                User = new Person { Id = 1, FirstName = "Alice", Email = "alice@example.com" }
-            };
+    // Assert
+    var okResult = Assert.IsType<OkObjectResult>(result.Result);
+    var returnedCredentials = Assert.IsType<LoginCredentials>(okResult.Value);
+    Assert.Equal(loginCredentials.User.Email, returnedCredentials.User.Email);
+    Assert.Equal(loginCredentials.Session.Token, returnedCredentials.Session.Token);
+  }
 
-            _authService.LoginAsync(request).Returns(Task.FromResult<LoginCredentials?>(loginCredentials));
+  [Fact]
+  public async Task Login_ReturnsUnauthorized_WhenLoginFails()
+  {
+    // Arrange
+    var loginRequest = new LoginRequest { Email = "fail@user.com", Password = "wrong" };
+    _authService.LoginAsync(loginRequest).Returns(Task.FromResult<LoginCredentials?>(null));
 
-            var result = await _controller.Login(request);
+    // Act
+    var result = await _controller.Login(loginRequest);
 
-            Assert.IsInstanceOf<OkObjectResult>(result.Result);
-            var okResult = result.Result as OkObjectResult;
-            Assert.IsAssignableFrom<LoginCredentials>(okResult?.Value);
-            var returnValue = okResult!.Value as LoginCredentials;
-            returnValue.Should().BeEquivalentTo(loginCredentials);
-        }
+    // Assert
+    var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(result.Result);
+    Assert.Equal("Invalid username or password.", unauthorizedResult.Value);
+  }
 
-        [Test]
-        public async Task Login_InvalidUser_ReturnsUnauthorized()
-        {
-            var request = new LoginRequest { FirstName = "Invalid", Email = "invalid@example.com" };
-            _authService.LoginAsync(request).Returns(Task.FromResult<LoginCredentials?>(null));
+  [Fact]
+  public async Task Login_ReturnsInternalServerError_OnException()
+  {
+    // Arrange
+    var loginRequest = new LoginRequest { Email = "error@user.com", Password = "error" };
+    _authService.LoginAsync(loginRequest).Returns<Task<LoginCredentials?>>(_ => throw new Exception("fail"));
 
-            var result = await _controller.Login(request);
+    // Act
+    var result = await _controller.Login(loginRequest);
 
-            Assert.IsInstanceOf<UnauthorizedObjectResult>(result.Result);
-            var unauthorizedResult = result.Result as UnauthorizedObjectResult;
-            Assert.AreEqual("Invalid username or password.", unauthorizedResult?.Value);
-        }
-
-        [Test]
-        public async Task Login_ServiceThrowsException_ReturnsInternalServerError()
-        {
-            var request = new LoginRequest { FirstName = "Error", Email = "error@example.com" };
-            _authService
-                .When(x => x.LoginAsync(request))
-                .Do(x => { throw new Exception("Database failure"); });
-
-            var result = await _controller.Login(request);
-
-            Assert.IsInstanceOf<ObjectResult>(result.Result);
-            var objectResult = result.Result as ObjectResult;
-            Assert.AreEqual(500, objectResult?.StatusCode);
-            Assert.AreEqual("Internal server error", objectResult?.Value);
-        }
-    }
+    // Assert
+    var objectResult = Assert.IsType<ObjectResult>(result.Result);
+    Assert.Equal(500, objectResult.StatusCode);
+    Assert.Equal("Internal server error", objectResult.Value);
+  }
 }

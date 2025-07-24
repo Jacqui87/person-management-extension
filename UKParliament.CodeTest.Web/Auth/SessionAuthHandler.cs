@@ -38,9 +38,9 @@ public class SessionAuthHandler : AuthenticationHandler<AuthenticationSchemeOpti
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.FirstName),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(ClaimTypes.Name, user.Password)
         };
 
         var identity = new ClaimsIdentity(claims, Scheme.Name);

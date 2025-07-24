@@ -63,7 +63,7 @@ const MainPage = () => {
     setPeople(all);
   };
 
-  const handleLogin = async (user: { firstName: string; email: string }) => {
+  const handleLogin = async (user: { email: string; password: string }) => {
     const loginData = await login(user);
     if (loginData.session.token) {
       localStorage.removeItem("token");
@@ -167,6 +167,7 @@ const MainPage = () => {
                     role: "user",
                     department: 1,
                     dateOfBirth: "",
+                    password: "",
                     email: "",
                   })
                 }

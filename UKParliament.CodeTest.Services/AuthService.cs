@@ -12,8 +12,8 @@ public class LoginCredentials
 
 public class LoginRequest
 {
-    public string FirstName { get; set; } = "";
     public string Email { get; set; } = "";
+    public string Password { get; set; } = "";
 }
 
 public class AuthService(PersonManagerContext context, ILogger<AuthService> logger) : IAuthService
@@ -34,7 +34,7 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
     public async Task<LoginCredentials?> LoginAsync(LoginRequest request)
     {
         var user = await context.People
-            .FirstOrDefaultAsync(p => p.FirstName == request.FirstName && p.Email == request.Email);
+            .FirstOrDefaultAsync(p => p.Email == request.Email && p.Password == request.Password);
 
         if (user == null) return null;
 
@@ -52,6 +52,7 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
                 LastName = user.LastName,
                 Email = user.Email,
                 Role = user.Role,
+                Password = user.Password,
                 Department = user.Department,
                 DateOfBirth = user.DateOfBirth
             }

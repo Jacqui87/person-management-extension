@@ -82,6 +82,7 @@ public class PersonController(IPersonService personService) : ControllerBase
     LastName = p.LastName,
     Email = p.Email,
     Role = p.Role,
+    Password = p.Password,
     Department = p.Department,
     DateOfBirth = p.DateOfBirth
   };
@@ -93,6 +94,7 @@ public class PersonController(IPersonService personService) : ControllerBase
     LastName = vm.LastName,
     Email = vm.Email,
     Role = vm.Role,
+    Password = vm.Password,
     Department = vm.Department,
     DateOfBirth = vm.DateOfBirth
   };

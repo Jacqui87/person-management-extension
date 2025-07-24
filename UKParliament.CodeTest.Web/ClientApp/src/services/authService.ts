@@ -1,6 +1,6 @@
 const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api/auth`;
 
-export async function login(user: { firstName: string; email: string }) {
+export async function login(user: { password: string; email: string }) {
   const res = await fetch(`${BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

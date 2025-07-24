@@ -1,190 +1,339 @@
-namespace UKParliament.CodeTest.Services.Tests
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using UKParliament.CodeTest.Data;
+
+namespace UKParliament.CodeTest.Services.Tests;
+
+public class PersonServiceTests
 {
-    [TestFixture]
-    public class PersonServiceTests : IDisposable
+  // Helper to create fresh in-memory PersonManagerContext
+  private static PersonManagerContext CreateInMemoryContext(string dbName)
+  {
+    var options = new DbContextOptionsBuilder<PersonManagerContext>()
+      .UseInMemoryDatabase(databaseName: dbName)
+      .Options;
+
+    return new PersonManagerContext(options);
+  }
+
+  // Helper to create PersonService and mocked logger
+  private static PersonService CreateService(PersonManagerContext context, out ILogger<PersonService> logger)
+  {
+    logger = Substitute.For<ILogger<PersonService>>();
+    return new PersonService(context, logger);
+  }
+
+  [Fact]
+  public async Task GetAllAsync_ReturnsPeople_WhenDataExists()
+  {
+    var dbName = nameof(GetAllAsync_ReturnsPeople_WhenDataExists);
+    using var context = CreateInMemoryContext(dbName);
+
+    var people = new List<Person>
     {
-        private PersonManagerContext _context = null!;
-        private PersonService _personService = null!;
-        private ILogger<PersonService> _logger = null!;
+      new Person { FirstName = "Alice", Email = "alice@example.com", LastName = "Smith", Password = "pass1", Role = "User" },
+      new Person { FirstName = "Bob", Email = "bob@example.com", LastName = "Jones", Password = "pass2", Role = "Admin" },
+    };
+    context.People.AddRange(people);
+    await context.SaveChangesAsync();
 
-        [SetUp]
-        public void Setup()
-        {
-            var options = new DbContextOptionsBuilder<PersonManagerContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString()) // unique DB per test
-                .Options;
-            _context = new PersonManagerContext(options);
+    var service = CreateService(context, out _);
 
-            // Seed initial data
-            _context.People.AddRange(
-                new Person
-                {
-                    Id = 1,
-                    FirstName = "Alice",
-                    LastName = "Smith",
-                    Email = "alice@example.com",
-                    Role = "user",
-                    Department = 1,
-                    DateOfBirth = new DateOnly(1990, 1, 1)
-                },
-                new Person
-                {
-                    Id = 2,
-                    FirstName = "Bob",
-                    LastName = "Jones",
-                    Email = "bob@example.com",
-                    Role = "admin",
-                    Department = 2,
-                    DateOfBirth = new DateOnly(1985, 5, 15)
-                });
-            
-            _context.Departments.AddRange(
-                new Department { Id = 1, Name = "Sales" },
-                new Department { Id = 2, Name = "Finance" });
+    var results = await service.GetAllAsync();
 
-            _context.SaveChanges();
+    Assert.Equal(2, results.Count);
+    Assert.Contains(results, p => p.FirstName == "Alice");
+    Assert.Contains(results, p => p.FirstName == "Bob");
+  }
 
-            _logger = Substitute.For<ILogger<PersonService>>();
-            _personService = new PersonService(_context, _logger);
-        }
+  [Fact]
+  public async Task GetAllAsync_ReturnsEmptyList_WhenExceptionThrown()
+  {
+    var context = CreateInMemoryContext(nameof(GetAllAsync_ReturnsEmptyList_WhenExceptionThrown));
+    await context.DisposeAsync(); // Dispose to cause exception on query
 
-        [TearDown]
-        public void TearDown()
-        {
-            _context.Dispose();
-        }
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
 
-        [Test]
-        public async Task GetAllAsync_ReturnsAllPeople()
-        {
-            var people = await _personService.GetAllAsync();
+    var results = await service.GetAllAsync();
 
-            people.Should().HaveCount(2);
-            people.Should().Contain(p => p.FirstName == "Alice");
-            people.Should().Contain(p => p.FirstName == "Bob");
-        }
+    Assert.NotNull(results);
+    Assert.Empty(results);
+    logger.Received(1).LogError(Arg.Any<Exception>(), Arg.Is<string>(s => s.Contains("Error retrieving all people.")));
+  }
 
-        [Test]
-        public async Task GetAllDepartmentsAsync_ReturnsAllDepartments()
-        {
-            var departments = await _personService.GetAllDepartmentsAsync();
+  [Fact]
+  public async Task GetAllDepartmentsAsync_ReturnsDepartments_WhenDataExists()
+  {
+    var dbName = nameof(GetAllDepartmentsAsync_ReturnsDepartments_WhenDataExists);
+    using var context = CreateInMemoryContext(dbName);
 
-            departments.Should().HaveCount(2);
-            departments.Should().Contain(d => d.Name == "Sales");
-            departments.Should().Contain(d => d.Name == "Finance");
-        }
+    var departments = new List<Department>
+    {
+      new Department { Name = "HR" },
+      new Department { Name = "IT" }
+    };
+    context.Departments.AddRange(departments);
+    await context.SaveChangesAsync();
 
-        [Test]
-        public async Task GetByIdAsync_WithExistingId_ReturnsPerson()
-        {
-            var person = await _personService.GetByIdAsync(1);
+    var service = CreateService(context, out _);
 
-            person.Should().NotBeNull();
-            person!.FirstName.Should().Be("Alice");
-        }
+    var results = await service.GetAllDepartmentsAsync();
 
-        [Test]
-        public async Task GetByIdAsync_WithNonExistingId_ReturnsNull()
-        {
-            var person = await _personService.GetByIdAsync(999);
+    Assert.Equal(2, results.Count);
+    Assert.Contains(results, d => d.Name == "HR");
+    Assert.Contains(results, d => d.Name == "IT");
+  }
 
-            person.Should().BeNull();
-        }
+  [Fact]
+  public async Task GetAllDepartmentsAsync_ReturnsEmptyList_WhenExceptionThrown()
+  {
+    var context = CreateInMemoryContext(nameof(GetAllDepartmentsAsync_ReturnsEmptyList_WhenExceptionThrown));
+    await context.DisposeAsync();
 
-        [Test]
-        public async Task AddAsync_AddsNewPerson()
-        {
-            var newPerson = new Person
-            {
-                FirstName = "Charlie",
-                LastName = "Brown",
-                Email = "charlie@example.com",
-                Role = "user",
-                Department = 1,
-                DateOfBirth = new DateOnly(2000, 6, 15)
-            };
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
 
-            var addedPerson = await _personService.AddAsync(newPerson);
+    var results = await service.GetAllDepartmentsAsync();
 
-            addedPerson.Should().NotBeNull();
-            addedPerson.Id.Should().BeGreaterThan(0);
-            (await _context.People.CountAsync()).Should().Be(3);
-        }
+    Assert.NotNull(results);
+    Assert.Empty(results);
+    logger.Received(1).LogError(Arg.Any<Exception>(), Arg.Is<string>(s => s.Contains("Error retrieving all departments.")));
+  }
 
-        [Test]
-        public async Task UpdateAsync_ExistingPerson_UpdatesAndReturnsTrue()
-        {
-            var personToUpdate = new Person
-            {
-                Id = 1,
-                FirstName = "Alicia",
-                LastName = "Smith",
-                Email = "alice@example.com",
-                Role = "user",
-                Department = 1,
-                DateOfBirth = new DateOnly(1990, 1, 1)
-            };
+  [Fact]
+  public async Task GetByIdAsync_ReturnsPerson_WhenFound()
+  {
+    var dbName = nameof(GetByIdAsync_ReturnsPerson_WhenFound);
+    using var context = CreateInMemoryContext(dbName);
 
-            var result = await _personService.UpdateAsync(1, personToUpdate);
+    var person = new Person { FirstName = "Test", Email = "test@test.com", LastName = "User", Password = "testpass", Role = "User" };
+    context.People.Add(person);
+    await context.SaveChangesAsync();
 
-            result.Should().BeTrue();
+    var service = CreateService(context, out _);
 
-            var updatedPerson = await _context.People.FindAsync(1);
-            updatedPerson!.FirstName.Should().Be("Alicia");
-        }
+    var result = await service.GetByIdAsync(person.Id);
 
-        [Test]
-        public async Task UpdateAsync_NonExistingPerson_ReturnsFalse()
-        {
-            var personToUpdate = new Person
-            {
-                Id = 999,
-                FirstName = "Non",
-                LastName = "Existent",
-                Email = "noone@example.com",
-                Role = "user",
-                Department = 1,
-                DateOfBirth = new DateOnly(1990, 1, 1)
-            };
+    Assert.NotNull(result);
+    Assert.Equal(person.Id, result!.Id);
+    Assert.Equal("Test", result.FirstName);
+  }
 
-            var result = await _personService.UpdateAsync(999, personToUpdate);
+  [Fact]
+  public async Task GetByIdAsync_ReturnsNull_WhenNotFound()
+  {
+    var dbName = nameof(GetByIdAsync_ReturnsNull_WhenNotFound);
+    using var context = CreateInMemoryContext(dbName);
 
-            result.Should().BeFalse();
-        }
+    var service = CreateService(context, out _);
 
-        [Test]
-        public async Task DeleteAsync_DeletesNonAdminPerson_ReturnsTrue()
-        {
-            var result = await _personService.DeleteAsync(1); // Alice is "user"
+    var result = await service.GetByIdAsync(999);
 
-            result.Should().BeTrue();
+    Assert.Null(result);
+  }
 
-            var exists = await _context.People.AnyAsync(p => p.Id == 1);
-            exists.Should().BeFalse();
-        }
+  [Fact]
+  public async Task GetByIdAsync_ReturnsNull_AndLogsError_WhenExceptionThrown()
+  {
+    var context = CreateInMemoryContext(nameof(GetByIdAsync_ReturnsNull_AndLogsError_WhenExceptionThrown));
+    await context.DisposeAsync();
 
-        [Test]
-        public async Task DeleteAsync_AttemptToDeleteAdmin_ReturnsFalseAndLogsWarning()
-        {
-            var result = await _personService.DeleteAsync(2); // Bob is "admin"
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
 
-            result.Should().BeFalse();
+    var result = await service.GetByIdAsync(1);
 
-            // Verify the warning log was called about admin deletion attempt
-            _logger.Received(1).Log(
-                LogLevel.Warning,
-                Arg.Any<EventId>(),
-                Arg.Is<It.IsAnyType>(v => v.ToString()!.Contains("Attempted to delete admin user")),
-                null,
-                Arg.Any<Func<It.IsAnyType, Exception?, string>>());
-        }
+    Assert.Null(result);
+    logger.Received(1).LogError(Arg.Any<Exception>(), Arg.Is<string>(s => s.Contains("Error retrieving person with ID")));
+  }
 
-        [Test]
-        public async Task DeleteAsync_NonExistingPerson_ReturnsFalse()
-        {
-            var result = await _personService.DeleteAsync(999);
+  [Fact]
+  public async Task AddAsync_AddsPerson_WhenEmailIsUnique()
+  {
+    var dbName = nameof(AddAsync_AddsPerson_WhenEmailIsUnique);
+    using var context = CreateInMemoryContext(dbName);
 
-            result.Should().BeFalse();
-        }
-    }
+    var person = new Person { Email = "unique@example.com", FirstName = "NewUser", LastName = "Test", Password = "newpass", Role = "User" };
+
+    var service = CreateService(context, out _);
+
+    var result = await service.AddAsync(person);
+
+    Assert.NotNull(result);
+    Assert.True(result!.Id > 0);
+
+    var savedPerson = await context.People.FindAsync(result.Id);
+    Assert.NotNull(savedPerson);
+    Assert.Equal("unique@example.com", savedPerson!.Email);
+  }
+
+  [Fact]
+  public async Task AddAsync_ReturnsNull_AndLogsWarning_WhenEmailNotUnique()
+  {
+    var dbName = nameof(AddAsync_ReturnsNull_AndLogsWarning_WhenEmailNotUnique);
+    using var context = CreateInMemoryContext(dbName);
+
+    var existing = new Person { Email = "duplicate@example.com", FirstName = "Existing", LastName = "User", Password = "existingpass", Role = "User" };
+    context.People.Add(existing);
+    await context.SaveChangesAsync();
+
+    var newPerson = new Person { Email = "duplicate@example.com", FirstName = "New", LastName = "Person", Password = "newpass", Role = "User" };
+
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
+
+    var result = await service.AddAsync(newPerson);
+
+    Assert.Null(result);
+    logger.Received(1).LogWarning("Email {Email} is not unique.", "duplicate@example.com");
+  }
+
+  [Fact]
+  public async Task UpdateAsync_ReturnsTrue_WhenPersonUpdatedSuccessfully()
+  {
+    var dbName = nameof(UpdateAsync_ReturnsTrue_WhenPersonUpdatedSuccessfully);
+    using var context = CreateInMemoryContext(dbName);
+
+    var person = new Person { Email = "unique2@example.com", FirstName = "Old", LastName = "Name", Password = "oldpass", Role = "User" };
+    context.People.Add(person);
+    await context.SaveChangesAsync();
+
+    var updatedPerson = new Person
+    {
+      Id = person.Id,
+      Email = "unique2@example.com",
+      FirstName = "Updated",
+      LastName = "Name",
+      Role = "User",
+      Password = "newpass",
+      Department = 1,
+      DateOfBirth = new DateOnly(1985, 5, 5)
+    };
+
+    var service = CreateService(context, out _);
+
+    var result = await service.UpdateAsync(person.Id, updatedPerson);
+
+    Assert.True(result);
+
+    var savedPerson = await context.People.FindAsync(person.Id);
+    Assert.NotNull(savedPerson);
+    Assert.Equal("Updated", savedPerson!.FirstName);
+    Assert.Equal("Name", savedPerson.LastName);
+  }
+
+  [Fact]
+  public async Task UpdateAsync_ReturnsFalse_AndLogsWarning_WhenEmailNotUnique()
+  {
+    var dbName = nameof(UpdateAsync_ReturnsFalse_AndLogsWarning_WhenEmailNotUnique);
+    using var context = CreateInMemoryContext(dbName);
+
+    // Existing person with email
+    var existing = new Person { Email = "used@example.com", FirstName = "Existing", LastName = "Person", Password = "existingpass", Role = "User" };
+    context.People.Add(existing);
+    await context.SaveChangesAsync();
+
+    // Person to update with same email as existing (simulate duplicate)
+    var personToEdit = new Person { Email = "checkme@example.com", FirstName = "Check", LastName = "Me", Password = "checkpass", Role = "User" };
+    context.People.Add(personToEdit);
+    await context.SaveChangesAsync();
+
+    // Change email to one already used
+    var updateModel = new Person { Email = "used@example.com", FirstName = "Updated", LastName = "Person", Password = "newpass", Role = "User" };
+
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
+
+    // We simulate IsEmailUniqueAsync returns false
+    // But actual implementation queries DB, so need to add people accordingly
+
+    // Since there's a person with "used@example.com" already, uniqueness fails
+    var result = await service.UpdateAsync(personToEdit.Id, updateModel);
+
+    Assert.False(result);
+    logger.Received(1).LogWarning("Email {Email} is not unique.", "used@example.com");
+  }
+
+  [Fact]
+  public async Task UpdateAsync_ReturnsFalse_WhenPersonNotFound()
+  {
+    var dbName = nameof(UpdateAsync_ReturnsFalse_WhenPersonNotFound);
+    using var context = CreateInMemoryContext(dbName);
+
+    var service = CreateService(context, out _);
+
+    var result = await service.UpdateAsync(999, new Person { Email = "new@example.com", FirstName = "New", LastName = "Person", Password = "newpass", Role = "User" });
+
+    Assert.False(result);
+  }
+
+  [Fact]
+  public async Task DeleteAsync_ReturnsTrue_WhenPersonDeleted()
+  {
+    var dbName = nameof(DeleteAsync_ReturnsTrue_WhenPersonDeleted);
+    using var context = CreateInMemoryContext(dbName);
+
+    var person = new Person { Role = "user", FirstName = "Delete", LastName = "Me", Email = "aa@aa.com", Password = "deletepass" };
+    context.People.Add(person);
+    await context.SaveChangesAsync();
+
+    var service = CreateService(context, out _);
+
+    var result = await service.DeleteAsync(person.Id);
+
+    Assert.True(result);
+
+    var exists = await context.People.FindAsync(person.Id);
+    Assert.Null(exists);
+  }
+
+  [Fact]
+  public async Task DeleteAsync_ReturnsFalse_AndLogsWarning_WhenAttemptToDeleteAdmin()
+  {
+    var dbName = nameof(DeleteAsync_ReturnsFalse_AndLogsWarning_WhenAttemptToDeleteAdmin);
+    using var context = CreateInMemoryContext(dbName);
+
+    var adminPerson = new Person { Role = "admin", FirstName = "Admin", LastName = "User", Email = "aa@aa.com" , Password = "adminpass" };
+    context.People.Add(adminPerson);
+    await context.SaveChangesAsync();
+
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
+
+    var result = await service.DeleteAsync(adminPerson.Id);
+
+    Assert.False(result);
+
+    logger.Received(1).LogWarning("Attempted to delete admin user with ID {Id}.", adminPerson.Id);
+  }
+
+  [Fact]
+  public async Task DeleteAsync_ReturnsFalse_WhenPersonNotFound()
+  {
+    var dbName = nameof(DeleteAsync_ReturnsFalse_WhenPersonNotFound);
+    using var context = CreateInMemoryContext(dbName);
+
+    var service = CreateService(context, out _);
+
+    var result = await service.DeleteAsync(999);
+
+    Assert.False(result);
+  }
+
+  [Fact]
+  public async Task DeleteAsync_ReturnsFalse_AndLogsError_WhenExceptionThrown()
+  {
+    var context = CreateInMemoryContext(nameof(DeleteAsync_ReturnsFalse_AndLogsError_WhenExceptionThrown));
+    await context.DisposeAsync();
+
+    var logger = Substitute.For<ILogger<PersonService>>();
+    var service = new PersonService(context, logger);
+
+    var result = await service.DeleteAsync(1);
+
+    Assert.False(result);
+    logger.Received(1).LogError(Arg.Any<Exception>(), Arg.Is<string>(s => s.Contains("Error deleting person with ID")));
+  }
 }

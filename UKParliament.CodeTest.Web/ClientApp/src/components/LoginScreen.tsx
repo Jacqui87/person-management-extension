@@ -16,12 +16,13 @@ type Props = {
     lastName: string;
     role: string;
     email: string;
+    password: string;
   }) => void;
 };
 
 const LoginScreen = ({ onLogin }: Props) => {
-  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,7 +31,7 @@ const LoginScreen = ({ onLogin }: Props) => {
     setLoading(true);
     setError("");
     try {
-      const data = await login({ firstName, email });
+      const data = await login({ password, email });
       onLogin(data.user);
     } catch (err) {
       setError("Login failed. Please check your credentials.");
@@ -53,17 +54,18 @@ const LoginScreen = ({ onLogin }: Props) => {
           gap={2}
         >
           <TextField
-            label="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
             label="Email Address"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
+            fullWidth
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             fullWidth
           />

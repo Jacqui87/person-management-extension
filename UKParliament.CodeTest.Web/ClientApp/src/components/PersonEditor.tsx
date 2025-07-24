@@ -67,6 +67,13 @@ const PersonEditor = ({
           fullWidth
           disabled={!canEdit}
         />
+        <TextField
+          label="Password"
+          value={draft.password}
+          onChange={(e) => handleChange("password", e.target.value)}
+          fullWidth
+          disabled={!canEdit}
+        />
 
         <TextField
           select
