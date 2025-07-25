@@ -9,6 +9,7 @@ import PersonList from "./PersonList";
 import PersonSummary from "./PersonSummary";
 import SearchBar from "./SearchBar";
 import { ADMIN_ROLE_ID } from "../constants/roles";
+import theme from "../theme";
 
 // Styled layout containers
 const ContentWrapper = styled(Box)({
@@ -17,19 +18,33 @@ const ContentWrapper = styled(Box)({
   border: "1px solid #ccc",
   borderRadius: "8px",
   overflow: "hidden",
+  flexDirection: "column", // default to column (mobile)
+  [theme.breakpoints.up("md")]: {
+    flexDirection: "row", // row on medium+ screens
+  },
 });
 
-const LeftPane = styled(Box)({
-  flex: "0 0 35%",
+const LeftPane = styled(Box)(({ theme }) => ({
+  flex: "0 0 100%",
   padding: "1rem",
-  borderRight: "2px dotted #ccc",
+  borderRight: "none",
   backgroundColor: "#f9f9f9",
-});
+  borderBottom: "2px dotted #ccc",
 
-const RightPane = styled(Box)({
-  flex: "1",
+  [theme.breakpoints.up("md")]: {
+    flex: "0 0 35%",
+    borderRight: "2px dotted #ccc",
+    borderBottom: "none",
+  },
+}));
+
+const RightPane = styled(Box)(({ theme }) => ({
+  flex: "1 1 100%",
   padding: "1rem",
-});
+  [theme.breakpoints.up("md")]: {
+    flex: 1,
+  },
+}));
 
 const UserConfig = ({
   state,
@@ -113,19 +128,11 @@ const UserConfig = ({
       <RightPane>
         {state.selectedPerson ? (
           <PersonEditor
+            state={state}
+            dispatch={dispatch}
             person={state.selectedPerson}
             onSave={handleSave}
-            onCancel={() =>
-              dispatch({ type: "SET_SELECTED_PERSON", payload: null })
-            }
             onDelete={() => handleDelete(state.selectedPerson!.id)}
-            currentUser={state.loggedInUser}
-            departments={state.departments}
-            roles={state.roles}
-            errors={state.errors}
-            setErrors={(errors) =>
-              dispatch({ type: "SET_ERRORS", payload: errors })
-            }
           />
         ) : (
           <PersonSummary isAdmin={isAdmin} />
@@ -133,18 +140,11 @@ const UserConfig = ({
 
         {!isAdmin && (
           <PersonEditor
+            state={state}
+            dispatch={dispatch}
             person={state.loggedInUser!}
             onSave={handleSave}
-            onCancel={() =>
-              dispatch({ type: "SET_SELECTED_PERSON", payload: null })
-            }
-            currentUser={state.loggedInUser!}
-            departments={state.departments}
-            roles={state.roles}
-            errors={state.errors}
-            setErrors={(errors) =>
-              dispatch({ type: "SET_ERRORS", payload: errors })
-            }
+            onDelete={() => handleDelete(state.selectedPerson!.id)}
           />
         )}
       </RightPane>

@@ -1,14 +1,18 @@
 # Person Manager Application
 
-A full-stack web application for managing person records with secure authentication, validation, and admin/user role handling.
+A full-stack web application designed for managing person records with secure user authentication and role-based access control. This app enables admin users to view and manage all person records and regular users to view and edit their own profiles. It features comprehensive validation, filtering, department management and role management.
+
+# Overview
+
+This project evolved from the UK Parliament's product-senior-developer-home-exercise starter repository into a fully functional React and ASP.NET Core 7 app. It aims to demonstrate a professional approach to building maintainable, secure, and user-friendly web applications using modern frameworks and best practices.
 
 ## Features
 
-- User login/logout with JWT authentication
-- Admin view and edit functionality for all persons
-- Regular users can view and edit their own profiles
-- Search and filter person records
+- User authentication with JWT bearer tokens
+- Role-based access control: Admins can manage all persons, users can manage their own profiles
+- Search and filtering person records
 - Department management and assignment
+- Role management and assignment
 - Frontend validation with React and Material UI
 - Backend validation using FluentValidation
 - RESTful API design with ASP.NET Core 7
