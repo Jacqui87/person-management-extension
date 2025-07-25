@@ -1,80 +1,100 @@
 # Person Manager Application
 
-A full-stack web application designed for managing person records with secure user authentication and role-based access control. This app enables admin users to view and manage all person records and regular users to view and edit their own profiles. It features comprehensive validation, filtering, department management and role management.
+A full-stack web application designed for managing person records with secure user authentication and role-based access control. This app enables admin users to view and manage all person records and regular users to view and edit their own profiles. It features comprehensive validation, filtering, department and role management, and a responsive, user-friendly UI.
 
-# Overview
+# Project Evolution
 
-This project evolved from the UK Parliament's product-senior-developer-home-exercise starter repository into a fully functional React and ASP.NET Core 7 app. It aims to demonstrate a professional approach to building maintainable, secure, and user-friendly web applications using modern frameworks and best practices.
+This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) starter repository and has been extended significantly into a production-ready React and ASP.NET Core 7 application — demonstrating robust architectural patterns, security best practices, and polished implementation.
 
-## Features
+Key extensions include:
+
+- Full JWT-based authentication and authorization
+- Role-based access control separating admin and user privileges
+- Advanced search, filtering, and pagination for person records
+- Rich department and role management integrated end-to-end
+- Comprehensive frontend form validation via Formik and Yup
+- FluentValidation-based backend validation with error propagation
+- RESTful API design with clear separation of concerns
+- Integration of Material UI and responsive design for better UX
+- Modern frontend tooling with Vite and TypeScript for faster builds and type safety
+- Extensive error handling with inline, user-friendly messages
+- Development and debugging workflows supporting both frontend and backend concurrently
+
+# Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Running and Debugging](#running-and-debugging)
+- [API Documentation and Testing](#api-documentation-and-testing)
+- [Code Quality and Architecture](#code-quality-and-architecture)
+- [Contributing](#contributing)
+- [License](#license)
+
+# Features
 
 - User authentication with JWT bearer tokens
-- Role-based access control: Admins can manage all persons, users can manage their own profiles
-- Search and filtering person records
-- Department management and assignment
-- Role management and assignment
-- Frontend validation with React and Material UI
-- Backend validation using FluentValidation
-- RESTful API design with ASP.NET Core 7
-- Axios for HTTP requests between frontend and backend
-- Detailed error handling with inline feedback for users
+- Role-based access control: Admins manage all persons, users manage their own profiles
+- Search and filtering of person records with responsive UI
+- Department and role management with admin interfaces
+- Frontend validation using Formik and Yup
+- Backend validation using FluentValidation in ASP.NET Core
+- RESTful API built on ASP.NET Core 7
+- Frontend API consumption with Axios
+- Inline error handling and feedback for improved user experience
+- Responsive design using Material UI
+- Maintainable and scalable code architecture
 
-## Tech Stack
+# Tech Stack
 
 | Layer             | Technologies                                |
 | ----------------- | ------------------------------------------- |
 | Frontend          | React, TypeScript, Material UI, Axios, Vite |
 | Backend           | ASP.NET Core 7, C#                          |
-| Validation        | FluentValidation                            |
-| Authentication    | JWT bearer tokens                           |
-| Development Tools | Visual Studio Code, .NET CLI                |
+| Validation        | Yup (frontend), FluentValidation (backend)  |
+| Authentication    | JWT Bearer Tokens                           |
+| Development Tools | Visual Studio Code, .NET CLI, npm/yarn      |
 
-## Getting Started
+# Getting Started
 
 ### Prerequisites
 
 - .NET 7 SDK
-- Node.js and npm/yarn
-- Visual Studio Code or your preferred IDE
+- Node.js (latest LTS recommended) and npm or yarn
+- Visual Studio Code or preferred IDE
 
 ### Backend Setup
 
-1. Navigate to the root of the repository (where the solution file is located).
-2. Run `dotnet build` to build the backend.
-3. Run `dotnet run --project UKParliament.CodeTest.Web` to start the backend API.
+1. Clone the repository.
+2. Navigate to the root (where the `.sln` file is located).
+3. Run `dotnet build` to build the backend.
+4. Run `dotnet run --project UKParliament.CodeTest.Web` to start the backend API (API runs on default port 7048).
 
 ### Frontend Setup
 
 1. Open a new terminal window.
-2. Change directory to `UKParliament.CodeTest.Web\ClientApp`.
-3. Run `npm install` to install dependencies.
-4. Run `npm run dev` to start the frontend development server.
+2. Navigate to `UKParliament.CodeTest.Web\ClientApp`.
+3. Run `npm install` (or `yarn install`) to install dependencies.
+4. Run `npm run dev` to start the frontend development server (typically runs on http://localhost:3000).
 
-### Running the Application
-
-- Access the frontend client (usually at `http://localhost:3000`).
-- Log in with existing user credentials or register a new user as Admin.
-- Add, edit, or delete person records using the interface.
-- Validation errors will show inline, both for frontend input checks and backend validation failures.
-
-## Run and Debug
+# Running and Debugging
 
 ### Backend (ASP.NET Core)
 
-- Use Visual Studio or Visual Studio Code to open the solution.
-- Set breakpoints in your C# code as needed.
-- In Visual Studio, press F5 or click the Debug button to start debugging the backend.
-- In Visual Studio Code, configure `launch.json` to run and debug the .NET app with breakpoints.
+- Open the solution in Visual Studio or Visual Studio Code.
+- Set breakpoints as needed in C# code.
+- Use `F5` or the Debug button to start debugging.
+- In VS Code, configure `launch.json` for debugging with breakpoints.
 
 ### Frontend (React with Vite and TypeScript)
 
-- Start the frontend dev server via `npm run dev` inside the `ClientApp` folder.
-- Use browser developer tools (Chrome/Edge) and React Developer Tools extension for debugging components.
-- In VS Code, install the Debugger for Chrome extension and configure `launch.json` for debugging React source code with breakpoints.
+- Start the dev server with `npm run dev`.
+- Use browser devtools and React Developer Tools for debugging.
+- Optional: Set breakpoints and debug inside VS Code with `launch.json`.
 
-### Compound Debugging in VS Code
+### Compound Debugging (Backend + Frontend)
 
-You can debug both backend and frontend simultaneously using a compound launch configuration. Below is a sample `launch.json` snippet to do this:
+Use the below snippet in `.vscode/launch.json` to debug backend and frontend simultaneously:
 
 ```
 {
@@ -104,19 +124,27 @@ You can debug both backend and frontend simultaneously using a compound launch c
 }
 ```
 
-Launch the “Full Stack Debug” configuration to start backend debugging and frontend in Chrome with source maps, enabling breakpoints in both environments.
+# API Documentation and Testing
 
-## API Documentation and Testing
+- API endpoints are documented and testable via **Swagger UI** at `https://localhost:7048/swagger/index.html`.
+- Use Postman or similar tools for in-depth manual API testing.
 
-- Use Swagger UI at `https://localhost:7048/swagger/index.html` to explore and test API endpoints.
-- Alternatively, use tools like Postman for manual API testing.
+# Code Quality and Architecture
 
-## Code Quality and Architecture
+- Followed SOLID principles and separation of concerns.
+- Frontend uses functional React components with hooks, maintaining clean state management.
+- Reusable, styled components with Material UI and responsive design patterns.
+- Backend inputs validated robustly using FluentValidation for reliable data integrity.
+- JWT tokens secure user authentication across the stack.
+- Detailed inline validation errors provide friendly and clear user feedback.
 
-- The code adheres to principles like DRY and separation of concerns for maintainability.
-- JWT authentication secures both frontend and backend communications.
-- React frontend uses functional components with hooks and Material UI for responsive UI.
+# Contribution
 
-## Contribution
+This repository serves as a senior developer's personal project showcasing advanced skills building full-stack web applications with modern .NET and React. Contributions via pull requests are welcome — including:
 
-This repository is a personal project showcasing senior developer skills in .NET and React. Contributions via pull requests are welcome.
+- Bug fixes
+- Performance improvements
+- Documentation enhancements
+- Additional test coverage
+
+Please open issues for questions or feature requests.
