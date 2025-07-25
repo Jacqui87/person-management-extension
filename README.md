@@ -10,7 +10,7 @@ Key extensions include:
 
 - Full JWT-based authentication and authorization
 - Role-based access control separating admin and user privileges
-- Advanced search, filtering, and pagination for person records
+- Advanced search and filtering for person records
 - Rich department and role management integrated end-to-end
 - Comprehensive frontend form validation via Formik and Yup
 - FluentValidation-based backend validation with error propagation
