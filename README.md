@@ -154,6 +154,7 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
 9. Fix currently skipped failing React tests.
 10. Use HTTP PATCH instead of PUT to optimize updates and reduce data overwrite.
 11. Add a snackbar notification system to provide feedback on add/update operations, enhancing user experience.
+12. When a token is invalid it should 'fail' more gracefully rather than leaving error messages in the console.
 
 # Contribution
 
