@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using UKParliament.CodeTest.Data;
+using UKParliament.CodeTest.Services.Dtos;
 
 namespace UKParliament.CodeTest.Services.Tests;
 

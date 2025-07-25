@@ -12,33 +12,17 @@ const personService = new PersonService();
 const MainPage = () => {
   const [state, dispatch] = useReducer(mainPageReducer, initialState);
 
-  const loadDepartments = async () => {
-    const result = await personService.getAllDepartments();
-    dispatch({ type: "SET_DEPARTMENTS", payload: result });
-  };
-
-  const loadRoles = async () => {
-    const result = await personService.getAllRoles();
-    dispatch({ type: "SET_ROLES", payload: result });
-  };
-
-  const loadPeople = async () => {
-    const all = await personService.getAllPeople(false);
-    dispatch({ type: "SET_PEOPLE", payload: all });
-  };
-
-  const handleLogin = async (user: { email: string; password: string }) => {
-    const loginData = await login(user);
-    if (loginData.session.token) {
-      localStorage.setItem("token", loginData.session.token);
-      dispatch({ type: "LOGIN", payload: loginData.user });
-      await loadPeople();
-      await loadRoles();
-      await loadDepartments();
-    } else {
-      alert("User not found");
-    }
-  };
+  useEffect(() => {
+    const doLogin = async () => {
+      const data = await login({
+        password: "",
+        email: "",
+        token: localStorage.getItem("token"),
+      });
+      if (data != null) handleLogin(data.user);
+    };
+    doLogin();
+  }, [localStorage.getItem("token")]);
 
   useEffect(() => {
     const results = personService.filterPeople(
@@ -54,6 +38,38 @@ const MainPage = () => {
     state.filterRole,
     state.filterDepartment,
   ]);
+
+  const loadDepartments = async () => {
+    const result = await personService.getAllDepartments();
+    dispatch({ type: "SET_DEPARTMENTS", payload: result });
+  };
+
+  const loadRoles = async () => {
+    const result = await personService.getAllRoles();
+    dispatch({ type: "SET_ROLES", payload: result });
+  };
+
+  const loadPeople = async () => {
+    const all = await personService.getAllPeople(false);
+    dispatch({ type: "SET_PEOPLE", payload: all });
+  };
+
+  const handleLogin = async (user: {
+    email: string | null;
+    password: string | null;
+    token: string | null;
+  }) => {
+    const loginData = await login(user);
+    if (loginData.session.token) {
+      localStorage.setItem("token", loginData.session.token);
+      dispatch({ type: "LOGIN", payload: loginData.user });
+      await loadPeople();
+      await loadRoles();
+      await loadDepartments();
+    } else {
+      alert("User not found");
+    }
+  };
 
   return (
     <>

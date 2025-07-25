@@ -157,8 +157,6 @@ export class PersonService {
     person: PersonViewModel,
     setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string[] }>>
   ): Promise<boolean> {
-    console.log("Updating person:", person);
-
     try {
       const res = await axios.put(`${BASE_URL}/${person.id}`, person, {
         headers: getAuthHeaders(),
@@ -189,6 +187,8 @@ export class PersonService {
 
       this.invalidatePeopleCache();
     } catch (error: any) {
+      console.error("Delete person failed:", error);
+
       const message = error.response?.data || error.message || "Delete failed";
       throw new Error(message);
     }

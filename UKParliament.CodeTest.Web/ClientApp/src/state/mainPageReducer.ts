@@ -50,6 +50,7 @@ export function mainPageReducer(
     case "LOGIN":
       return { ...state, loggedInUser: action.payload };
     case "LOGOUT":
+      localStorage.removeItem("token");
       return { ...initialState };
     case "SET_PEOPLE":
       return { ...state, people: action.payload };

@@ -7,16 +7,12 @@ import {
   Box,
   Paper,
 } from "@mui/material";
-import { login } from "../services/authService";
 
 type Props = {
   onLogin: (user: {
-    id: number;
-    firstName: string;
-    lastName: string;
-    role: number;
     email: string;
     password: string;
+    token: string | null;
   }) => void;
 };
 
@@ -31,8 +27,11 @@ const LoginScreen = ({ onLogin }: Props) => {
     setLoading(true);
     setError("");
     try {
-      const data = await login({ password, email });
-      onLogin(data.user);
+      onLogin({
+        password,
+        email,
+        token: localStorage.getItem("token"),
+      });
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     } finally {

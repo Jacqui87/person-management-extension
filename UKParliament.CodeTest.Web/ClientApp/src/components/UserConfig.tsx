@@ -46,8 +46,6 @@ const UserConfig = ({
   };
 
   useEffect(() => {
-    console.log("Reloading users");
-
     loadPeople();
   }, [state.loggedInUser]);
 

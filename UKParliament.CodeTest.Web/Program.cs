@@ -7,12 +7,13 @@ using UKParliament.CodeTest.Web.ViewModels;
 using UKParliament.CodeTest.Web.Auth;
 using Microsoft.OpenApi.Models;
 
+var localhost = "http://localhost:3000,https://localhost:7048";
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var allowedClients = "http://localhost:3000".Split(',');
+var allowedClients = localhost.Split(',');
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins, policy =>
@@ -27,12 +28,6 @@ builder.Services
     {
         fv.RegisterValidatorsFromAssemblyContaining<PersonViewModelValidator>();
     });
-
-/*builder.Services.AddControllers();
-
-// Add automatic validation and clientside adapters separately
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddFluentValidationClientsideAdapters();*/
 
 builder.Services.AddDbContext<PersonManagerContext>(op =>
     op.UseInMemoryDatabase("PersonManager"));
@@ -125,5 +120,17 @@ app.Use(async (context, next) =>
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
+
+var serverAddressesFeature = app.Services.GetRequiredService<Microsoft.AspNetCore.Hosting.Server.IServer>()
+    .Features.Get<Microsoft.AspNetCore.Hosting.Server.Features.IServerAddressesFeature>();
+
+if (serverAddressesFeature != null && serverAddressesFeature.Addresses.Any())
+{
+  Console.WriteLine("Listening on addresses:");
+  foreach (var address in serverAddressesFeature.Addresses)
+  {
+    Console.WriteLine(address);
+  }
+}
 
 app.Run();
