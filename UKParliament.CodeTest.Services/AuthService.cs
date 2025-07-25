@@ -1,11 +1,11 @@
 using UKParliament.CodeTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.IdentityModel.Tokens.Jwt;
+using UKParliament.CodeTest.Services.Dtos;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using UKParliament.CodeTest.Services.Dtos;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace UKParliament.CodeTest.Services;
 
@@ -49,17 +49,23 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
     };
   }
 
-  public async Task<LoginCredentials?> TokenLoginAsync(string token)
+  public async Task<Person?> GetMostRecentUserAsync()
   {
-    var handler = new JwtSecurityTokenHandler();
-    var jwtToken = handler.ReadJwtToken(token);
-    if (jwtToken == null) return null;
+    var recentSession = await context.Sessions
+      .OrderByDescending(s => s.CreatedAt)
+      .FirstOrDefaultAsync();
 
-    var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
-    if (userIdClaim == null) return null;
+    if (recentSession == null) return null;
 
-    if (!int.TryParse(userIdClaim.Value, out var userId)) return null;
+    var user = await context.People.FindAsync(recentSession.UserId);
+    return user;
+  }
 
+  #region Helpers
+
+  internal async Task<LoginCredentials?> TokenLoginAsync(string token)
+  {
+    var userId = GetUserIdFromToken(token);
     var user = await context.People.FindAsync(userId);
     if (user == null) return null;
 
@@ -73,9 +79,30 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
     };
   }
 
-  #region Helpers
+  internal int? GetUserIdFromToken(string token)
+  {
+    if (string.IsNullOrWhiteSpace(token)) return null;
 
-  internal static string GetJwtToken(Person user)
+    try
+    {
+      var handler = new JwtSecurityTokenHandler();
+      var jwtToken = handler.ReadJwtToken(token);
+      if (jwtToken == null) return null;
+
+      var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+      if (userIdClaim == null) return null;
+
+      if (int.TryParse(userIdClaim.Value, out var userId)) return userId;
+
+      return null;
+    }
+    catch
+    {
+      return null;
+    }
+  }
+
+  internal string GetJwtToken(Person user)
   {
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);

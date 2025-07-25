@@ -9,7 +9,7 @@ namespace UKParliament.CodeTest.Web.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class PersonController(IPersonService personService) : ControllerBase
+public class PersonController(IAuthService authService, IPersonService personService) : ControllerBase
 {
   [HttpGet]
   public async Task<ActionResult<PersonViewModel[]>> Get()
@@ -98,7 +98,8 @@ public class PersonController(IPersonService personService) : ControllerBase
   [HttpDelete("{id:int}")]
   public async Task<ActionResult> DeletePerson(int id)
   {
-    var deleted = await personService.DeleteAsync(id);
+    var user = await authService.GetMostRecentUserAsync();
+    var deleted = await personService.DeleteAsync(id, user?.Id);
     if (!deleted) return NotFound();
 
     return NoContent();

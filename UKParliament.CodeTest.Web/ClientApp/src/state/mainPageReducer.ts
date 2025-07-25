@@ -2,6 +2,7 @@
 import { RoleViewModel } from "../models/RoleViewModel";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
+import { PersonService } from "../services/personService";
 
 export interface MainPageState {
   loggedInUser: PersonViewModel | null;
@@ -13,7 +14,9 @@ export interface MainPageState {
   filterRole: number;
   filterDepartment: number;
   filteredPeople: PersonViewModel[];
+  uniqueEmail: boolean;
   errors: Record<string, any>;
+  isAuthenticating: boolean;
 }
 
 export const initialState: MainPageState = {
@@ -26,7 +29,9 @@ export const initialState: MainPageState = {
   filterRole: 0,
   filterDepartment: 0,
   filteredPeople: [],
+  uniqueEmail: true,
   errors: {},
+  isAuthenticating: true,
 };
 
 export type MainPageAction =
@@ -39,8 +44,17 @@ export type MainPageAction =
   | { type: "SET_SEARCH_TERM"; payload: string }
   | { type: "SET_FILTER_ROLE"; payload: number }
   | { type: "SET_FILTER_DEPARTMENT"; payload: number }
-  | { type: "SET_FILTERED_PEOPLE"; payload: PersonViewModel[] }
-  | { type: "SET_ERRORS"; payload: Record<string, any> };
+  | { type: "SET_FILTERED_PEOPLE"; payload: PersonService }
+  | {
+      type: "UNIQUE_EMAIL_CHECK";
+      payload: {
+        email: string;
+        excludePersonId?: number;
+        personService: PersonService;
+      };
+    }
+  | { type: "SET_ERRORS"; payload: Record<string, any> }
+  | { type: "SET_AUTHENTICATING"; payload: boolean };
 
 export function mainPageReducer(
   state: MainPageState,
@@ -67,9 +81,27 @@ export function mainPageReducer(
     case "SET_FILTER_DEPARTMENT":
       return { ...state, filterDepartment: action.payload };
     case "SET_FILTERED_PEOPLE":
-      return { ...state, filteredPeople: action.payload };
+      const results = action.payload.filterPeople(
+        state.searchTerm,
+        state.filterRole,
+        state.filterDepartment
+      );
+
+      return { ...state, filteredPeople: results };
+    case "UNIQUE_EMAIL_CHECK":
+      const unique = action.payload.personService.isEmailUnique(
+        action.payload.email,
+        action.payload.excludePersonId
+      );
+
+      return {
+        ...state,
+        uniqueEmail: unique,
+      };
     case "SET_ERRORS":
       return { ...state, errors: action.payload };
+    case "SET_AUTHENTICATING":
+      return { ...state, isAuthenticating: action.payload };
     default:
       return state;
   }

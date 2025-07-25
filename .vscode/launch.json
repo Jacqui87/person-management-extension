@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch ASP.NET Core Backend",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/UKParliament.CodeTest.Web/bin/Debug/net8.0/UKParliament.CodeTest.Web.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/UKParliament.CodeTest.Web",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/UKParliament.CodeTest.Web/Views"
+      }
+    }
+  ]
+}

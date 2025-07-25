@@ -15,8 +15,8 @@ const NavBar = ({
     const all = await personService.getAllPeople(true);
     dispatch({ type: "SET_PEOPLE", payload: all });
 
-    //localStorage.removeItem("token");
     dispatch({ type: "LOGOUT" });
+    dispatch({ type: "SET_AUTHENTICATING", payload: false });
   };
 
   return (

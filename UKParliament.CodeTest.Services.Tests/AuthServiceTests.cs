@@ -19,9 +19,9 @@ public class AuthServiceTests
   }
 
   // Helper to create AuthService with mocked logger and provided context
-  private static AuthService CreateService(PersonManagerContext context, out ILogger<AuthService> logger)
+  private AuthService CreateService(PersonManagerContext context, out ILogger<AuthService> logger)
   {
-    logger = Substitute.For<ILogger<AuthService>>();
+    logger = Substitute.For<ILogger<AuthService>>();   
     return new AuthService(context, logger);
   }
 
@@ -47,7 +47,7 @@ public class AuthServiceTests
 
     var service = CreateService(context, out _);
 
-    var request = new LoginRequest { Email = user.Email, Password = user.Password };
+        var request = new LoginRequest { Email = user.Email, Password = user.Password };
 
     // Act
     var result = await service.LoginAsync(request);

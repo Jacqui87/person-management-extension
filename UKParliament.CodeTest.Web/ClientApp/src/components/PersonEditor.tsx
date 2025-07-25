@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Button,
@@ -14,17 +14,17 @@ import { MainPageState, MainPageAction } from "../state/mainPageReducer";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
 import { RoleViewModel } from "../models/RoleViewModel";
-
-interface PersonEditorProps {
-  state: MainPageState;
-  dispatch: React.Dispatch<MainPageAction>;
-  person: PersonViewModel;
-  onSave: (person: PersonViewModel) => void;
-  onDelete?: (id: number) => void;
-}
+import { PersonService } from "../services/personService";
 
 // Create dynamic Yup validation schema based on user role and passwordChanged status
-const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
+const makeValidationSchema = (
+  person: PersonViewModel,
+  personService: PersonService,
+  dispatch: React.Dispatch<MainPageAction>,
+  uniqueEmail: boolean,
+  userRole?: number,
+  passwordChanged?: boolean
+) =>
   Yup.object({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
@@ -36,7 +36,21 @@ const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
       ),
     email: Yup.string()
       .email("Invalid email address")
-      .required("Email is required"),
+      .required("Email is required")
+      .test("email-unique", "Email must be unique", function (value) {
+        if (!personService || !value) return true; // skip if no service or empty
+        console.log("person", person);
+
+        dispatch({
+          type: "UNIQUE_EMAIL_CHECK",
+          payload: {
+            email: value,
+            excludePersonId: person.id,
+            personService: personService,
+          },
+        });
+        return uniqueEmail;
+      }),
     password: Yup.string().test(
       "password-length-if-changed",
       "Password must be at least 6 characters",
@@ -61,12 +75,22 @@ const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
         : Yup.number().notRequired(),
   });
 
+interface PersonEditorProps {
+  state: MainPageState;
+  dispatch: React.Dispatch<MainPageAction>;
+  person: PersonViewModel;
+  onSave: (person: PersonViewModel) => void;
+  onDelete?: (id: number) => void;
+  personService: PersonService;
+}
+
 const PersonEditor = ({
   state,
   dispatch,
   person,
   onSave,
   onDelete,
+  personService,
 }: PersonEditorProps) => {
   const currentUser = state.loggedInUser;
   const departments: DepartmentViewModel[] = state.departments;
@@ -93,9 +117,24 @@ const PersonEditor = ({
   const canEdit =
     currentUser.role === ADMIN_ROLE_ID || currentUser.id === person.id;
 
-  const validationSchema = makeValidationSchema(
-    currentUser.role,
-    passwordChanged
+  const validationSchema = useCallback(
+    () =>
+      makeValidationSchema(
+        person,
+        personService,
+        dispatch,
+        state.uniqueEmail,
+        currentUser.role,
+        passwordChanged
+      ),
+    [
+      person,
+      personService,
+      dispatch,
+      currentUser.role,
+      passwordChanged,
+      state.uniqueEmail,
+    ]
   );
 
   const formik = useFormik<PersonViewModel>({
@@ -328,7 +367,11 @@ const PersonEditor = ({
 
         {canEdit && (
           <Box display="flex" justifyContent="flex-end" gap={2} pt={2}>
-            <Button variant="contained" onClick={() => formik.handleSubmit()}>
+            <Button
+              variant="contained"
+              onClick={() => formik.handleSubmit()}
+              disabled={!formik.isValid} // Only disable if invalid, allow save even if untouched but valid
+            >
               Save
             </Button>
             <Button variant="outlined" onClick={handleCancel}>

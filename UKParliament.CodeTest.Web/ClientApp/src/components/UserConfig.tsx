@@ -131,6 +131,7 @@ const UserConfig = ({
             state={state}
             dispatch={dispatch}
             person={state.selectedPerson}
+            personService={personService}
             onSave={handleSave}
             onDelete={() => handleDelete(state.selectedPerson!.id)}
           />
@@ -143,6 +144,7 @@ const UserConfig = ({
             state={state}
             dispatch={dispatch}
             person={state.loggedInUser!}
+            personService={personService}
             onSave={handleSave}
             onDelete={() => handleDelete(state.selectedPerson!.id)}
           />

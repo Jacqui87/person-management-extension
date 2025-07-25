@@ -11,5 +11,5 @@ public interface IPersonService
     Task<Person?> GetByIdAsync(int id);
     Task<ServiceResult<Person?>> AddAsync(Person person);
     Task<ServiceResult<bool>> UpdateAsync(int id, Person person);
-    Task<bool> DeleteAsync(int id);
+    Task<bool> DeleteAsync(int id, int? currentUserId);
 }

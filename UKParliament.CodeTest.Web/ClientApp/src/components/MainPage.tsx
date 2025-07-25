@@ -1,6 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { mainPageReducer, initialState } from "../state/mainPageReducer";
-import { Container } from "@mui/material";
+import { Box, CircularProgress, Container } from "@mui/material";
 import { PersonService } from "../services/personService";
 import { login } from "../services/authService";
 import LoginScreen from "./LoginScreen";
@@ -14,24 +14,26 @@ const MainPage = () => {
 
   useEffect(() => {
     const doLogin = async () => {
-      const data = await login({
-        password: "",
-        email: "",
-        token: localStorage.getItem("token"),
-      });
-      if (data != null) handleLogin(data.user);
+      dispatch({ type: "SET_AUTHENTICATING", payload: true });
+
+      // Get token and try login
+      const token = localStorage.getItem("token");
+      if (token) {
+        const data = await login({ password: "", email: "", token });
+        if (data != null && data.user) {
+          handleLogin(data.user);
+        } else {
+          dispatch({ type: "SET_AUTHENTICATING", payload: false });
+        }
+      } else {
+        dispatch({ type: "SET_AUTHENTICATING", payload: false });
+      }
     };
     doLogin();
-  }, [localStorage.getItem("token")]);
+  }, []);
 
   useEffect(() => {
-    const results = personService.filterPeople(
-      state.searchTerm,
-      state.filterRole,
-      state.filterDepartment
-    );
-
-    dispatch({ type: "SET_FILTERED_PEOPLE", payload: results });
+    dispatch({ type: "SET_FILTERED_PEOPLE", payload: personService });
   }, [
     state.people,
     state.searchTerm,
@@ -69,11 +71,24 @@ const MainPage = () => {
     } else {
       alert("User not found");
     }
+
+    dispatch({ type: "SET_AUTHENTICATING", payload: false });
   };
 
   return (
     <>
-      {!state.loggedInUser ? (
+      {state.isAuthenticating ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : !state.loggedInUser ? (
         <LoginScreen onLogin={handleLogin} />
       ) : (
         <>

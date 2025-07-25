@@ -7,5 +7,5 @@ public interface IAuthService
 {
   Task<List<Session>> GetAllSessionsAsync();
   Task<LoginCredentials?> LoginAsync(LoginRequest request);
-  Task<LoginCredentials?> TokenLoginAsync(string token);
+  Task<Person?> GetMostRecentUserAsync();
 }

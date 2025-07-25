@@ -277,7 +277,7 @@ namespace UKParliament.CodeTest.Services.Tests
 
             var service = CreateService(context, out _);
 
-            var result = await service.DeleteAsync(person.Id);
+            var result = await service.DeleteAsync(person.Id, 4);
 
             Assert.True(result);
             var deleted = await context.People.FindAsync(person.Id);
@@ -292,7 +292,7 @@ namespace UKParliament.CodeTest.Services.Tests
 
             var service = CreateService(context, out _);
 
-            var result = await service.DeleteAsync(999);
+            var result = await service.DeleteAsync(999, 4);
 
             Assert.False(result);
         }

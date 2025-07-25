@@ -164,16 +164,18 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
         }
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, int? currentUserId)
     {
         try
         {
+            if(currentUserId == null) return false;
+
             var person = await context.People.FindAsync(id);
             if (person == null) return false;
 
-            if (person.Role == (int)Roles.Admin)
+            if (person.Role == (int)Roles.Admin && id == currentUserId)
             {
-              logger.LogWarning("Attempted to delete admin user with ID {Id}.", id);
+              logger.LogWarning("Attempted to delete current admin user with ID {Id}.", id);
               return false;
             }
 

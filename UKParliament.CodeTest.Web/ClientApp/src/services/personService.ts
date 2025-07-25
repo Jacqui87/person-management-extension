@@ -26,7 +26,15 @@ export class PersonService {
   async getAllPeople(clear: boolean): Promise<PersonViewModel[]> {
     if (clear) return (this.peopleCache = []);
     if (this.peopleCache.length > 0) return this.peopleCache;
+    return await this.allPeople();
+  }
 
+  async refreshAllPeople(): Promise<PersonViewModel[]> {
+    this.invalidatePeopleCache();
+    return await this.allPeople();
+  }
+
+  async allPeople(): Promise<PersonViewModel[]> {
     try {
       const res = await axios.get<PersonViewModel[]>(BASE_URL, {
         headers: getAuthHeaders(),
@@ -108,6 +116,25 @@ export class PersonService {
     });
   }
 
+  isEmailUnique(email: string, excludePersonId: number | undefined): boolean {
+    console.log("email", email, excludePersonId, this.peopleCache);
+
+    const emailToCheck = email.toLowerCase().trim();
+    if (excludePersonId === 0) {
+      // New user - check all records without exclusion
+      return !this.peopleCache.some(
+        (p) => p.email.toLowerCase().trim() === emailToCheck
+      );
+    } else {
+      // Existing user update - exclude their own id
+      return !this.peopleCache.some(
+        (p) =>
+          p.email.toLowerCase().trim() === emailToCheck &&
+          p.id !== excludePersonId
+      );
+    }
+  }
+
   // Invalidate the people cache
   invalidatePeopleCache() {
     this.peopleCache = [];
@@ -135,20 +162,20 @@ export class PersonService {
     setErrors: React.Dispatch<React.SetStateAction<{}>>
   ): Promise<boolean> {
     try {
-      const res = await axios.post(BASE_URL, person, {
+      await axios.post(BASE_URL, person, {
         headers: getAuthHeaders(),
         withCredentials: true,
       });
 
       setErrors({});
       this.invalidatePeopleCache();
+      await this.refreshAllPeople();
 
       return true;
     } catch (error: any) {
       const message = error.response?.data || error.message;
       console.error("Add person failed:", message);
       throw new Error(message);
-      return false;
     }
   }
 
@@ -158,7 +185,7 @@ export class PersonService {
     setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string[] }>>
   ): Promise<boolean> {
     try {
-      const res = await axios.put(`${BASE_URL}/${person.id}`, person, {
+      await axios.put(`${BASE_URL}/${person.id}`, person, {
         headers: getAuthHeaders(),
         withCredentials: true,
       });
@@ -180,12 +207,13 @@ export class PersonService {
   // Delete person using Axios
   async deletePerson(id: number): Promise<void> {
     try {
-      const res = await axios.delete(`${BASE_URL}/${id}`, {
+      await axios.delete(`${BASE_URL}/${id}`, {
         headers: getAuthHeaders(),
         withCredentials: true,
       });
 
       this.invalidatePeopleCache();
+      await this.refreshAllPeople();
     } catch (error: any) {
       console.error("Delete person failed:", error);
 
