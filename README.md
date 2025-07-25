@@ -1,24 +1,26 @@
 # Person Manager Application
 
-A full-stack web application designed for managing person records with secure user authentication and role-based access control. This app enables admin users to view and manage all person records and regular users to view and edit their own profiles. It features comprehensive validation, filtering, department and role management, and a responsive, user-friendly UI.
+A full-stack web application for managing Parliament person records with React and ASP.NET Core.
+
+This app supports secure user authentication and role-based access control. Admin users can manage all person records; regular users can view and update their own profiles. Features include validation, filtering, department and role management, and a responsive UI.
 
 # Project Evolution
 
-This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) starter repository and has been extended significantly into a production-ready React and ASP.NET Core 7 application — demonstrating robust architectural patterns, security best practices, and polished implementation.
+This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) and has been extended toward a production-ready React and ASP.NET Core 7 application.
 
 Key extensions include:
 
-- Full JWT-based authentication and authorization
+- JWT-based authentication and authorization
 - Role-based access control separating admin and user privileges
 - Advanced search and filtering for person records
-- Rich department and role management integrated end-to-end
-- Comprehensive frontend form validation via Formik and Yup
-- FluentValidation-based backend validation with error propagation
-- RESTful API design with clear separation of concerns
-- Integration of Material UI and responsive design for better UX
-- Modern frontend tooling with Vite and TypeScript for faster builds and type safety
-- Extensive error handling with inline, user-friendly messages
-- Development and debugging workflows supporting both frontend and backend concurrently
+- Department and role management
+- Frontend validation (Formik + Yup)
+- Backend validation (FluentValidation)
+- RESTful API built with ASP.NET Core 7
+- Frontend API calls via Axios
+- Inline error display
+- Responsive design with Material UI
+- Maintainable code structure
 
 # Table of Contents
 
@@ -28,8 +30,8 @@ Key extensions include:
 - [Running and Debugging](#running-and-debugging)
 - [API Documentation and Testing](#api-documentation-and-testing)
 - [Code Quality and Architecture](#code-quality-and-architecture)
+- [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
 - [Contributing](#contributing)
-- [License](#license)
 
 # Features
 
@@ -41,19 +43,19 @@ Key extensions include:
 - Backend validation using FluentValidation in ASP.NET Core
 - RESTful API built on ASP.NET Core 7
 - Frontend API consumption with Axios
-- Inline error handling and feedback for improved user experience
+- Inline error display
 - Responsive design using Material UI
 - Maintainable and scalable code architecture
 
 # Tech Stack
 
-| Layer             | Technologies                                |
-| ----------------- | ------------------------------------------- |
-| Frontend          | React, TypeScript, Material UI, Axios, Vite |
-| Backend           | ASP.NET Core 7, C#                          |
-| Validation        | Yup (frontend), FluentValidation (backend)  |
-| Authentication    | JWT Bearer Tokens                           |
-| Development Tools | Visual Studio Code, .NET CLI, npm/yarn      |
+| Layer             | Technologies                                        |
+| ----------------- | --------------------------------------------------- |
+| Frontend          | React, TypeScript, Material UI, Axios, Vite, Formik |
+| Backend           | ASP.NET Core 7, C#                                  |
+| Validation        | Yup (frontend), FluentValidation (backend)          |
+| Authentication    | JWT Bearer Tokens                                   |
+| Development Tools | Visual Studio Code, .NET CLI, npm/yarn              |
 
 # Getting Started
 
@@ -68,7 +70,7 @@ Key extensions include:
 1. Clone the repository.
 2. Navigate to the root (where the `.sln` file is located).
 3. Run `dotnet build` to build the backend.
-4. Run `dotnet run --project UKParliament.CodeTest.Web` to start the backend API (API runs on default port 7048).
+4. Run `dotnet run --project UKParliament.CodeTest.Web` to start the backend API - API runs on default port 7048 (https://localhost:7048).
 
 ### Frontend Setup
 
@@ -127,16 +129,31 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
 # API Documentation and Testing
 
 - API endpoints are documented and testable via **Swagger UI** at `https://localhost:7048/swagger/index.html`.
+- Swagger UI is accessible when the backend is running in Development mode.
 - Use Postman or similar tools for in-depth manual API testing.
 
 # Code Quality and Architecture
 
-- Followed SOLID principles and separation of concerns.
-- Frontend uses functional React components with hooks, maintaining clean state management.
-- Reusable, styled components with Material UI and responsive design patterns.
-- Backend inputs validated robustly using FluentValidation for reliable data integrity.
-- JWT tokens secure user authentication across the stack.
-- Detailed inline validation errors provide friendly and clear user feedback.
+- Based on SOLID principles and separation of concerns.
+- Frontend uses functional components and hooks.
+- Uses Material UI with responsive layouts.
+- Backend validates input with FluentValidation.
+- JWT tokens secure authentication across frontend and backend.
+- Inline validation messages provide clear feedback.
+
+# What I would do given more time to complete this task
+
+1. Add translations using i18Next, e.g., Welsh/English support.
+2. Support user profile photos, possibly using Azure Blob Storage.
+3. Implement a department and role management system allowing dynamic addition of entries.
+4. Add bulk upload capability for users, departments, and roles.
+5. Provide bulk editing features for these records.
+6. Improve UI by adding an 'x' icon next to the search bar for quick clearing.
+7. Replace dropdown filters with MUI's AutoComplete component for better usability.
+8. Enforce stronger password rules: minimum 8 characters, mixed case, numbers, special characters.
+9. Fix currently skipped failing React tests.
+10. Use HTTP PATCH instead of PUT to optimize updates and reduce data overwrite.
+11. Add a snackbar notification system to provide feedback on add/update operations, enhancing user experience.
 
 # Contribution
 
@@ -146,5 +163,3 @@ This repository serves as a senior developer's personal project showcasing advan
 - Performance improvements
 - Documentation enhancements
 - Additional test coverage
-
-Please open issues for questions or feature requests.
