@@ -314,3 +314,14 @@ These results demonstrate strong readiness for production deployment.
 |         In memory database           |
 +--------------------------------------+
 ```
+
+---
+
+# Screenshots
+
+![Success snackbar when add/update had been successful](screenshots/action_success.png)
+![Information snackbar notifying a user they have cancelled their add/update changes](screenshots/actions_infomation.png)
+![Edit person screen](screenshots/edit_person.png)
+![Add person screen](screenshots/add_person.png)
+![Searching and filtering options](screenshots/searching_filtering.png)
+![Mobile friendly layout](screenshots/mobile_friendly.png)
