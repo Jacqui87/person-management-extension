@@ -1,5 +1,7 @@
 import React from "react";
-import { TextField, Box, MenuItem } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Box from "@mui/material/Box";
+import MenuItem from "@mui/material/MenuItem";
 import { MainPageState, MainPageAction } from "../state/mainPageReducer";
 
 const SearchBar = ({

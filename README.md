@@ -28,6 +28,7 @@ Key extensions include:
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
 - [Running and Debugging](#running-and-debugging)
+- [Performance Testing & Lighthouse Audit](#performance-testing-&-lighthouse-audit)
 - [API Documentation and Testing](#api-documentation-and-testing)
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
@@ -124,6 +125,37 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
     ]
 }
 ```
+
+# Performance Testing & Lighthouse Audit
+
+The frontend application was audited using `https://developers.google.com/web/tools/lighthouse` on the production build to ensure high performance, accessibility, SEO, and adherence to best practices.
+
+## Testing Process
+
+- The production build was created with:
+
+```
+npm run build
+```
+
+- The build was locally served using:
+
+```
+npm run preview
+```
+
+- Lighthouse audits were performed on the preview server URL (e.g., http://localhost:4173 or similar) accessed in an incognito Google Chrome browser, ensuring testing without interference from extensions or cached data.
+
+### Latest Lighthouse Scores
+
+| Category       | Score |
+| -------------- | ----- |
+| Performance    | 86    |
+| Accessibility  | 98    |
+| Best Practices | 93    |
+| SEO            | 91    |
+
+These results demonstrate that the application is production-ready, with strong optimization around runtime performance, accessibility compliance, modern best practices, and SEO.
 
 # API Documentation and Testing
 

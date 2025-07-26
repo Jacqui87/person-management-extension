@@ -17,6 +17,7 @@ export interface MainPageState {
   uniqueEmail: boolean;
   errors: Record<string, any>;
   isAuthenticating: boolean;
+  tokenInvalid: boolean;
 }
 
 export const initialState: MainPageState = {
@@ -32,6 +33,7 @@ export const initialState: MainPageState = {
   uniqueEmail: true,
   errors: {},
   isAuthenticating: true,
+  tokenInvalid: false,
 };
 
 export type MainPageAction =
@@ -54,7 +56,8 @@ export type MainPageAction =
       };
     }
   | { type: "SET_ERRORS"; payload: Record<string, any> }
-  | { type: "SET_AUTHENTICATING"; payload: boolean };
+  | { type: "SET_AUTHENTICATING"; payload: boolean }
+  | { type: "SET_TOKEN_INVALID"; payload: boolean };
 
 export function mainPageReducer(
   state: MainPageState,
@@ -102,6 +105,9 @@ export function mainPageReducer(
       return { ...state, errors: action.payload };
     case "SET_AUTHENTICATING":
       return { ...state, isAuthenticating: action.payload };
+    case "SET_TOKEN_INVALID":
+      if (action.payload) localStorage.removeItem("token");
+      return { ...state, tokenInvalid: action.payload };
     default:
       return state;
   }

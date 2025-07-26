@@ -7,7 +7,7 @@ using UKParliament.CodeTest.Web.ViewModels;
 using UKParliament.CodeTest.Web.Auth;
 using Microsoft.OpenApi.Models;
 
-var localhost = "http://localhost:3000,https://localhost:7048";
+var localhost = "http://localhost:3000,https://localhost:7048,http://localhost:4173,http://localhost:4174";
 var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 

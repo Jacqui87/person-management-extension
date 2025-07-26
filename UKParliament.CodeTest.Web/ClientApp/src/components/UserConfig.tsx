@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { MainPageAction, MainPageState } from "../state/mainPageReducer";
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { PersonService } from "../services/personService";

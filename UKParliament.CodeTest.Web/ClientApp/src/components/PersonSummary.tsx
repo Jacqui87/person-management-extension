@@ -1,4 +1,5 @@
-import { Typography, Box } from "@mui/material";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 
 const PersonSummary = ({ isAdmin }: { isAdmin: boolean }) => (
   <Box mt={3}>

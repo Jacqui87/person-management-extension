@@ -1,6 +1,8 @@
 import { useEffect, useReducer } from "react";
 import { mainPageReducer, initialState } from "../state/mainPageReducer";
-import { Box, CircularProgress, Container } from "@mui/material";
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
 import { PersonService } from "../services/personService";
 import { login } from "../services/authService";
 import LoginScreen from "./LoginScreen";
@@ -61,15 +63,30 @@ const MainPage = () => {
     password: string | null;
     token: string | null;
   }) => {
-    const loginData = await login(user);
-    if (loginData.session.token) {
+    // A helper to handle successful login
+    const handleLoginSuccess = async (loginData: any) => {
+      dispatch({ type: "SET_TOKEN_INVALID", payload: false });
       localStorage.setItem("token", loginData.session.token);
       dispatch({ type: "LOGIN", payload: loginData.user });
       await loadPeople();
       await loadRoles();
       await loadDepartments();
-    } else {
-      alert("User not found");
+    };
+
+    // Try login once
+    let loginData = await login(user);
+    if (loginData && loginData.session && loginData.session.token) {
+      await handleLoginSuccess(loginData);
+      return;
+    }
+
+    // If first login fails, set token invalid
+    dispatch({ type: "SET_TOKEN_INVALID", payload: true });
+
+    // Try login second time
+    loginData = await login(user);
+    if (loginData && loginData.session && loginData.session.token) {
+      await handleLoginSuccess(loginData);
     }
 
     dispatch({ type: "SET_AUTHENTICATING", payload: false });

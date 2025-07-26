@@ -1,142 +1,204 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+// mainPageReducer.test.ts
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import {
   mainPageReducer,
   initialState,
   MainPageState,
-  MainPageAction,
 } from "./mainPageReducer";
-import type { PersonViewModel } from "../models/PersonViewModel";
-import type { DepartmentViewModel } from "../models/DepartmentViewModel";
-import type { RoleViewModel } from "../models/RoleViewModel";
+import { PersonViewModel } from "../models/PersonViewModel";
+import { DepartmentViewModel } from "../models/DepartmentViewModel";
+import { RoleViewModel } from "../models/RoleViewModel";
 
 describe("mainPageReducer", () => {
-  // Mock localStorage.removeItem before each test
+  beforeAll(() => {
+    // Mock localStorage globally for these tests
+    Object.defineProperty(window, "localStorage", {
+      value: {
+        removeItem: vi.fn(),
+        setItem: vi.fn(),
+        getItem: vi.fn(),
+        clear: vi.fn(),
+      },
+      writable: true,
+    });
+  });
+
   beforeEach(() => {
-    vi.spyOn(localStorage, "removeItem").mockImplementation(() => {});
-  });
-  afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
-  const mockPerson: PersonViewModel = {
-    id: 1,
-    firstName: "John",
-    lastName: "Doe",
-    email: "john@example.com",
-    role: 1,
-    department: 1,
-  } as any;
-
-  const mockDepartment: DepartmentViewModel = {
-    id: 10,
-    name: "HR",
-  } as any;
-
-  const mockRole: RoleViewModel = {
-    id: 5,
-    name: "Admin",
-  } as any;
-
-  it("should return initial state for unknown action", () => {
-    const unknownAction = { type: "UNKNOWN" } as any;
-    const newState = mainPageReducer(initialState, unknownAction);
-    expect(newState).toEqual(initialState);
+  it("should return the initial state if action is unknown", () => {
+    // @ts-ignore
+    expect(mainPageReducer(initialState, { type: "UNKNOWN" })).toEqual(
+      initialState
+    );
   });
 
   it("should handle LOGIN action", () => {
-    const action: MainPageAction = { type: "LOGIN", payload: mockPerson };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.loggedInUser).toEqual(mockPerson);
+    const user: PersonViewModel = {
+      id: 1,
+      name: "Test User",
+      email: "test@example.com",
+    } as any;
+    const newState = mainPageReducer(initialState, {
+      type: "LOGIN",
+      payload: user,
+    });
+    expect(newState.loggedInUser).toEqual(user);
   });
 
-  it.skip("should handle LOGOUT action and clear token", () => {
-    const loggedInState: MainPageState = {
+  it("should handle LOGOUT action and clear token", () => {
+    const state: MainPageState = {
       ...initialState,
-      loggedInUser: mockPerson,
+      loggedInUser: { id: 1, name: "User" } as any,
+      tokenInvalid: false,
     };
-    const action: MainPageAction = { type: "LOGOUT" };
-    const newState = mainPageReducer(loggedInState, action);
-    expect(localStorage.removeItem).toHaveBeenCalledWith("token");
+    const newState = mainPageReducer(state, { type: "LOGOUT" });
+    expect(window.localStorage.removeItem).toHaveBeenCalledWith("token");
     expect(newState).toEqual(initialState);
   });
 
-  it("should handle SET_PEOPLE action", () => {
-    const peopleArray = [mockPerson];
-    const action: MainPageAction = { type: "SET_PEOPLE", payload: peopleArray };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.people).toBe(peopleArray);
+  it("should handle SET_PEOPLE", () => {
+    const people: PersonViewModel[] = [
+      { id: 1, name: "Person 1" } as any,
+      { id: 2, name: "Person 2" } as any,
+    ];
+    const newState = mainPageReducer(initialState, {
+      type: "SET_PEOPLE",
+      payload: people,
+    });
+    expect(newState.people).toEqual(people);
   });
 
-  it("should handle SET_SELECTED_PERSON action", () => {
-    const action: MainPageAction = {
+  it("should handle SET_SELECTED_PERSON", () => {
+    const person: PersonViewModel = { id: 5, name: "Selected Person" } as any;
+    const newState = mainPageReducer(initialState, {
       type: "SET_SELECTED_PERSON",
-      payload: mockPerson,
-    };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.selectedPerson).toEqual(mockPerson);
+      payload: person,
+    });
+    expect(newState.selectedPerson).toEqual(person);
   });
 
-  it("should handle SET_DEPARTMENTS action", () => {
-    const departmentsArray = [mockDepartment];
-    const action: MainPageAction = {
+  it("should handle SET_DEPARTMENTS", () => {
+    const departments: DepartmentViewModel[] = [
+      { id: 1, name: "Dept1" } as any,
+    ];
+    const newState = mainPageReducer(initialState, {
       type: "SET_DEPARTMENTS",
-      payload: departmentsArray,
-    };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.departments).toBe(departmentsArray);
+      payload: departments,
+    });
+    expect(newState.departments).toEqual(departments);
   });
 
-  it("should handle SET_ROLES action", () => {
-    const rolesArray = [mockRole];
-    const action: MainPageAction = { type: "SET_ROLES", payload: rolesArray };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.roles).toBe(rolesArray);
+  it("should handle SET_ROLES", () => {
+    const roles: RoleViewModel[] = [{ id: 1, name: "Role1" } as any];
+    const newState = mainPageReducer(initialState, {
+      type: "SET_ROLES",
+      payload: roles,
+    });
+    expect(newState.roles).toEqual(roles);
   });
 
-  it("should handle SET_SEARCH_TERM action", () => {
-    const searchTerm = "search text";
-    const action: MainPageAction = {
+  it("should handle SET_SEARCH_TERM", () => {
+    const term = "search term";
+    const newState = mainPageReducer(initialState, {
       type: "SET_SEARCH_TERM",
-      payload: searchTerm,
-    };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.searchTerm).toBe(searchTerm);
+      payload: term,
+    });
+    expect(newState.searchTerm).toBe(term);
   });
 
-  it("should handle SET_FILTER_ROLE action", () => {
-    const filterRole = 3;
-    const action: MainPageAction = {
+  it("should handle SET_FILTER_ROLE", () => {
+    const roleId = 3;
+    const newState = mainPageReducer(initialState, {
       type: "SET_FILTER_ROLE",
-      payload: filterRole,
-    };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.filterRole).toBe(filterRole);
+      payload: roleId,
+    });
+    expect(newState.filterRole).toBe(roleId);
   });
 
-  it("should handle SET_FILTER_DEPARTMENT action", () => {
-    const filterDepartment = 2;
-    const action: MainPageAction = {
+  it("should handle SET_FILTER_DEPARTMENT", () => {
+    const deptId = 7;
+    const newState = mainPageReducer(initialState, {
       type: "SET_FILTER_DEPARTMENT",
-      payload: filterDepartment,
-    };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.filterDepartment).toBe(filterDepartment);
+      payload: deptId,
+    });
+    expect(newState.filterDepartment).toBe(deptId);
   });
 
-  it("should handle SET_FILTERED_PEOPLE action", () => {
-    const filteredPeople = [mockPerson];
-    const action: MainPageAction = {
+  it("should handle SET_FILTERED_PEOPLE by calling PersonService.filterPeople", () => {
+    const state: MainPageState = {
+      ...initialState,
+      searchTerm: "term",
+      filterRole: 1,
+      filterDepartment: 2,
+    };
+
+    const mockFilteredPeople = [{ id: 10, name: "Filtered User" } as any];
+    const personServiceMock = {
+      filterPeople: vi.fn(() => mockFilteredPeople),
+    };
+
+    const newState = mainPageReducer(state, {
       type: "SET_FILTERED_PEOPLE",
-      payload: filteredPeople,
-    };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.filteredPeople).toBe(filteredPeople);
+      payload: personServiceMock as any,
+    });
+    expect(personServiceMock.filterPeople).toHaveBeenCalledWith("term", 1, 2);
+    expect(newState.filteredPeople).toEqual(mockFilteredPeople);
   });
 
-  it("should handle SET_ERRORS action", () => {
-    const errors = { email: ["Invalid email"] };
-    const action: MainPageAction = { type: "SET_ERRORS", payload: errors };
-    const newState = mainPageReducer(initialState, action);
-    expect(newState.errors).toBe(errors);
+  it("should handle UNIQUE_EMAIL_CHECK by calling PersonService.isEmailUnique", () => {
+    const personServiceMock = {
+      isEmailUnique: vi.fn(() => true),
+    };
+    const payload = {
+      email: "email@example.com",
+      excludePersonId: 42,
+      personService: personServiceMock as any,
+    };
+    const newState = mainPageReducer(initialState, {
+      type: "UNIQUE_EMAIL_CHECK",
+      payload,
+    });
+    expect(personServiceMock.isEmailUnique).toHaveBeenCalledWith(
+      "email@example.com",
+      42
+    );
+    expect(newState.uniqueEmail).toBe(true);
+  });
+
+  it("should handle SET_ERRORS", () => {
+    const errors = { email: "Invalid email" };
+    const newState = mainPageReducer(initialState, {
+      type: "SET_ERRORS",
+      payload: errors,
+    });
+    expect(newState.errors).toEqual(errors);
+  });
+
+  it("should handle SET_AUTHENTICATING", () => {
+    const newState = mainPageReducer(initialState, {
+      type: "SET_AUTHENTICATING",
+      payload: false,
+    });
+    expect(newState.isAuthenticating).toBe(false);
+  });
+
+  it("should handle SET_TOKEN_INVALID true by removing token", () => {
+    const newState = mainPageReducer(initialState, {
+      type: "SET_TOKEN_INVALID",
+      payload: true,
+    });
+    expect(window.localStorage.removeItem).toHaveBeenCalledWith("token");
+    expect(newState.tokenInvalid).toBe(true);
+  });
+
+  it("should handle SET_TOKEN_INVALID false without removing token", () => {
+    const newState = mainPageReducer(initialState, {
+      type: "SET_TOKEN_INVALID",
+      payload: false,
+    });
+    expect(window.localStorage.removeItem).not.toHaveBeenCalled();
+    expect(newState.tokenInvalid).toBe(false);
   });
 });

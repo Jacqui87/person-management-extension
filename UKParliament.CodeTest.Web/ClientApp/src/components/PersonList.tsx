@@ -1,11 +1,9 @@
-import {
-  List,
-  ListItemButton,
-  ListItemText,
-  Button,
-  Typography,
-  Stack,
-} from "@mui/material";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
 import { PersonViewModel } from "../models/PersonViewModel";
 
 const PersonList = ({
