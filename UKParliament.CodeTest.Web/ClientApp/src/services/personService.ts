@@ -140,11 +140,29 @@ export class PersonService {
 
   // Get one person by ID with Axios
   async getPerson(id: number): Promise<PersonViewModel> {
+    // Try to find the person in the cache first
+    const cachedPerson = this.peopleCache.find((p) => p.id === id);
+    if (cachedPerson) {
+      return cachedPerson;
+    }
+
+    // If not in cache, fetch from API and optionally add to cache
     try {
       const res = await axios.get<PersonViewModel>(`${BASE_URL}/${id}`, {
         headers: getAuthHeaders(),
         withCredentials: true,
       });
+
+      // Optionally add/update the person in the cache
+      // This depends on your cache update strategy
+      // If you want to keep cache in sync, you can add/update here:
+      const index = this.peopleCache.findIndex((p) => p.id === id);
+      if (index !== -1) {
+        this.peopleCache[index] = res.data;
+      } else {
+        this.peopleCache.push(res.data);
+      }
+
       return res.data;
     } catch (error: any) {
       const message =

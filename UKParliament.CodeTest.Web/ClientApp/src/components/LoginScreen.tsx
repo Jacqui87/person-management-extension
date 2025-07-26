@@ -12,9 +12,10 @@ type Props = {
     password: string;
     token: string | null;
   }) => void;
+  tokenInvalid: boolean;
 };
 
-const LoginScreen = ({ onLogin }: Props) => {
+const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,19 @@ const LoginScreen = ({ onLogin }: Props) => {
         <Typography variant="h5" gutterBottom>
           Login
         </Typography>
+
+        {tokenInvalid && (
+          <Typography
+            color="error"
+            variant="body2"
+            sx={{ fontWeight: "bold", marginBottom: 2 }}
+            role="alert"
+            aria-live="assertive"
+          >
+            Invalid credentials
+          </Typography>
+        )}
+
         <Box
           component="form"
           onSubmit={handleSubmit}

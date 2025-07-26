@@ -103,6 +103,15 @@ const PersonEditor = ({
   >(null);
   const [passwordChanged, setPasswordChanged] = useState(false);
 
+  const today = new Date();
+  const maxDate = today.toISOString().split("T")[0];
+  const eighteenYearsAgo = new Date(
+    today.getFullYear() - 18,
+    today.getMonth(),
+    today.getDate()
+  );
+  const defaultDob = eighteenYearsAgo.toISOString().split("T")[0];
+
   useEffect(() => {
     // Reset confirm password and flags when person changes
     setConfirmPassword("");
@@ -137,9 +146,17 @@ const PersonEditor = ({
     ]
   );
 
+  const initialPersonValues: PersonViewModel = {
+    ...person,
+    dateOfBirth:
+      person.dateOfBirth && person.dateOfBirth.trim() !== ""
+        ? person.dateOfBirth
+        : defaultDob,
+  };
+
   const formik = useFormik<PersonViewModel>({
     enableReinitialize: true,
-    initialValues: { ...person },
+    initialValues: initialPersonValues,
     validationSchema,
     validateOnChange: true,
     validateOnBlur: true,
@@ -222,7 +239,7 @@ const PersonEditor = ({
           label="Date of Birth"
           type="date"
           name="dateOfBirth"
-          value={formik.values.dateOfBirth ?? ""}
+          value={formik.values.dateOfBirth ?? defaultDob}
           onChange={handleFieldChange}
           onBlur={formik.handleBlur}
           InputLabelProps={{ shrink: true }}
@@ -237,6 +254,9 @@ const PersonEditor = ({
             (formik.touched.dateOfBirth && formik.errors.dateOfBirth) ??
             (serverErrors.DateOfBirth ? serverErrors.DateOfBirth.join(" ") : "")
           }
+          inputProps={{
+            max: maxDate,
+          }}
         />
 
         {currentUser.role === ADMIN_ROLE_ID && (

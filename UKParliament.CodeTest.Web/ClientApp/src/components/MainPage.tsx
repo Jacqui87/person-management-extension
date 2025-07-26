@@ -81,15 +81,22 @@ const MainPage = () => {
       return;
     }
 
-    // If first login fails, set token invalid
-    dispatch({ type: "SET_TOKEN_INVALID", payload: true });
+    // If first login fails it means there is an invalid token - remove the token
+    localStorage.removeItem("token");
 
     // Try login second time
-    loginData = await login(user);
+    loginData = await login({
+      email: user.email,
+      password: user.password,
+      token: "",
+    });
     if (loginData && loginData.session && loginData.session.token) {
       await handleLoginSuccess(loginData);
       dispatch({ type: "SET_AUTHENTICATING", payload: false });
     }
+
+    // If second login fails it means someone who isn't registered is trying to login
+    dispatch({ type: "SET_TOKEN_INVALID", payload: true });
   };
 
   return (
@@ -106,7 +113,7 @@ const MainPage = () => {
           <CircularProgress />
         </Box>
       ) : !state.loggedInUser ? (
-        <LoginScreen onLogin={handleLogin} />
+        <LoginScreen onLogin={handleLogin} tokenInvalid={state.tokenInvalid} />
       ) : (
         <>
           <NavBar
