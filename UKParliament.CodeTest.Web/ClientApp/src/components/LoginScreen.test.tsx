@@ -12,7 +12,7 @@ describe("LoginScreen", () => {
   });
 
   it("renders email and password inputs and login button", () => {
-    render(<LoginScreen onLogin={vi.fn()} />);
+    render(<LoginScreen onLogin={vi.fn()} tokenInvalid={false} />);
 
     expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
@@ -23,7 +23,7 @@ describe("LoginScreen", () => {
   });
 
   it.skip("allows user to type email and password", async () => {
-    render(<LoginScreen onLogin={vi.fn()} />);
+    render(<LoginScreen onLogin={vi.fn()} tokenInvalid={false} />);
 
     const emailInput = screen.getByLabelText(
       /email address/i
@@ -41,7 +41,7 @@ describe("LoginScreen", () => {
 
   it("calls onLogin with email, password, and token from localStorage on submit", async () => {
     const mockOnLogin = vi.fn();
-    render(<LoginScreen onLogin={mockOnLogin} />);
+    render(<LoginScreen onLogin={mockOnLogin} tokenInvalid={false} />);
 
     const emailInput = screen.getByLabelText(/email address/i);
     const passwordInput = screen.getByLabelText(/password/i);
@@ -70,7 +70,7 @@ describe("LoginScreen", () => {
         })
     );
 
-    render(<LoginScreen onLogin={asyncOnLogin} />);
+    render(<LoginScreen onLogin={asyncOnLogin} tokenInvalid={false} />);
 
     const emailInput = screen.getByLabelText(/email address/i);
     const passwordInput = screen.getByLabelText(/password/i);
@@ -96,7 +96,7 @@ describe("LoginScreen", () => {
       throw new Error("Login failed");
     });
 
-    render(<LoginScreen onLogin={throwingOnLogin} />);
+    render(<LoginScreen onLogin={throwingOnLogin} tokenInvalid={false} />);
 
     const emailInput = screen.getByLabelText(/email address/i);
     const passwordInput = screen.getByLabelText(/password/i);

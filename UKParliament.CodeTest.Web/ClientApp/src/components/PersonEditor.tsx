@@ -33,8 +33,30 @@ const makeValidationSchema = (
         "Date of Birth must be in YYYY-MM-DD format"
       ),
     email: Yup.string()
-      .email("Invalid email address")
       .required("Email is required")
+      .email("Invalid email address")
+      .test(
+        "strict-domain",
+        "Email domain must contain at least one dot and valid characters",
+        (value) => {
+          if (!value) return false;
+          const [localPart, domain] = value.split("@");
+          if (!localPart || !domain) return false;
+
+          // Check domain contains at least one dot and valid domain format
+          if (!/\.[a-zA-Z]{2,}$/.test(domain)) return false;
+
+          // Optional: Additional character restrictions on local and domain parts
+          // Basic regex for allowed characters in local part (simplified)
+          const localValid = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+$/.test(
+            localPart
+          );
+          // Basic regex for allowed characters in domain part
+          const domainValid = /^[a-zA-Z0-9.-]+$/.test(domain);
+
+          return localValid && domainValid;
+        }
+      )
       .test("email-unique", "Email must be unique", function (value) {
         if (!personService) return true; // skip if no service
         dispatch({
@@ -48,11 +70,25 @@ const makeValidationSchema = (
         return uniqueEmail;
       }),
     password: Yup.string().test(
-      "password-length-if-changed",
-      "Password must be at least 6 characters",
+      "password-strength-if-changed",
+      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
       (value) => {
         if (passwordChanged) {
-          return !!value && value.length >= 6;
+          if (!value) return false;
+
+          const minLength = value.length >= 8;
+          const hasUppercase = /[A-Z]/.test(value);
+          const hasLowercase = /[a-z]/.test(value);
+          const hasNumber = /\d/.test(value);
+          const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+          return (
+            minLength &&
+            hasUppercase &&
+            hasLowercase &&
+            hasNumber &&
+            hasSpecialChar
+          );
         }
         return true; // skip if password not changed
       }

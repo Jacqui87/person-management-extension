@@ -106,7 +106,6 @@ export function mainPageReducer(
     case "SET_AUTHENTICATING":
       return { ...state, isAuthenticating: action.payload };
     case "SET_TOKEN_INVALID":
-      if (action.payload) localStorage.removeItem("token");
       return { ...state, tokenInvalid: action.payload };
     default:
       return state;

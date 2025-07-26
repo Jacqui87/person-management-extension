@@ -1,3 +1,5 @@
+namespace UKParliament.CodeTest.Services.Dtos;
+
 public enum StatusCodes
 {
     Success = 200,

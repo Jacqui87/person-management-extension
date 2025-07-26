@@ -27,8 +27,9 @@ Key extensions include:
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
+- [How to Login](#how-to-login)
 - [Running and Debugging](#running-and-debugging)
-- [Performance Testing & Lighthouse Audit](#performance-testing-&-lighthouse-audit)
+- [Performance Testing plus Lighthouse Audit](#performance-testing-plus-lighthouse-audit)
 - [API Documentation and Testing](#api-documentation-and-testing)
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
@@ -130,7 +131,53 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
 }
 ```
 
-# Performance Testing & Lighthouse Audit
+# How to Login
+
+You can log in to the Person Manager Application using one of the seeded user accounts or by creating a new user with a valid email and password.
+
+### Default Seeded Users for Login
+
+| Email                   | Password     | Role  |
+| ----------------------- | ------------ | ----- |
+| alice.smith@test.net    | Password1!   | User  |
+| robert.jones@test.net   | SecurePass2@ | User  |
+| amy.johnson@test.net    | AdminPass3#  | Admin |
+| john.doe@test.net       | UserPass4$   | User  |
+| emily.williams@test.net | EmilyPwd5%   | Admin |
+
+### Logging in via API
+
+Send a `POST` request to the login endpoint with your email address and password in the request body:
+
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "amy.johnson@test.net",
+  "password": "AdminPass3#"
+}
+```
+
+A successful login will return a JSON Web Token (JWT) which you should use as a Bearer token in the Authorization header for subsequent API requests.
+
+Example of a successful response:
+
+```
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600,
+  "user": {
+    "id": 3,
+    "email": "amy.johnson@test.net",
+    "role": 2
+  }
+}
+```
+
+Use the token returned to authenticate your requests in the top of the Swagger API.
+
+# Performance Testing plus Lighthouse Audit
 
 The frontend application was audited using `https://developers.google.com/web/tools/lighthouse` on the production build to ensure high performance, accessibility, SEO, and adherence to best practices.
 
@@ -207,9 +254,14 @@ These results demonstrate that the application is production-ready, with strong 
    -- Expand API docs with request/response examples.
    -- Add architecture diagrams.
 
-# API Schema Descriptions
+9. Implement refresh token support:
+   -- Add refresh tokens to complement JWT access tokens, allowing the frontend to renew sessions transparently.
+   -- This would ensure that the current logged-in user is continuously validated and still authorized to access the application.
+   -- It would prevent stale or invalid sessions by requiring periodic revalidation without forcing users to frequently log in again.
 
-## Person DTO
+# API Schema Description Examples
+
+### Person DTO
 
 ```json
 {
@@ -225,133 +277,36 @@ These results demonstrate that the application is production-ready, with strong 
 }
 ```
 
-## Department DTO
-
-```json
-{
-  "id": 1,
-  "name": "string"
-}
-```
-
-## Role DTO
-
-```json
-{
-  "id": 1,
-  "name": "string"
-}
-```
-
-## Auth Request
-
-```json
-{
-  "email": "string",
-  "password": "string"
-}
-```
-
-## Auth Response
-
-```json
-{
-  "token": "string (JWT)",
-  "expiresIn": 3600,
-  "user": {
-    "id": 1,
-    "email": "string",
-    "role": 2
-  }
-}
-```
-
 ---
 
 # Request and Response Examples
-
-## Auth
-
-### Get all sessions
-
-**Request:**  
-`GET /api/auth`
-
-```json
-[
-  {
-    "id": "ec1d086f-92b0-4c08-a6d4-c8bee896536d",
-    "userId": 3,
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwiZW1haWwiOiJhbXkuam9obnNvbkB0ZXN0Lm5ldCIsIm5hbWUiOiJBbXkgSm9obnNvbiIsImlhdCI6MTc1MzU0OTY3NCwicm9sZSI6IjIiLCJleHAiOjE3NTM1NTMyNzQsImlzcyI6InBlcnNvbl9tYW5hZ2VyIiwiYXVkIjoicGVvcGxlIn0.ot8zEYkssEHnfuVA57yeemrRYG7CVRUZjmfYpvbK7JE",
-    "createdAt": "2025-07-26T17:07:55.885168Z"
-  },
-  {
-    "id": "31d446c5-b3d0-4427-89c3-71fcbd5bdad7",
-    "userId": 3,
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwiZW1haWwiOiJhbXkuam9obnNvbkB0ZXN0Lm5ldCIsIm5hbWUiOiJBbXkgSm9obnNvbiIsImlhdCI6MTc1MzU0OTY5Nywicm9sZSI6IjIiLCJleHAiOjE3NTM1NTMyOTcsImlzcyI6InBlcnNvbl9tYW5hZ2VyIiwiYXVkIjoicGVvcGxlIn0.Z-LEHNg3VwAJUY_YmJQaPeKIpIzkWeXtbWen3YtkPes",
-    "createdAt": "2025-07-26T17:08:17.4283226Z"
-  }
-]
-```
-
-**Response:**  
-`200 OK`
-
-```json
-{
-  "session": {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "userId": 0,
-    "token": "string",
-    "createdAt": "2025-07-26T17:21:58.202Z"
-  },
-  "user": {
-    "id": 0,
-    "firstName": "string",
-    "lastName": "string",
-    "role": 0,
-    "email": "string",
-    "password": "string",
-    "biography": "string",
-    "department": 0,
-    "dateOfBirth": "2025-07-26"
-  }
-}
-```
-
-### Login
-
-**Request:**  
-`POST /api/auth/login`
-
-```json
-{
-  "email": "jane.doe@example.com",
-  "password": "Password123!"
-}
-```
-
-**Response:**  
-`200 OK`
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expiresIn": 3600,
-  "user": {
-    "id": 42,
-    "email": "jane.doe@example.com",
-    "role": 2
-  }
-}
-```
-
-## Person
 
 ### Get All Persons
 
 **Request:**  
 `GET /api/person`
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "id": 42,
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "password": "Password123!",
+  "biography": "A short bio about Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+```
+
+### Get Person by ID
+
+**Request:**  
+`GET /api/person/42`
 
 **Response:**  
 `200 OK`
@@ -404,118 +359,6 @@ These results demonstrate that the application is production-ready, with strong 
   "dateOfBirth": "1990-05-15"
 }
 ```
-
-### Get All Departments
-
-**Request:**  
-`GET /api/departments`
-
-**Response:**  
-`200 OK`
-
-```json
-[
-  {
-    "id": 1,
-    "name": "IT"
-  },
-  {
-    "id": 2,
-    "name": "HR"
-  }
-]
-```
-
-### Get All Roles
-
-**Request:**  
-`GET /api/roles`
-
-**Response:**  
-`200 OK`
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Admin"
-  },
-  {
-    "id": 2,
-    "name": "User"
-  },
-  {
-    "id": 4,
-    "name": "Manager"
-  }
-]
-```
-
-### Get Person by ID
-
-**Request:**  
-`GET /api/person/42`
-
-**Response:**  
-`200 OK`
-
-```json
-{
-  "id": 42,
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "A short bio about Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
-### Update Person
-
-**Request:**  
-`PUT /api/person/42`
-
-```json
-{
-  "id": 42,
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "Updated bio for Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
-**Response:**  
-`200 OK`
-
-```json
-{
-  "id": 42,
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "Updated bio for Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
-### Delete Person
-
-**Request:**  
-`DELETE /api/person/42`
-
-**Response:**  
-`204 NO CONTENT` (no body)
 
 ---
 

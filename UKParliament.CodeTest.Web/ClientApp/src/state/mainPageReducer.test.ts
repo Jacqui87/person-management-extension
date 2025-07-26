@@ -34,18 +34,6 @@ describe("mainPageReducer - additional tests", () => {
     expect(newState.tokenInvalid).toBe(false);
   });
 
-  it("should call localStorage.removeItem only when SET_TOKEN_INVALID payload is true", () => {
-    mainPageReducer(initialState, { type: "SET_TOKEN_INVALID", payload: true });
-    expect(window.localStorage.removeItem).toHaveBeenCalledWith("token");
-    vi.clearAllMocks();
-
-    mainPageReducer(initialState, {
-      type: "SET_TOKEN_INVALID",
-      payload: false,
-    });
-    expect(window.localStorage.removeItem).not.toHaveBeenCalled();
-  });
-
   it("should update filteredPeople correctly when filter changes", () => {
     const fakeFilteredPeople: PersonViewModel[] = [
       {
