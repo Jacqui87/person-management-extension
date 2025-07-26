@@ -31,7 +31,6 @@ Key extensions include:
 - [API Documentation and Testing](#api-documentation-and-testing)
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
-- [Contributing](#contributing)
 
 # Features
 
