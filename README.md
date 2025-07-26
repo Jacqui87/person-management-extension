@@ -33,7 +33,7 @@ Key extensions include:
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
 - [API Schema Descriptions](#api-schema-dDescriptions)
-- [Request/Response Examples](#request/response-examples)
+- [Request and Response Examples](#request-and-response-examples)
 - [API Usage Examples](#api-usage-examples)
 - [Architecture Diagram](#architecture-diagram)
 
@@ -268,7 +268,7 @@ These results demonstrate that the application is production-ready, with strong 
 
 ---
 
-# Request/Response Examples
+# Request and Response Examples
 
 ## Create Person
 
