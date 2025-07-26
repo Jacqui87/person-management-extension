@@ -184,5 +184,4 @@ These results demonstrate that the application is production-ready, with strong 
 8. Enforce stronger password rules: minimum 8 characters, mixed case, numbers, special characters.
 9. Fix currently skipped failing React tests and adding more in depth testing of edge cases: front & back end.
 10. Use HTTP PATCH instead of PUT to optimize updates and reduce data overwrite.
-11. Add a snackbar notification system to provide feedback on add/update operations, enhancing user experience.
-12. When a token is invalid it should 'fail' more gracefully rather than leaving error messages in the console.
+11. When a token is invalid it should 'fail' more gracefully rather than leaving error messages in the console.
