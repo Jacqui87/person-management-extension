@@ -29,7 +29,7 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         Role = 1,
         Email = "alice.smith@test.net",
         Department = 1,
-        Password = "Password1!", // updated to meet requirements
+        Password = "Password1!",
         DateOfBirth = new DateOnly(1980, 10, 25),
         Biography = "Trail running, world cuisines, community projects"
       },
@@ -41,7 +41,7 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         Role = 1,
         Email = "robert.jones@test.net",
         Department = 2,
-        Password = "SecurePass2@", // updated
+        Password = "SecurePass2@",
         DateOfBirth = new DateOnly(1987, 3, 1),
         Biography = "Photography, urban gardening, local arts & music"
       },
@@ -53,7 +53,7 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         Role = 2,
         Email = "amy.johnson@test.net",
         Department = 3,
-        Password = "AdminPass3#", // updated
+        Password = "AdminPass3#",
         DateOfBirth = new DateOnly(1990, 5, 15),
         Biography = "Board games, travel, trivia nights"
       },
@@ -65,7 +65,7 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         Role = 1,
         Email = "john.doe@test.net",
         Department = 4,
-        Password = "UserPass4$", // updated
+        Password = "UserPass4$",
         DateOfBirth = new DateOnly(1985, 8, 20),
         Biography = "Long-distance cycling, creative writing, community clean-ups"
       },
@@ -77,7 +77,7 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         Role = 2,
         Email = "emily.williams@test.net",
         Department = 2,
-        Password = "EmilyPwd5%", // updated
+        Password = "EmilyPwd5%",
         DateOfBirth = new DateOnly(1992, 11, 10),
         Biography = "Hiking, cooking, volunteering"
       });
