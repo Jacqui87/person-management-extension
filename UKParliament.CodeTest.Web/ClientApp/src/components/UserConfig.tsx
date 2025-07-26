@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { MainPageAction, MainPageState } from "../state/mainPageReducer";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
@@ -10,6 +10,7 @@ import PersonSummary from "./PersonSummary";
 import SearchBar from "./SearchBar";
 import { ADMIN_ROLE_ID } from "../constants/roles";
 import theme from "../theme";
+import ActionSnackbar from "../elements/ActionSnackbar";
 
 // Styled layout containers
 const ContentWrapper = styled(Box)({
@@ -55,6 +56,10 @@ const UserConfig = ({
   dispatch: React.Dispatch<MainPageAction>;
   personService: PersonService;
 }) => {
+  const [snackbarStatus, setSnackbarStatus] = useState<
+    "success" | "failed" | "info" | "warning" | "closed"
+  >("closed");
+
   const loadPeople = async () => {
     const all = await personService.getAllPeople(false);
     dispatch({ type: "SET_PEOPLE", payload: all });
@@ -63,6 +68,17 @@ const UserConfig = ({
   useEffect(() => {
     loadPeople();
   }, [state.loggedInUser]);
+
+  const handleSnackbarClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    // Prevent closing on clickaway if you want
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarStatus("closed");
+  };
 
   const handleSave = async (person: PersonViewModel) => {
     let success = false;
@@ -76,8 +92,11 @@ const UserConfig = ({
       );
     }
     if (success) {
+      setSnackbarStatus("success");
       await loadPeople();
       dispatch({ type: "SET_SELECTED_PERSON", payload: null });
+    } else {
+      setSnackbarStatus("failed");
     }
   };
 
@@ -134,6 +153,7 @@ const UserConfig = ({
             personService={personService}
             onSave={handleSave}
             onDelete={() => handleDelete(state.selectedPerson!.id)}
+            setSnackbarStatus={setSnackbarStatus}
           />
         ) : (
           <PersonSummary isAdmin={isAdmin} />
@@ -147,9 +167,19 @@ const UserConfig = ({
             personService={personService}
             onSave={handleSave}
             onDelete={() => handleDelete(state.selectedPerson!.id)}
+            setSnackbarStatus={setSnackbarStatus}
           />
         )}
       </RightPane>
+
+      <ActionSnackbar
+        status={snackbarStatus}
+        handleClose={handleSnackbarClose}
+        successText="Action was successful!"
+        failedText="Action failed. Please try again."
+        warningText="Warning: Check your inputs."
+        informationText="Action cancelled."
+      />
     </ContentWrapper>
   );
 };

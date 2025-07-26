@@ -1,116 +1,135 @@
 import React from "react";
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import SearchBar from "./SearchBar";
-import type { MainPageState, MainPageAction } from "../state/mainPageReducer";
+import { MainPageState, MainPageAction } from "../state/mainPageReducer";
 
 describe("SearchBar", () => {
-  const roles = [
-    { id: 1, type: "Admin" },
-    { id: 2, type: "User" },
-  ];
-
-  const departments = [
-    { id: 10, name: "HR" },
-    { id: 20, name: "IT" },
-  ];
-
   const baseState: MainPageState = {
     loggedInUser: null,
     people: [],
     selectedPerson: null,
-    departments,
-    roles,
+    departments: [
+      { id: 1, name: "Dept 1" },
+      { id: 2, name: "Dept 2" },
+    ],
+    roles: [
+      { id: 10, type: "Role 10" },
+      { id: 20, type: "Role 20" },
+    ],
     searchTerm: "initial search",
-    filterRole: 2,
-    filterDepartment: 10,
+    filterRole: 20,
+    filterDepartment: 2,
     filteredPeople: [],
+    uniqueEmail: true,
     errors: {},
+    isAuthenticating: false,
+    tokenInvalid: false,
   };
 
-  it.skip("renders search input, role select, and department select with correct initial values", () => {
-    const mockDispatch = vi.fn();
+  let dispatch: React.Dispatch<MainPageAction>;
 
-    render(<SearchBar state={baseState} dispatch={mockDispatch} />);
+  beforeEach(() => {
+    dispatch = vi.fn();
+  });
 
-    const searchInput = screen.getByLabelText(/search people/i);
+  it("renders search input with initial value", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+    const searchInput = screen.getByLabelText(/search people.../i);
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveValue("initial search");
+  });
 
-    const roleSelect = screen.getByLabelText(/role/i);
+  it("renders Role and Department selects with correct labels and initial values", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+
+    const roleSelect = screen.getByRole("combobox", { name: /^role$/i });
     expect(roleSelect).toBeInTheDocument();
-    expect(roleSelect).toHaveValue("2");
 
-    const departmentSelect = screen.getByLabelText(/department/i);
-    expect(departmentSelect).toBeInTheDocument();
-    expect(departmentSelect).toHaveValue("10");
+    const deptSelect = screen.getByRole("combobox", { name: /^department$/i });
+    expect(deptSelect).toBeInTheDocument();
 
-    // Check role options include "All roles" and roles from state
-    expect(
-      screen.getByRole("option", { name: "All roles" })
-    ).toBeInTheDocument();
-    roles.forEach((role) => {
-      expect(
-        screen.getByRole("option", { name: role.type })
-      ).toBeInTheDocument();
-    });
+    // The role select should display the label of selected role
+    expect(roleSelect).toHaveTextContent("Role 20");
 
-    // Check department options include "All departments" and departments from state
-    expect(
-      screen.getByRole("option", { name: "All departments" })
-    ).toBeInTheDocument();
-    departments.forEach((dept) => {
-      expect(
-        screen.getByRole("option", { name: dept.name })
-      ).toBeInTheDocument();
-    });
+    // The department select should display the label of selected department
+    expect(deptSelect).toHaveTextContent("Dept 2");
   });
 
-  it("dispatches SET_SEARCH_TERM action with new value on search input change", () => {
-    const mockDispatch = vi.fn();
-
-    render(<SearchBar state={baseState} dispatch={mockDispatch} />);
-
-    const searchInput = screen.getByLabelText(/search people/i);
-
-    fireEvent.change(searchInput, { target: { value: "new search" } });
-
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledWith({
+  it("dispatches SET_SEARCH_TERM when typing in search input", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+    const searchInput = screen.getByLabelText(/search people.../i);
+    fireEvent.change(searchInput, { target: { value: "new query" } });
+    expect(dispatch).toHaveBeenCalledWith({
       type: "SET_SEARCH_TERM",
-      payload: "new search",
+      payload: "new query",
     });
   });
 
-  it.skip("dispatches SET_FILTER_ROLE action with correct number on role select change", () => {
-    const mockDispatch = vi.fn();
+  it("dispatches SET_FILTER_ROLE when selecting a role", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+    const roleSelect = screen.getByRole("combobox", { name: /^role$/i });
 
-    render(<SearchBar state={baseState} dispatch={mockDispatch} />);
+    // Open role select menu
+    fireEvent.mouseDown(roleSelect);
 
-    const roleSelect = screen.getByLabelText(/role/i);
+    // The popup listbox container appears; query options inside it
+    const listbox = screen.getByRole("listbox");
+    const optionRole10 = within(listbox).getByText("Role 10");
+    fireEvent.click(optionRole10);
 
-    fireEvent.change(roleSelect, { target: { value: "1" } });
-
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledWith({
+    expect(dispatch).toHaveBeenCalledWith({
       type: "SET_FILTER_ROLE",
+      payload: 10,
+    });
+  });
+
+  it("dispatches SET_FILTER_DEPARTMENT when selecting a department", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+    const deptSelect = screen.getByRole("combobox", { name: /^department$/i });
+
+    // Open department select menu
+    fireEvent.mouseDown(deptSelect);
+
+    const listbox = screen.getByRole("listbox");
+    const optionDept1 = within(listbox).getByText("Dept 1");
+    fireEvent.click(optionDept1);
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "SET_FILTER_DEPARTMENT",
       payload: 1,
     });
   });
 
-  it.skip("dispatches SET_FILTER_DEPARTMENT action with correct number on department select change", () => {
-    const mockDispatch = vi.fn();
+  it("allows selecting 'All roles' and dispatches 0 as payload", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+    const roleSelect = screen.getByRole("combobox", { name: /^role$/i });
 
-    render(<SearchBar state={baseState} dispatch={mockDispatch} />);
+    fireEvent.mouseDown(roleSelect);
 
-    const departmentSelect = screen.getByLabelText(/department/i);
+    const listbox = screen.getByRole("listbox");
+    const allRolesOption = within(listbox).getByText(/All roles/i);
+    fireEvent.click(allRolesOption);
 
-    fireEvent.change(departmentSelect, { target: { value: "20" } });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "SET_FILTER_ROLE",
+      payload: 0,
+    });
+  });
 
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledWith({
+  it("allows selecting 'All departments' and dispatches 0 as payload", () => {
+    render(<SearchBar state={baseState} dispatch={dispatch} />);
+    const deptSelect = screen.getByRole("combobox", { name: /^department$/i });
+
+    fireEvent.mouseDown(deptSelect);
+
+    const listbox = screen.getByRole("listbox");
+    const allDeptsOption = within(listbox).getByText(/All departments/i);
+    fireEvent.click(allDeptsOption);
+
+    expect(dispatch).toHaveBeenCalledWith({
       type: "SET_FILTER_DEPARTMENT",
-      payload: 20,
+      payload: 0,
     });
   });
 });

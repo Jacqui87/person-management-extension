@@ -117,8 +117,6 @@ export class PersonService {
   }
 
   isEmailUnique(email: string, excludePersonId: number | undefined): boolean {
-    console.log("email", email, excludePersonId, this.peopleCache);
-
     const emailToCheck = email.toLowerCase().trim();
     if (excludePersonId === 0) {
       // New user - check all records without exclusion

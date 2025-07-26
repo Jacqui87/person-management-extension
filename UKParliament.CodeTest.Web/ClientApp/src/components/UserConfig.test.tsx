@@ -1,304 +1,169 @@
-import React from "react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import UserConfig from "./UserConfig";
-import type { MainPageState, MainPageAction } from "../state/mainPageReducer";
-import { PersonService } from "../services/personService";
-import { ADMIN_ROLE_ID } from "../constants/roles";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
+import {
+  mainPageReducer,
+  initialState,
+  MainPageState,
+  MainPageAction,
+} from "../state/mainPageReducer";
+import { PersonViewModel } from "../models/PersonViewModel";
 
-// Mock PersonService methods
-const mockGetAllPeople = vi.fn();
-const mockGetPerson = vi.fn();
-const mockAddPerson = vi.fn();
-const mockUpdatePerson = vi.fn();
-const mockDeletePerson = vi.fn();
-
-vi.mock("../services/personService", () => {
-  return {
-    PersonService: vi.fn().mockImplementation(() => ({
-      getAllPeople: mockGetAllPeople,
-      getPerson: mockGetPerson,
-      addPerson: mockAddPerson,
-      updatePerson: mockUpdatePerson,
-      deletePerson: mockDeletePerson,
-    })),
-  };
-});
-
-describe.skip("UserConfig Component", () => {
-  let state: MainPageState;
-  let dispatch: React.Dispatch<MainPageAction>;
+describe("mainPageReducer", () => {
+  beforeAll(() => {
+    Object.defineProperty(window, "localStorage", {
+      value: {
+        removeItem: vi.fn(),
+        setItem: vi.fn(),
+        getItem: vi.fn(),
+        clear: vi.fn(),
+      },
+      writable: true,
+    });
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
 
-    // Reset mocks to default resolves/returns
-    mockGetAllPeople.mockResolvedValue([]);
-    mockGetPerson.mockResolvedValue(null);
-    mockAddPerson.mockResolvedValue(true);
-    mockUpdatePerson.mockResolvedValue(true);
+  it("should handle LOGIN action", () => {
+    const user: PersonViewModel = {
+      id: 1,
+      firstName: "John",
+      lastName: "Doe",
+      dateOfBirth: "1980-01-01",
+      email: "john.doe@example.com",
+      department: 5,
+      password: "password123",
+      role: 2,
+      biography: "Sample bio",
+    };
+    const action: MainPageAction = { type: "LOGIN", payload: user };
+    const newState = mainPageReducer(initialState, action);
+    expect(newState.loggedInUser).toEqual(user);
+  });
 
-    dispatch = vi.fn();
-
-    state = {
+  it("should handle LOGOUT action and clear token", () => {
+    const state: MainPageState = {
+      ...initialState,
       loggedInUser: {
         id: 1,
-        firstName: "Admin",
-        lastName: "User",
-        email: "admin@example.com",
-        role: ADMIN_ROLE_ID,
-        department: 1,
-        dateOfBirth: "1980-01-01",
-        password: "",
-        biography: "",
-      },
-      people: [],
-      selectedPerson: null,
-      departments: [{ id: 1, name: "HR" }],
-      roles: [
-        { id: ADMIN_ROLE_ID, type: "Admin" },
-        { id: 2, type: "User" },
-      ],
-      searchTerm: "",
-      filterRole: 0,
-      filterDepartment: 0,
-      filteredPeople: [
-        {
-          id: 1,
-          firstName: "Admin",
-          lastName: "User",
-          email: "admin@example.com",
-          role: ADMIN_ROLE_ID,
-          department: 1,
-          dateOfBirth: "1980-01-01",
-          password: "",
-          biography: "",
-        },
-        {
-          id: 2,
-          firstName: "Regular",
-          lastName: "User",
-          email: "user@example.com",
-          role: 2,
-          department: 1,
-          dateOfBirth: "1990-01-01",
-          password: "",
-          biography: "",
-        },
-      ],
-      errors: {},
-    };
-  });
-
-  it("calls loadPeople on mount and dispatches SET_PEOPLE", async () => {
-    mockGetAllPeople.mockResolvedValue(state.filteredPeople);
-
-    render(
-      <UserConfig
-        state={state}
-        dispatch={dispatch}
-        personService={new PersonService()}
-      />
-    );
-
-    await waitFor(() => {
-      expect(mockGetAllPeople).toHaveBeenCalledWith(false);
-    });
-
-    await waitFor(() => {
-      expect(dispatch).toHaveBeenCalledWith({
-        type: "SET_PEOPLE",
-        payload: state.filteredPeople,
-      });
-    });
-  });
-
-  it("renders SearchBar and PersonList for admin users", () => {
-    render(
-      <UserConfig
-        state={state}
-        dispatch={dispatch}
-        personService={new PersonService()}
-      />
-    );
-
-    expect(screen.getByText(/people/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/search people/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /add person/i })
-    ).toBeInTheDocument();
-
-    // PersonList shows people filtered
-    expect(screen.getByText("Admin User")).toBeInTheDocument();
-    expect(screen.getByText("Regular User")).toBeInTheDocument();
-  });
-
-  it("renders PersonEditor for selectedPerson when selected", async () => {
-    state = { ...state, selectedPerson: state.filteredPeople[1] };
-
-    render(
-      <UserConfig
-        state={state}
-        dispatch={dispatch}
-        personService={new PersonService()}
-      />
-    );
-
-    // PersonEditor contains heading "Edit Person"
-    expect(screen.getByText(/edit person/i)).toBeInTheDocument();
-
-    // The selected person's first name should appear in one of the inputs
-    expect(screen.getByDisplayValue("Regular")).toBeInTheDocument();
-  });
-
-  it("clicking on PersonList onSelect calls personService.getPerson and dispatches selection", async () => {
-    const personService = new PersonService();
-
-    const person = state.filteredPeople[1];
-    mockGetPerson.mockResolvedValue(person);
-
-    render(
-      <UserConfig
-        state={state}
-        dispatch={dispatch}
-        personService={personService}
-      />
-    );
-
-    // Find person list button by person's full name
-    const personButton = screen.getByText(
-      `${person.firstName} ${person.lastName}`
-    );
-
-    // Click triggers onSelect
-    await personButton.click();
-
-    await waitFor(() => {
-      expect(mockGetPerson).toHaveBeenCalledWith(person.id);
-    });
-
-    await waitFor(() => {
-      expect(dispatch).toHaveBeenCalledWith({
-        type: "SET_SELECTED_PERSON",
-        payload: person,
-      });
-    });
-  });
-
-  it("clicking on Add Person dispatches SET_SELECTED_PERSON with empty person", () => {
-    render(
-      <UserConfig
-        state={state}
-        dispatch={dispatch}
-        personService={new PersonService()}
-      />
-    );
-
-    const addButton = screen.getByRole("button", { name: /add person/i });
-
-    fireEvent.click(addButton);
-
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "SET_SELECTED_PERSON",
-      payload: expect.objectContaining({
-        id: 0,
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        biography: "",
-        dateOfBirth: "",
+        firstName: "Jane",
+        lastName: "Smith",
+        dateOfBirth: "1990-05-05",
+        email: "jane.smith@example.com",
+        department: 3,
+        password: "123456",
         role: 1,
-        department: 1,
-      }),
-    });
-  });
-
-  it("handleSave calls addPerson for id=0 and updatePerson otherwise, and dispatches actions upon success", async () => {
-    const personService = new PersonService();
-
-    // Set up spies on addPerson and updatePerson
-    mockAddPerson.mockResolvedValue(true);
-    mockUpdatePerson.mockResolvedValue(true);
-
-    // Wrap UserConfig to get handleSave via PersonEditor props
-    render(
-      <UserConfig
-        state={state}
-        dispatch={dispatch}
-        personService={personService}
-      />
-    );
-
-    // Find PersonEditor and invoke onSave prop with new person (id = 0)
-    const addPerson = {
-      id: 0,
-      firstName: "New",
-      lastName: "Person",
-      email: "newperson@example.com",
-      password: "",
-      biography: "",
-      dateOfBirth: "2000-01-01",
-      role: 1,
-      department: 1,
-    };
-
-    expect(true).toBe(true); // placeholder
-  });
-
-  it("renders PersonEditor for non-admin loggedInUser with filtered people filtered by id", () => {
-    // Setup non-admin user
-    const nonAdminState = {
-      ...state,
-      loggedInUser: {
-        id: 2,
-        firstName: "Regular",
-        lastName: "User",
-        email: "user@example.com",
-        role: 2,
-        department: 1,
-        dateOfBirth: "1990-01-01",
-        password: "",
-        biography: "",
+        biography: "Bio text",
       },
-      filteredPeople: [
-        {
-          id: 2,
-          firstName: "Regular",
-          lastName: "User",
-          email: "user@example.com",
-          role: 2,
-          department: 1,
-          dateOfBirth: "1990-01-01",
-          password: "",
-          biography: "",
-        },
-        {
-          id: 3,
-          firstName: "Other",
-          lastName: "User",
-          email: "other@example.com",
-          role: 2,
-          department: 1,
-          dateOfBirth: "1991-01-01",
-          password: "",
-          biography: "",
-        },
-      ],
+      tokenInvalid: false,
+    };
+    const action: MainPageAction = { type: "LOGOUT" };
+    const newState = mainPageReducer(state, action);
+    expect(window.localStorage.removeItem).toHaveBeenCalledWith("token");
+    expect(newState).toEqual(initialState);
+  });
+
+  it("should handle SET_PEOPLE", () => {
+    const people: PersonViewModel[] = [
+      {
+        id: 1,
+        firstName: "Alice",
+        lastName: "Johnson",
+        dateOfBirth: "1975-10-10",
+        email: "alice@example.com",
+        department: 2,
+        password: "alicepass",
+        role: 3,
+        biography: "Bio A",
+      },
+      {
+        id: 2,
+        firstName: "Bob",
+        lastName: "Williams",
+        dateOfBirth: null,
+        email: "bob@example.com",
+        department: 4,
+        password: "bobpass",
+        role: 4,
+        biography: "Bio B",
+      },
+    ];
+    const action: MainPageAction = { type: "SET_PEOPLE", payload: people };
+    const newState = mainPageReducer(initialState, action);
+    expect(newState.people).toEqual(people);
+  });
+
+  it("should handle SET_SELECTED_PERSON", () => {
+    const person: PersonViewModel = {
+      id: 5,
+      firstName: "Selected",
+      lastName: "Person",
+      dateOfBirth: "2000-12-12",
+      email: "selected@example.com",
+      department: 7,
+      password: "selectedpass",
+      role: 5,
+      biography: "Selected biography",
+    };
+    const action: MainPageAction = {
+      type: "SET_SELECTED_PERSON",
+      payload: person,
+    };
+    const newState = mainPageReducer(initialState, action);
+    expect(newState.selectedPerson).toEqual(person);
+  });
+
+  // Remaining tests unchanged except using matching PersonViewModel in test data:
+
+  it("should handle SET_FILTERED_PEOPLE by calling PersonService.filterPeople", () => {
+    const state: MainPageState = {
+      ...initialState,
+      searchTerm: "term",
+      filterRole: 1,
+      filterDepartment: 2,
     };
 
-    render(
-      <UserConfig
-        state={nonAdminState}
-        dispatch={dispatch}
-        personService={new PersonService()}
-      />
-    );
+    const mockFilteredPeople: PersonViewModel[] = [
+      {
+        id: 10,
+        firstName: "Filtered",
+        lastName: "User",
+        dateOfBirth: "1995-08-20",
+        email: "filtered.user@example.com",
+        department: 1,
+        password: "password",
+        role: 1,
+        biography: "filtered biography",
+      },
+    ];
+    const personServiceMock = {
+      filterPeople: vi.fn(() => mockFilteredPeople),
+    };
 
-    expect(screen.queryByText(/people/i)).not.toBeInTheDocument();
-    // PersonEditor with loggedInUser info present
-    expect(
-      screen.getByDisplayValue(nonAdminState.loggedInUser.firstName)
-    ).toBeInTheDocument();
+    const action: MainPageAction = {
+      type: "SET_FILTERED_PEOPLE",
+      payload: personServiceMock as any,
+    };
+    const newState = mainPageReducer(state, action);
+    expect(personServiceMock.filterPeople).toHaveBeenCalledWith("term", 1, 2);
+    expect(newState.filteredPeople).toEqual(mockFilteredPeople);
+  });
+
+  it("should handle UNIQUE_EMAIL_CHECK by calling PersonService.isEmailUnique", () => {
+    const personServiceMock = {
+      isEmailUnique: vi.fn(() => true),
+    };
+    const payload = {
+      email: "email@example.com",
+      excludePersonId: 42,
+      personService: personServiceMock as any,
+    };
+    const action: MainPageAction = { type: "UNIQUE_EMAIL_CHECK", payload };
+    const newState = mainPageReducer(initialState, action);
+    expect(personServiceMock.isEmailUnique).toHaveBeenCalledWith(
+      "email@example.com",
+      42
+    );
+    expect(newState.uniqueEmail).toBe(true);
   });
 });

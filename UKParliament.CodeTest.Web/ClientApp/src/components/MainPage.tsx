@@ -77,6 +77,7 @@ const MainPage = () => {
     let loginData = await login(user);
     if (loginData && loginData.session && loginData.session.token) {
       await handleLoginSuccess(loginData);
+      dispatch({ type: "SET_AUTHENTICATING", payload: false });
       return;
     }
 
@@ -87,9 +88,8 @@ const MainPage = () => {
     loginData = await login(user);
     if (loginData && loginData.session && loginData.session.token) {
       await handleLoginSuccess(loginData);
+      dispatch({ type: "SET_AUTHENTICATING", payload: false });
     }
-
-    dispatch({ type: "SET_AUTHENTICATING", payload: false });
   };
 
   return (

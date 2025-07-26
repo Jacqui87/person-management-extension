@@ -36,9 +36,7 @@ const makeValidationSchema = (
       .email("Invalid email address")
       .required("Email is required")
       .test("email-unique", "Email must be unique", function (value) {
-        if (!personService || !value) return true; // skip if no service or empty
-        console.log("person", person);
-
+        if (!personService) return true; // skip if no service
         dispatch({
           type: "UNIQUE_EMAIL_CHECK",
           payload: {
@@ -80,6 +78,9 @@ interface PersonEditorProps {
   onSave: (person: PersonViewModel) => void;
   onDelete?: (id: number) => void;
   personService: PersonService;
+  setSnackbarStatus: React.Dispatch<
+    React.SetStateAction<"success" | "failed" | "info" | "warning" | "closed">
+  >;
 }
 
 const PersonEditor = ({
@@ -89,6 +90,7 @@ const PersonEditor = ({
   onSave,
   onDelete,
   personService,
+  setSnackbarStatus,
 }: PersonEditorProps) => {
   const currentUser = state.loggedInUser;
   const departments: DepartmentViewModel[] = state.departments;
@@ -168,6 +170,8 @@ const PersonEditor = ({
   };
 
   const handleCancel = () => {
+    formik.resetForm();
+    setSnackbarStatus("info");
     dispatch({ type: "SET_SELECTED_PERSON", payload: null });
   };
 
