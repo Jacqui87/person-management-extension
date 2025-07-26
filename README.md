@@ -257,9 +257,15 @@ These results demonstrate that the application is production-ready, with strong 
    - Add CI/CD pipelines for automated testing, linting, and deployment.
 
 8. Implement refresh token support:
+
    - Add refresh tokens to complement JWT access tokens, allowing the frontend to renew sessions transparently.
    - This would ensure that the current logged-in user is continuously validated and still authorized to access the application.
    - It would prevent stale or invalid sessions by requiring periodic revalidation without forcing users to frequently log in again.
+
+9. Add end-to-end (E2E) testing:
+   - Implement automated UI tests using a tool like Cypress or Playwright to cover critical user journeys.
+   - Ensure comprehensive test coverage beyond unit and integration tests to validate application workflows from the user perspective.
+   - This would improve confidence in production readiness and reduce regression risks.
 
 # API Schema Description Examples
 
