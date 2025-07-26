@@ -431,16 +431,26 @@ curl -X PUT https://localhost:7048/api/person/42 \
 
 # Architecture Diagram
 
-```mermaid
-flowchart TD
-    subgraph Frontend
-        A[React App<br>TypeScript, MUI, Formik/Yup]
-    end
-    subgraph Backend
-        B[ASP.NET Core 8 API<br>FluentValidation, JWT Auth]
-        C[Database<br>(e.g., SQL Server)]
-    end
-    A -- REST API (HTTPS) --> B
-    B -- SQL Queries --> C
-    B -- Generates JWT --> A
-```
++-----------------------------+
+| Frontend |
+|-----------------------------|
+| React (TypeScript, MUI, |
+| Formik/Yup) |
++-------------+---------------+
+|
+| REST API (HTTPS)
+v
++-------------+---------------+
+| Backend |
+|-----------------------------|
+| ASP.NET Core 8 API |
+| FluentValidation, JWT Auth |
++-------------+---------------+
+|
+| SQL Queries
+v
++-------------+---------------+
+| Database |
+|-----------------------------|
+| (e.g., SQL Server) |
++-----------------------------+
