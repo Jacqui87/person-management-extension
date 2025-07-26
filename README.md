@@ -46,13 +46,13 @@ This project originated from the [UK Parliament's product-senior-developer-home-
 
 # Tech Stack
 
-| Layer             | Technologies                                            |
-| ----------------- | ------------------------------------------------------- |
-| Frontend          | React, TypeScript, Material UI, Axios, Vite, Formik/Yup |
-| Backend           | ASP.NET Core 8, C#                                      |
-| Authentication    | JWT Bearer Tokens                                       |
-| Validation        | Yup (frontend), FluentValidation (backend)              |
-| Development Tools | Visual Studio Code, .NET CLI, npm/yarn                  |
+| Layer             | Technologies                                                   |
+| ----------------- | -------------------------------------------------------------- |
+| Frontend          | React, TypeScript, Material UI, Axios, Vite, Formik/Yup        |
+| Backend           | ASP.NET Core 8, C#, Entity Framework Core (In-Memory provider) |
+| Authentication    | JWT Bearer Tokens                                              |
+| Validation        | Yup (frontend), FluentValidation (backend)                     |
+| Development Tools | Visual Studio Code, .NET CLI, npm/yarn                         |
 
 # Getting Started
 
@@ -239,6 +239,7 @@ These results demonstrate strong readiness for production deployment.
 - Backend input validated with FluentValidation.
 - JWT tokens secure authentication.
 - Inline validation messages improve user feedback.
+- As per the original project - the backend uses Entity Framework Core with the In-Memory database provider to handle data persistence and querying, enabling a maintainable and test-friendly data access layer without the need for a physical database
 
 # What I would do given more time to complete this task
 
@@ -302,9 +303,10 @@ These results demonstrate strong readiness for production deployment.
 |--------------------------------------|
 | ASP.NET Core 8 API                   |
 | FluentValidation, JWT Auth           |
+| Entity Framework Core (In-Memory DB) |
 +--------------------+-----------------+
                      |
-                     |  LINQ Queries
+                     |  LINQ Queries via EF Core
                      v
 +--------------------+-----------------+
 |             Database                 |
