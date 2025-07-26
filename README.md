@@ -226,38 +226,45 @@ These results demonstrate that the application is production-ready, with strong 
 # What I would do given more time to complete this task
 
 1. Testing coverage:
-   -- Increase coverage for edge cases and integration flows.
-   -- Fix or remove skipped/failing tests.
+
+   - Increase coverage for edge cases and integration flows.
+     Fix or remove skipped/failing tests.
 
 2. API Improvements:
-   -- Move from PUT to PATCH for partial updates.
+
+   - Move from PUT to PATCH for partial updates.
 
 3. Frontend Enhancements:
-   -- Use TanStack Query for data fetching/caching, for example in the personService.ts.
-   -- Add i18n support for accessibility and wider reach (e.g. Welsh/English support).
-   -- Improve UX with features like clearable search, better dropdowns (MUI AutoComplete), and profile photo support (using Azure Blob Storage).
+
+   - Use TanStack Query for data fetching/caching, for example in the personService.ts.
+   - Add i18n support for accessibility and wider reach (e.g. Welsh/English support).
+   - Improve UX with features like clearable search, better dropdowns (MUI AutoComplete), and profile photo support (using Azure Blob Storage).
 
 4. Security:
-   -- Enforce strong password policies: minimum 8 characters, mixed case, numbers, special characters.
-   -- Add email verification for updates with an email to the updated address with either a link to click on or a verification code to verify the change.
+
+   - Add email verification for updates with an email to the updated address with either a link to click on or a verification code to verify the change.
 
 5. Bulk Operations:
-   -- Add bulk upload/edit for users, departments, and roles.
+
+   - Add bulk upload/edit for users, departments, and roles.
 
 6. Department and Role Management:
-   -- Implement a department and role management system
+
+   - Implement a department and role management system
 
 7. DevOps & Tooling:
-   -- Add CI/CD pipelines for automated testing, linting, and deployment.
+
+   - Add CI/CD pipelines for automated testing, linting, and deployment.
 
 8. Documentation:
-   -- Expand API docs with request/response examples.
-   -- Add architecture diagrams.
+
+   - Expand API docs with request/response examples.
+   - Add architecture diagrams.
 
 9. Implement refresh token support:
-   -- Add refresh tokens to complement JWT access tokens, allowing the frontend to renew sessions transparently.
-   -- This would ensure that the current logged-in user is continuously validated and still authorized to access the application.
-   -- It would prevent stale or invalid sessions by requiring periodic revalidation without forcing users to frequently log in again.
+   - Add refresh tokens to complement JWT access tokens, allowing the frontend to renew sessions transparently.
+   - This would ensure that the current logged-in user is continuously validated and still authorized to access the application.
+   - It would prevent stale or invalid sessions by requiring periodic revalidation without forcing users to frequently log in again.
 
 # API Schema Description Examples
 
