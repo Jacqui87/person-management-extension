@@ -80,7 +80,7 @@ This project originated from the [UK Parliament's product-senior-developer-home-
 
 # Authentication and Login
 
-You can log in to the Person Manager Application using one of the seeded user accounts or by creating a new user with a valid email and password.
+You can log in to the Person Manager Application using one of the seeded user accounts or by creating a new user with a valid email and password. If there is a problem with logging in, please clean out the local storage using the application tab in Dev tools before trying again.
 
 ### Default Seeded Users for Login
 
