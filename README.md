@@ -270,7 +270,107 @@ These results demonstrate that the application is production-ready, with strong 
 
 # Request and Response Examples
 
-## Create Person
+## Auth
+
+### Get all sessions
+
+**Request:**  
+`GET /api/auth`
+
+```json
+[
+  {
+    "id": "ec1d086f-92b0-4c08-a6d4-c8bee896536d",
+    "userId": 3,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwiZW1haWwiOiJhbXkuam9obnNvbkB0ZXN0Lm5ldCIsIm5hbWUiOiJBbXkgSm9obnNvbiIsImlhdCI6MTc1MzU0OTY3NCwicm9sZSI6IjIiLCJleHAiOjE3NTM1NTMyNzQsImlzcyI6InBlcnNvbl9tYW5hZ2VyIiwiYXVkIjoicGVvcGxlIn0.ot8zEYkssEHnfuVA57yeemrRYG7CVRUZjmfYpvbK7JE",
+    "createdAt": "2025-07-26T17:07:55.885168Z"
+  },
+  {
+    "id": "31d446c5-b3d0-4427-89c3-71fcbd5bdad7",
+    "userId": 3,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzIiwiZW1haWwiOiJhbXkuam9obnNvbkB0ZXN0Lm5ldCIsIm5hbWUiOiJBbXkgSm9obnNvbiIsImlhdCI6MTc1MzU0OTY5Nywicm9sZSI6IjIiLCJleHAiOjE3NTM1NTMyOTcsImlzcyI6InBlcnNvbl9tYW5hZ2VyIiwiYXVkIjoicGVvcGxlIn0.Z-LEHNg3VwAJUY_YmJQaPeKIpIzkWeXtbWen3YtkPes",
+    "createdAt": "2025-07-26T17:08:17.4283226Z"
+  }
+]
+```
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "session": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "userId": 0,
+    "token": "string",
+    "createdAt": "2025-07-26T17:21:58.202Z"
+  },
+  "user": {
+    "id": 0,
+    "firstName": "string",
+    "lastName": "string",
+    "role": 0,
+    "email": "string",
+    "password": "string",
+    "biography": "string",
+    "department": 0,
+    "dateOfBirth": "2025-07-26"
+  }
+}
+```
+
+### Login
+
+**Request:**  
+`POST /api/auth/login`
+
+```json
+{
+  "email": "jane.doe@example.com",
+  "password": "Password123!"
+}
+```
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600,
+  "user": {
+    "id": 42,
+    "email": "jane.doe@example.com",
+    "role": 2
+  }
+}
+```
+
+## Person
+
+### Get All Persons
+
+**Request:**  
+`GET /api/person`
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "id": 42,
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "password": "Password123!",
+  "biography": "A short bio about Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+```
+
+### Create Person
 
 **Request:**  
 `POST /api/person`
@@ -298,13 +398,14 @@ These results demonstrate that the application is production-ready, with strong 
   "lastName": "Doe",
   "role": 2,
   "email": "jane.doe@example.com",
+  "password": "Password123!",
   "biography": "A short bio about Jane.",
   "department": 3,
   "dateOfBirth": "1990-05-15"
 }
 ```
 
-## Get All Departments
+### Get All Departments
 
 **Request:**  
 `GET /api/departments`
@@ -325,14 +426,60 @@ These results demonstrate that the application is production-ready, with strong 
 ]
 ```
 
-## Update Person (PUT)
+### Get All Roles
+
+**Request:**  
+`GET /api/roles`
+
+**Response:**  
+`200 OK`
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Admin"
+  },
+  {
+    "id": 2,
+    "name": "User"
+  },
+  {
+    "id": 4,
+    "name": "Manager"
+  }
+]
+```
+
+### Get Person by ID
+
+**Request:**  
+`GET /api/person/42`
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "id": 42,
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "password": "Password123!",
+  "biography": "A short bio about Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+```
+
+### Update Person
 
 **Request:**  
 `PUT /api/person/42`
 
 ```json
 {
-  {
   "id": 42,
   "firstName": "Jane",
   "lastName": "Doe",
@@ -343,7 +490,6 @@ These results demonstrate that the application is production-ready, with strong 
   "department": 3,
   "dateOfBirth": "1990-05-15"
 }
-}
 ```
 
 **Response:**  
@@ -356,38 +502,20 @@ These results demonstrate that the application is production-ready, with strong 
   "lastName": "Doe",
   "role": 2,
   "email": "jane.doe@example.com",
+  "password": "Password123!",
   "biography": "Updated bio for Jane.",
   "department": 3,
   "dateOfBirth": "1990-05-15"
 }
 ```
 
-## Authentication
+### Delete Person
 
 **Request:**  
-`POST /api/auth/login`
-
-```json
-{
-  "email": "jane.doe@example.com",
-  "password": "Password123!"
-}
-```
+`DELETE /api/person/42`
 
 **Response:**  
-`200 OK`
-
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expiresIn": 3600,
-  "user": {
-    "id": 42,
-    "email": "jane.doe@example.com",
-    "role": 2
-  }
-}
-```
+`204 NO CONTENT` (no body)
 
 ---
 
@@ -399,13 +527,28 @@ These results demonstrate that the application is production-ready, with strong 
 curl -H "Authorization: Bearer <JWT_TOKEN>" https://localhost:7048/api/person
 ```
 
-## Create a Department
+## Get Person by ID
 
 ```bash
-curl -X POST https://localhost:7048/api/departments \
+curl -H "Authorization: Bearer <JWT_TOKEN>" https://localhost:7048/api/person/42
+```
+
+## Create a Person
+
+```bash
+curl -X POST https://localhost:7048/api/person \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <JWT_TOKEN>" \
-  -d '{"name": "Finance"}'
+  -d '{
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "role": 2,
+    "email": "jane.doe@example.com",
+    "password": "Password123!",
+    "biography": "A short bio about Jane.",
+    "department": 3,
+    "dateOfBirth": "1990-05-15"
+}'
 ```
 
 ## Update a User
