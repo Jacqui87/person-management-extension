@@ -32,6 +32,10 @@ Key extensions include:
 - [API Documentation and Testing](#api-documentation-and-testing)
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
+- [API Schema Descriptions](#api-schema-dDescriptions)
+- [Request/Response Examples](#request/response-examples)
+- [API Usage Examples](#api-usage-examples)
+- [Architecture Diagram](#architecture-diagram)
 
 # Features
 
@@ -174,14 +178,269 @@ These results demonstrate that the application is production-ready, with strong 
 
 # What I would do given more time to complete this task
 
-1. Add translations using i18Next, e.g., Welsh/English support.
-2. Support user profile photos, possibly using Azure Blob Storage.
-3. Implement a department and role management system allowing dynamic addition of entries.
-4. Add bulk upload capability for users, departments, and roles.
-5. Provide bulk editing features for these records.
-6. Improve UI by adding an 'x' icon next to the search bar for quick clearing.
-7. Replace dropdown filters with MUI's AutoComplete component for better usability.
-8. Enforce stronger password rules: minimum 8 characters, mixed case, numbers, special characters.
-9. Fix currently skipped failing React tests and adding more in depth testing of edge cases: front & back end.
-10. Use HTTP PATCH instead of PUT to optimize updates and reduce data overwrite.
-11. When a token is invalid it should 'fail' more gracefully rather than leaving error messages in the console.
+1. Testing coverage:
+   -- Increase coverage for edge cases and integration flows.
+   -- Fix or remove skipped/failing tests.
+
+2. API Improvements:
+   -- Move from PUT to PATCH for partial updates.
+
+3. Frontend Enhancements:
+   -- Use TanStack Query for data fetching/caching, for example in the personService.ts.
+   -- Add i18n support for accessibility and wider reach (e.g. Welsh/English support).
+   -- Improve UX with features like clearable search, better dropdowns (MUI AutoComplete), and profile photo support (using Azure Blob Storage).
+
+4. Security:
+   -- Enforce strong password policies: minimum 8 characters, mixed case, numbers, special characters.
+   -- Add email verification for updates with an email to the updated address with either a link to click on or a verification code to verify the change.
+
+5. Bulk Operations:
+   -- Add bulk upload/edit for users, departments, and roles.
+
+6. Department and Role Management:
+   -- Implement a department and role management system
+
+7. DevOps & Tooling:
+   -- Add CI/CD pipelines for automated testing, linting, and deployment.
+
+8. Documentation:
+   -- Expand API docs with request/response examples.
+   -- Add architecture diagrams.
+
+# API Schema Descriptions
+
+## Person DTO
+
+```json
+{
+  "id": 1,
+  "firstName": "string",
+  "lastName": "string",
+  "role": 2,
+  "email": "string",
+  "password": "string",
+  "biography": "string (optional)",
+  "department": 3,
+  "dateOfBirth": "YYYY-MM-DD"
+}
+```
+
+## Department DTO
+
+```json
+{
+  "id": 1,
+  "name": "string"
+}
+```
+
+## Role DTO
+
+```json
+{
+  "id": 1,
+  "name": "string"
+}
+```
+
+## Auth Request
+
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+## Auth Response
+
+```json
+{
+  "token": "string (JWT)",
+  "expiresIn": 3600,
+  "user": {
+    "id": 1,
+    "email": "string",
+    "role": 2
+  }
+}
+```
+
+---
+
+# Request/Response Examples
+
+## Create Person
+
+**Request:**  
+`POST /api/person`
+
+```json
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "password": "Password123!",
+  "biography": "A short bio about Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+```
+
+**Response:**  
+`201 Created`
+
+```json
+{
+  "id": 42,
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "biography": "A short bio about Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+```
+
+## Get All Departments
+
+**Request:**  
+`GET /api/departments`
+
+**Response:**  
+`200 OK`
+
+```json
+[
+  {
+    "id": 1,
+    "name": "IT"
+  },
+  {
+    "id": 2,
+    "name": "HR"
+  }
+]
+```
+
+## Update Person (PUT)
+
+**Request:**  
+`PUT /api/person/42`
+
+```json
+{
+  {
+  "id": 42,
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "password": "Password123!",
+  "biography": "Updated bio for Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+}
+```
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "id": 42,
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "role": 2,
+  "email": "jane.doe@example.com",
+  "biography": "Updated bio for Jane.",
+  "department": 3,
+  "dateOfBirth": "1990-05-15"
+}
+```
+
+## Authentication
+
+**Request:**  
+`POST /api/auth/login`
+
+```json
+{
+  "email": "jane.doe@example.com",
+  "password": "Password123!"
+}
+```
+
+**Response:**  
+`200 OK`
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600,
+  "user": {
+    "id": 42,
+    "email": "jane.doe@example.com",
+    "role": 2
+  }
+}
+```
+
+---
+
+# API Usage Examples
+
+## Fetch All Persons
+
+```bash
+curl -H "Authorization: Bearer <JWT_TOKEN>" https://localhost:7048/api/person
+```
+
+## Create a Department
+
+```bash
+curl -X POST https://localhost:7048/api/departments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <JWT_TOKEN>" \
+  -d '{"name": "Finance"}'
+```
+
+## Update a User
+
+```bash
+curl -X PUT https://localhost:7048/api/person/42 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <JWT_TOKEN>" \
+  -d '{
+    "id": 42,
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "role": 2,
+    "email": "jane.doe@example.com",
+    "password": "Password123!",
+    "biography": "Updated bio for Jane.",
+    "department": 3,
+    "dateOfBirth": "1990-05-15"
+}'
+```
+
+---
+
+# Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph Frontend
+        A[React App<br>TypeScript, MUI, Formik/Yup]
+    end
+    subgraph Backend
+        B[ASP.NET Core 8 API<br>FluentValidation, JWT Auth]
+        C[Database<br>(e.g., SQL Server)]
+    end
+    A -- REST API (HTTPS) --> B
+    B -- SQL Queries --> C
+    B -- Generates JWT --> A
+```
