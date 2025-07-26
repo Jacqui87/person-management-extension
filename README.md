@@ -1,36 +1,42 @@
 # Person Manager Application
 
-A full-stack web application for managing Parliament person records with React and ASP.NET Core.
+A full-stack web application for managing person records with React and ASP.NET Core 8.
 
 This app supports secure user authentication and role-based access control. Admin users can manage all person records; regular users can view and update their own profiles. Features include validation, filtering, department and role management, and a responsive UI.
 
-# Project Evolution
+This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) and has been extended toward a production-ready application.
 
-This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) and has been extended toward a production-ready React and ASP.NET Core 8 application.
+# Key Features and Extensions
 
-Key extensions include:
+1. JWT-based authentication and authorization with role-based access control (Admins vs Users)
 
-- JWT-based authentication and authorization
-- Role-based access control separating admin and user privileges
-- Advanced search and filtering for person records
-- Department and role management
-- Frontend validation (Formik + Yup)
-- Backend validation (FluentValidation)
-- RESTful API built with ASP.NET Core 8
-- Frontend API calls via Axios
-- Inline error display
-- Responsive design with Material UI
-- Maintainable code structure
+2. Search and filtering of person records with responsive UI (Material UI)
+
+3. Department and role management (add new departments/roles to backend in memory database currently)
+
+4. Validations:
+
+   - Frontend validation (Formik + Yup)
+   - Backend validation (FluentValidation)
+
+5. RESTful API built with ASP.NET Core 8
+
+6. Frontend API calls via Axios
+
+7. Inline error display for UX clarity
+
+8. Maintainable and scalable code architecture based on SOLID principles
+
+9. Secure authentication using JWT bearer tokens
 
 # Table of Contents
 
-- [Features](#features)
 - [Tech Stack](#tech-stack)
+- [Authentication and Login](#authentication-and-Login)
 - [Getting Started](#getting-started)
-- [How to Login](#how-to-login)
 - [Running and Debugging](#running-and-debugging)
+- [API Documentation and Usage](#api-documentation-and-usage)
 - [Performance Testing plus Lighthouse Audit](#performance-testing-plus-lighthouse-audit)
-- [API Documentation and Testing](#api-documentation-and-testing)
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
 - [API Schema Descriptions](#api-schema-dDescriptions)
@@ -38,29 +44,15 @@ Key extensions include:
 - [API Usage Examples](#api-usage-examples)
 - [Architecture Diagram](#architecture-diagram)
 
-# Features
-
-- User authentication with JWT bearer tokens
-- Role-based access control: Admins manage all persons, users manage their own profiles
-- Search and filtering of person records with responsive UI
-- Department and role management with admin interfaces
-- Frontend validation using Formik and Yup
-- Backend validation using FluentValidation in ASP.NET Core
-- RESTful API built on ASP.NET Core 8
-- Frontend API consumption with Axios
-- Inline error display
-- Responsive design using Material UI
-- Maintainable and scalable code architecture
-
 # Tech Stack
 
-| Layer             | Technologies                                        |
-| ----------------- | --------------------------------------------------- |
-| Frontend          | React, TypeScript, Material UI, Axios, Vite, Formik |
-| Backend           | ASP.NET Core 8, C#                                  |
-| Validation        | Yup (frontend), FluentValidation (backend)          |
-| Authentication    | JWT Bearer Tokens                                   |
-| Development Tools | Visual Studio Code, .NET CLI, npm/yarn              |
+| Layer             | Technologies                                            |
+| ----------------- | ------------------------------------------------------- |
+| Frontend          | React, TypeScript, Material UI, Axios, Vite, Formik/Yup |
+| Backend           | ASP.NET Core 8, C#                                      |
+| Authentication    | JWT Bearer Tokens                                       |
+| Validation        | Yup (frontend), FluentValidation (backend)              |
+| Development Tools | Visual Studio Code, .NET CLI, npm/yarn                  |
 
 # Getting Started
 
@@ -70,68 +62,23 @@ Key extensions include:
 - Node.js (latest LTS recommended) and npm or yarn
 - Visual Studio Code or preferred IDE
 
-### Backend Setup
+### Prerequisites
 
-1. Clone the repository.
-2. Navigate to the root (where the `.sln` file is located).
-3. Run `dotnet build` to build the backend.
-4. Run `dotnet run --project UKParliament.CodeTest.Web` to start the backend API - API runs on default port 7048 (https://localhost:7048).
+1.  Clone the repository.
+2.  **Backend:**
 
-### Frontend Setup
+    - Navigate to the root (where the `.sln` file is located).
+    - Run `dotnet build` to build the backend.
+    - Run `dotnet run --project UKParliament.CodeTest.Web` to start the backend API - API runs on default port 7048 (https://localhost:7048).
 
-1. Open a new terminal window.
-2. Navigate to `UKParliament.CodeTest.Web\ClientApp`.
-3. Run `npm install` (or `yarn install`) to install dependencies.
-4. Run `npm run dev` to start the frontend development server (typically runs on http://localhost:3000).
+3.  **Frontend:**
 
-# Running and Debugging
+    - Open a new terminal window.
+    - Navigate to UKParliament.CodeTest.Web\ClientApp.
+    - Run `npm install` (or `yarn install`) to install dependencies.
+    - Run `npm run dev` to start the frontend development server (usually http://localhost:3000).
 
-### Backend (ASP.NET Core)
-
-- Open the solution in Visual Studio or Visual Studio Code.
-- Set breakpoints as needed in C# code.
-- Use `F5` or the Debug button to start debugging.
-- In VS Code, configure `launch.json` for debugging with breakpoints.
-
-### Frontend (React with Vite and TypeScript)
-
-- Start the dev server with `npm run dev`.
-- Use browser devtools and React Developer Tools for debugging.
-- Optional: Set breakpoints and debug inside VS Code with `launch.json`.
-
-### Compound Debugging (Backend + Frontend)
-
-Use the below snippet in `.vscode/launch.json` to debug backend and frontend simultaneously:
-
-```
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": ".NET Core Launch (backend)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net8.0/YourBackendApp.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\bNow listening on:\s+(https?://\S+)"
-            },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
-            }
-        }
-    ]
-}
-```
-
-# How to Login
+# Authentication and Login
 
 You can log in to the Person Manager Application using one of the seeded user accounts or by creating a new user with a valid email and password.
 
@@ -145,7 +92,7 @@ You can log in to the Person Manager Application using one of the seeded user ac
 | john.doe@test.net       | UserPass4$   | User  |
 | emily.williams@test.net | EmilyPwd5%   | Admin |
 
-### Logging in via API
+### Logging in via API - Swagger: `https://localhost:7048/swagger/index.html`:
 
 Send a `POST` request to the login endpoint with your email address and password in the request body:
 
@@ -177,27 +124,103 @@ Example of a successful response:
 
 Use the token returned to authenticate your requests in the top of the Swagger API.
 
+# Running and Debugging
+
+### Backend (ASP.NET Core)
+
+- Open the solution in Visual Studio or Visual Studio Code.
+- Set breakpoints as needed in C# code.
+- Use `F5` or the Debug button to start debugging.
+- In VS Code, configure `launch.json` for debugging with breakpoints.
+
+### Frontend (React with Vite and TypeScript)
+
+- Start the dev server with `npm run dev`.
+- Use browser devtools and React Developer Tools for debugging.
+- Optional: Set breakpoints and debug inside VS Code with `launch.json`.
+
+### Compound Debugging (Backend + Frontend)
+
+Use this configuration snippet in .vscode/launch.json to debug both simultaneously:
+
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (backend)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Debug/net8.0/YourBackendApp.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\bNow listening on:\s+(https?://\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        }
+    ]
+}
+```
+
+# API Documentation and Usage
+
+- API endpoints are documented and testable via **Swagger UI** at `https://localhost:7048/swagger/index.html` (available in Development mode).
+- Use Postman or similar tools for manual testing.
+
+### Person DTO Schema
+
+```json
+{
+  "id": 1,
+  "firstName": "string",
+  "lastName": "string",
+  "role": 2,
+  "email": "string",
+  "password": "string",
+  "biography": "string (optional)",
+  "department": 3,
+  "dateOfBirth": "YYYY-MM-DD"
+}
+```
+
+### Example API Endpoints
+
+- Get All Persons
+
+  **GET** /api/person
+
+- Get Person by ID
+
+  **GET** /api/person/{id}
+
+- Create Person
+
+  **POST** /api/person
+
+  Body similar to Person DTO but without id.
+
+- Update Person
+
+  **PUT** /api/person/{id}
+
+## Example cURL Command to Get All Persons
+
+```bash
+curl -H "Authorization: Bearer <JWT_TOKEN>" https://localhost:7048/api/person
+```
+
 # Performance Testing plus Lighthouse Audit
 
-The frontend application was audited using `https://developers.google.com/web/tools/lighthouse` on the production build to ensure high performance, accessibility, SEO, and adherence to best practices.
-
-## Testing Process
-
-- The production build was created with:
-
-```
-npm run build
-```
-
-- The build was locally served using:
-
-```
-npm run preview
-```
-
-- Lighthouse audits were performed on the preview server URL (e.g., http://localhost:4173 or similar) accessed in an incognito Google Chrome browser, ensuring testing without interference from extensions or cached data.
-
-### Latest Lighthouse Scores
+The frontend production build was audited with `https://developers.google.com/web/tools/lighthouse` yielding:
 
 | Category       | Score |
 | -------------- | ----- |
@@ -206,22 +229,16 @@ npm run preview
 | Best Practices | 93    |
 | SEO            | 91    |
 
-These results demonstrate that the application is production-ready, with strong optimization around runtime performance, accessibility compliance, modern best practices, and SEO.
-
-# API Documentation and Testing
-
-- API endpoints are documented and testable via **Swagger UI** at `https://localhost:7048/swagger/index.html`.
-- Swagger UI is accessible when the backend is running in Development mode.
-- Use Postman or similar tools for in-depth manual API testing.
+These results demonstrate strong readiness for production deployment.
 
 # Code Quality and Architecture
 
 - Based on SOLID principles and separation of concerns.
 - Frontend uses functional components and hooks.
-- Uses Material UI with responsive layouts.
-- Backend validates input with FluentValidation.
-- JWT tokens secure authentication across frontend and backend.
-- Inline validation messages provide clear feedback.
+- Responsive design with Material UI.
+- Backend input validated with FluentValidation.
+- JWT tokens secure authentication.
+- Inline validation messages improve user feedback.
 
 # What I would do given more time to complete this task
 
@@ -266,160 +283,6 @@ These results demonstrate that the application is production-ready, with strong 
    - Implement automated UI tests using a tool like Cypress or Playwright to cover critical user journeys.
    - Ensure comprehensive test coverage beyond unit and integration tests to validate application workflows from the user perspective.
    - This would improve confidence in production readiness and reduce regression risks.
-
-# API Schema Description Examples
-
-### Person DTO
-
-```json
-{
-  "id": 1,
-  "firstName": "string",
-  "lastName": "string",
-  "role": 2,
-  "email": "string",
-  "password": "string",
-  "biography": "string (optional)",
-  "department": 3,
-  "dateOfBirth": "YYYY-MM-DD"
-}
-```
-
----
-
-# Request and Response Examples
-
-### Get All Persons
-
-**Request:**  
-`GET /api/person`
-
-**Response:**  
-`200 OK`
-
-```json
-{
-  "id": 42,
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "A short bio about Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
-### Get Person by ID
-
-**Request:**  
-`GET /api/person/42`
-
-**Response:**  
-`200 OK`
-
-```json
-{
-  "id": 42,
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "A short bio about Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
-### Create Person
-
-**Request:**  
-`POST /api/person`
-
-```json
-{
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "A short bio about Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
-**Response:**  
-`201 Created`
-
-```json
-{
-  "id": 42,
-  "firstName": "Jane",
-  "lastName": "Doe",
-  "role": 2,
-  "email": "jane.doe@example.com",
-  "password": "Password123!",
-  "biography": "A short bio about Jane.",
-  "department": 3,
-  "dateOfBirth": "1990-05-15"
-}
-```
-
----
-
-# API Usage Examples
-
-## Fetch All Persons
-
-```bash
-curl -H "Authorization: Bearer <JWT_TOKEN>" https://localhost:7048/api/person
-```
-
-## Get Person by ID
-
-```bash
-curl -H "Authorization: Bearer <JWT_TOKEN>" https://localhost:7048/api/person/42
-```
-
-## Create a Person
-
-```bash
-curl -X POST https://localhost:7048/api/person \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <JWT_TOKEN>" \
-  -d '{
-    "firstName": "Jane",
-    "lastName": "Doe",
-    "role": 2,
-    "email": "jane.doe@example.com",
-    "password": "Password123!",
-    "biography": "A short bio about Jane.",
-    "department": 3,
-    "dateOfBirth": "1990-05-15"
-}'
-```
-
-## Update a User
-
-```bash
-curl -X PUT https://localhost:7048/api/person/42 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <JWT_TOKEN>" \
-  -d '{
-    "id": 42,
-    "firstName": "Jane",
-    "lastName": "Doe",
-    "role": 2,
-    "email": "jane.doe@example.com",
-    "password": "Password123!",
-    "biography": "Updated bio for Jane.",
-    "department": 3,
-    "dateOfBirth": "1990-05-15"
-}'
-```
 
 ---
 
