@@ -6,7 +6,7 @@ This app supports secure user authentication and role-based access control. Admi
 
 # Project Evolution
 
-This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) and has been extended toward a production-ready React and ASP.NET Core 7 application.
+This project originated from the [UK Parliament's product-senior-developer-home-exercise](https://github.com/ukparliament/product-senior-developer-home-exercise) and has been extended toward a production-ready React and ASP.NET Core 8 application.
 
 Key extensions include:
 
@@ -16,7 +16,7 @@ Key extensions include:
 - Department and role management
 - Frontend validation (Formik + Yup)
 - Backend validation (FluentValidation)
-- RESTful API built with ASP.NET Core 7
+- RESTful API built with ASP.NET Core 8
 - Frontend API calls via Axios
 - Inline error display
 - Responsive design with Material UI
@@ -41,7 +41,7 @@ Key extensions include:
 - Department and role management with admin interfaces
 - Frontend validation using Formik and Yup
 - Backend validation using FluentValidation in ASP.NET Core
-- RESTful API built on ASP.NET Core 7
+- RESTful API built on ASP.NET Core 8
 - Frontend API consumption with Axios
 - Inline error display
 - Responsive design using Material UI
@@ -52,7 +52,7 @@ Key extensions include:
 | Layer             | Technologies                                        |
 | ----------------- | --------------------------------------------------- |
 | Frontend          | React, TypeScript, Material UI, Axios, Vite, Formik |
-| Backend           | ASP.NET Core 7, C#                                  |
+| Backend           | ASP.NET Core 8, C#                                  |
 | Validation        | Yup (frontend), FluentValidation (backend)          |
 | Authentication    | JWT Bearer Tokens                                   |
 | Development Tools | Visual Studio Code, .NET CLI, npm/yarn              |
@@ -61,7 +61,7 @@ Key extensions include:
 
 ### Prerequisites
 
-- .NET 7 SDK
+- .NET 8 SDK
 - Node.js (latest LTS recommended) and npm or yarn
 - Visual Studio Code or preferred IDE
 
@@ -107,7 +107,7 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net7.0/YourBackendApp.dll",
+            "program": "${workspaceFolder}/bin/Debug/net8.0/YourBackendApp.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -151,7 +151,7 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
 6. Improve UI by adding an 'x' icon next to the search bar for quick clearing.
 7. Replace dropdown filters with MUI's AutoComplete component for better usability.
 8. Enforce stronger password rules: minimum 8 characters, mixed case, numbers, special characters.
-9. Fix currently skipped failing React tests.
+9. Fix currently skipped failing React tests and adding more in depth testing of edge cases: front & back end.
 10. Use HTTP PATCH instead of PUT to optimize updates and reduce data overwrite.
 11. Add a snackbar notification system to provide feedback on add/update operations, enhancing user experience.
 12. When a token is invalid it should 'fail' more gracefully rather than leaving error messages in the console.
