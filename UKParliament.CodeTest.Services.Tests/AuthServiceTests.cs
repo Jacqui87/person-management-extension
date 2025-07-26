@@ -19,9 +19,8 @@ public class AuthServiceTests
   }
 
   // Helper to create AuthService with mocked logger and provided context
-  private AuthService CreateService(PersonManagerContext context, out ILogger<AuthService> logger)
+  private AuthService CreateService(PersonManagerContext context, ILogger<AuthService> logger)
   {
-    logger = Substitute.For<ILogger<AuthService>>();   
     return new AuthService(context, logger);
   }
 
@@ -29,7 +28,7 @@ public class AuthServiceTests
   public async Task LoginAsync_ReturnsCredentials_AndCreatesSession_WhenCredentialsValid()
   {
     var dbName = nameof(LoginAsync_ReturnsCredentials_AndCreatesSession_WhenCredentialsValid);
-    using var context = CreateInMemoryContext(dbName);
+    await using var context = CreateInMemoryContext(dbName);
 
     // Arrange user
     var user = new Person
@@ -45,7 +44,8 @@ public class AuthServiceTests
     context.People.Add(user);
     await context.SaveChangesAsync();
 
-    var service = CreateService(context, out _);
+    var logger = Substitute.For<ILogger<AuthService>>();
+    var service = CreateService(context, logger);
 
         var request = new LoginRequest { Email = user.Email, Password = user.Password };
 
@@ -54,6 +54,7 @@ public class AuthServiceTests
 
     // Assert
     Assert.NotNull(result);
+    Assert.NotNull(result.User);
     Assert.NotNull(result.Session);
     Assert.Equal(user.Email, result.User.Email);
     Assert.Equal(user.FirstName, result.User.FirstName);
@@ -70,7 +71,7 @@ public class AuthServiceTests
   public async Task LoginAsync_ReturnsNull_WhenPasswordIncorrect()
   {
     var dbName = nameof(LoginAsync_ReturnsNull_WhenPasswordIncorrect);
-    using var context = CreateInMemoryContext(dbName);
+    await using var context = CreateInMemoryContext(dbName);
 
     // Arrange user with correct credentials
     var user = new Person
@@ -80,7 +81,8 @@ public class AuthServiceTests
     context.People.Add(user);
     await context.SaveChangesAsync();
 
-    var service = CreateService(context, out _);
+    var logger = Substitute.For<ILogger<AuthService>>();
+    var service = CreateService(context, logger);
 
     var request = new LoginRequest { Email = user.Email, Password = "wrongpass" };
 
@@ -98,9 +100,10 @@ public class AuthServiceTests
   public async Task LoginAsync_ReturnsNull_WhenEmailNotFound()
   {
     var dbName = nameof(LoginAsync_ReturnsNull_WhenEmailNotFound);
-    using var context = CreateInMemoryContext(dbName);
+    await using var context = CreateInMemoryContext(dbName);
 
-    var service = CreateService(context, out _);
+    var logger = Substitute.For<ILogger<AuthService>>();
+    var service = CreateService(context, logger);
 
     var request = new LoginRequest { Email = "nonexistent@example.com", Password = "any" };
 
@@ -113,7 +116,7 @@ public class AuthServiceTests
   public async Task GetAllSessionsAsync_ReturnsAllSessions()
   {
     var dbName = nameof(GetAllSessionsAsync_ReturnsAllSessions);
-    using var context = CreateInMemoryContext(dbName);
+    await using var context = CreateInMemoryContext(dbName);
 
     // Arrange some sessions
     context.Sessions.AddRange(
@@ -121,7 +124,8 @@ public class AuthServiceTests
       new Session { UserId = 2, Token = Guid.NewGuid().ToString() });
     await context.SaveChangesAsync();
 
-    var service = CreateService(context, out _);
+    var logger = Substitute.For<ILogger<AuthService>>();
+    var service = CreateService(context, logger);
 
     // Act
     var sessions = await service.GetAllSessionsAsync();

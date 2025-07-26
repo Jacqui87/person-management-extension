@@ -71,11 +71,8 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
       });
   }
 
-  public DbSet<Person> People { get; set; }
-
-  public DbSet<Department> Departments { get; set; }
-
-  public  DbSet<Session> Sessions { get; set; }
-
-  public DbSet<Role> Roles { get; set; }
+  public DbSet<Person> People { get; set; } = null!;
+  public DbSet<Department> Departments { get; set; } = null!;
+  public  DbSet<Session> Sessions { get; set; } = null!;
+  public DbSet<Role> Roles { get; set; } = null!;
 }

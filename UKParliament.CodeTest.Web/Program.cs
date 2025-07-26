@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using UKParliament.CodeTest.Data;
 using UKParliament.CodeTest.Services;
 using FluentValidation.AspNetCore;
-using UKParliament.CodeTest.Web.ViewModels;
 using UKParliament.CodeTest.Web.Auth;
 using Microsoft.OpenApi.Models;
 
@@ -22,12 +21,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services
-    .AddControllersWithViews()
-    .AddFluentValidation(fv =>
-    {
-        fv.RegisterValidatorsFromAssemblyContaining<PersonViewModelValidator>();
-    });
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddFluentValidationAutoValidation();        // Enables automatic model validation via FluentValidation
+builder.Services.AddFluentValidationClientsideAdapters();    // (Optional) Enables client-side validation integration if needed
 
 builder.Services.AddDbContext<PersonManagerContext>(op =>
     op.UseInMemoryDatabase("PersonManager"));
