@@ -155,12 +155,3 @@ Use the below snippet in `.vscode/launch.json` to debug backend and frontend sim
 10. Use HTTP PATCH instead of PUT to optimize updates and reduce data overwrite.
 11. Add a snackbar notification system to provide feedback on add/update operations, enhancing user experience.
 12. When a token is invalid it should 'fail' more gracefully rather than leaving error messages in the console.
-
-# Contribution
-
-This repository serves as a senior developer's personal project showcasing advanced skills building full-stack web applications with modern .NET and React. Contributions via pull requests are welcome — including:
-
-- Bug fixes
-- Performance improvements
-- Documentation enhancements
-- Additional test coverage
