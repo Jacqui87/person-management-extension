@@ -5,6 +5,9 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MenuItem from "@mui/material/MenuItem";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import Tooltip from "@mui/material/Tooltip";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ADMIN_ROLE_ID } from "../constants/roles";
@@ -236,7 +239,27 @@ const PersonEditor = ({
 
       <Stack spacing={2}>
         <TextField
-          label="First Name"
+          label={
+            <Box display="flex" alignItems="center" gap={0.5}>
+              First Name *
+              <Tooltip
+                title={
+                  <span style={{ whiteSpace: "pre-line", fontSize: 12 }}>
+                    First Name Rules:
+                    {"\n"}- Required
+                    {"\n"}- No more than 50 characters
+                  </span>
+                }
+                arrow
+                placement="right"
+              >
+                <FontAwesomeIcon
+                  icon={faInfoCircle}
+                  style={{ color: "#1976d2", cursor: "pointer" }}
+                />
+              </Tooltip>
+            </Box>
+          }
           name="firstName"
           value={formik.values.firstName}
           onChange={handleFieldChange}
@@ -254,7 +277,27 @@ const PersonEditor = ({
         />
 
         <TextField
-          label="Last Name"
+          label={
+            <Box display="flex" alignItems="center" gap={0.5}>
+              Last Name *
+              <Tooltip
+                title={
+                  <span style={{ whiteSpace: "pre-line", fontSize: 12 }}>
+                    Last Name Rules:
+                    {"\n"}- Required
+                    {"\n"}- No more than 50 characters
+                  </span>
+                }
+                arrow
+                placement="right"
+              >
+                <FontAwesomeIcon
+                  icon={faInfoCircle}
+                  style={{ color: "#1976d2", cursor: "pointer" }}
+                />
+              </Tooltip>
+            </Box>
+          }
           name="lastName"
           value={formik.values.lastName}
           onChange={handleFieldChange}
@@ -272,7 +315,7 @@ const PersonEditor = ({
         />
 
         <TextField
-          label="Date of Birth"
+          label="Date of Birth *"
           type="date"
           name="dateOfBirth"
           value={formik.values.dateOfBirth ?? defaultDob}
@@ -298,7 +341,7 @@ const PersonEditor = ({
         {currentUser.role === ADMIN_ROLE_ID && (
           <TextField
             select
-            label="Department"
+            label="Department *"
             name="department"
             fullWidth
             value={formik.values.department}
@@ -326,7 +369,7 @@ const PersonEditor = ({
         {person.id !== currentUser.id && currentUser.role === ADMIN_ROLE_ID && (
           <TextField
             select
-            label="Role"
+            label="Role *"
             name="role"
             fullWidth
             value={formik.values.role}
@@ -351,7 +394,7 @@ const PersonEditor = ({
         )}
 
         <TextField
-          label="Email"
+          label="Email *"
           name="email"
           fullWidth
           value={formik.values.email}
@@ -371,7 +414,30 @@ const PersonEditor = ({
         />
 
         <TextField
-          label="Password"
+          label={
+            <Box display="flex" alignItems="center" gap={0.5}>
+              Password *
+              <Tooltip
+                title={
+                  <span style={{ whiteSpace: "pre-line", fontSize: 12 }}>
+                    Password Rules:
+                    {"\n"}- At least 8 characters
+                    {"\n"}- At least 1 uppercase letter
+                    {"\n"}- At least 1 lowercase letter
+                    {"\n"}- At least 1 number
+                    {"\n"}- At least 1 special character (e.g., !@#$%^&*)
+                  </span>
+                }
+                arrow
+                placement="right"
+              >
+                <FontAwesomeIcon
+                  icon={faInfoCircle}
+                  style={{ color: "#1976d2", cursor: "pointer" }}
+                />
+              </Tooltip>
+            </Box>
+          }
           name="password"
           type="password"
           fullWidth

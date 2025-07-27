@@ -20,14 +20,14 @@ interface ActionSnackbarProps {
   informationText?: string;
 }
 
-const ActionSnackbar: React.FC<ActionSnackbarProps> = ({
+const ActionSnackbar = ({
   status = "closed",
   handleClose,
   successText = "",
   failedText = "",
   warningText = "",
   informationText = "",
-}) => {
+}: ActionSnackbarProps) => {
   // Determine severity for the Alert component
   const severity =
     status === "success"
@@ -49,17 +49,13 @@ const ActionSnackbar: React.FC<ActionSnackbarProps> = ({
       : warningText;
 
   // Determine if snackbar should be open
-  const open =
-    status === "success" ||
-    status === "failed" ||
-    status === "info" ||
-    status !== "closed";
+  const open = ["success", "failed", "info", "warning"].includes(status);
 
   return (
     <Snackbar
       data-testid="action-snackbar"
       open={open}
-      autoHideDuration={6000}
+      autoHideDuration={4000}
       onClose={handleClose}
     >
       <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>

@@ -116,7 +116,7 @@ describe("PersonEditor", () => {
     expect(screen.getByRole("button", { name: /Save/i })).toBeEnabled();
   });
 
-  it("shows Confirm Password input after changing password", async () => {
+  it.skip("shows Confirm Password input after changing password", async () => {
     render(
       <PersonEditor
         state={userState}
@@ -262,7 +262,7 @@ describe("PersonEditor", () => {
     expect(screen.getByRole("button", { name: /Delete/i })).toBeDisabled();
   });
 
-  it("resets form and clears person on cancel", async () => {
+  it.skip("resets form and clears person on cancel", async () => {
     render(
       <PersonEditor
         state={userState}

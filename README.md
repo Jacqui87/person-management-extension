@@ -251,7 +251,7 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 1. Testing coverage frontend & backend:
 
    - Increase coverage and add more tests dealing with edge cases.
-   - Fix or remove skipped tests - there are currently 2 skipped tests.
+   - Fix or remove skipped tests - there are currently 4 skipped tests.
 
 2. API Improvements:
 
@@ -324,9 +324,38 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 # Screenshots
 
-![Success snackbar when add/update had been successful](screenshots/action_success.png)
-![Information snackbar notifying a user they have cancelled their add/update changes](screenshots/actions_infomation.png)
-![Edit person screen](screenshots/edit_person.png)
-![Add person screen](screenshots/add_person.png)
+- Login screen
+
+![Login screen](screenshots/login_screen.png)
+
+- Searching and filtering options
+
 ![Searching and filtering options](screenshots/searching_filtering.png)
+
+- Edit person screen
+
+![Edit person screen](screenshots/edit_person.png)
+
+- Add person screen
+
+![Add person screen](screenshots/add_person.png)
+
+- Server side validation using formik/yup
+
+![Server side validation using formik/yup](screenshots/server_side_validation_formik_yup.png)
+
+- Success snackbar when add/update had been successful
+
+![Success snackbar when add/update had been successful](screenshots/action_success.png)
+
+- Information snackbar notifying a user they have cancelled their add/update changes
+
+![Information snackbar notifying a user they have cancelled their add/update changes](screenshots/actions_infomation.png)
+
+- Mobile friendly layout
+
 ![Mobile friendly layout](screenshots/mobile_friendly.png)
+
+- JWT token example: navigate to [https://www.jwt.io/](https://www.jwt.io/) & paste in the token
+
+![JWT token example](screenshots/jwt_token_example.png)
