@@ -277,7 +277,7 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 7. DevOps & Tooling:
 
-   - Add CI/CD pipelines for automated testing, linting, and deployment.
+   - Research how to add CI/CD pipelines for automated testing, linting, and deployment.
 
 8. Implement refresh token support:
 
