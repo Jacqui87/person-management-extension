@@ -41,8 +41,8 @@ This project originated from the [UK Parliament's product-senior-developer-home-
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
 - [API Schema Descriptions](#api-schema-dDescriptions)
 - [Request and Response Examples](#request-and-response-examples)
-- [API Usage Examples](#api-usage-examples)
 - [Architecture Diagram](#architecture-diagram)
+- [Screenshots](#screenshots)
 
 # Tech Stack
 
