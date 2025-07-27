@@ -342,7 +342,7 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 - Server side validation using formik/yup
 
-![Server side validation using formik/yup](screenshots/server_side_validation_formik_yup.png)
+![Server side validation using formik/yup](screenshots/server_side_validation.png)
 
 - Success snackbar when add/update had been successful
 
