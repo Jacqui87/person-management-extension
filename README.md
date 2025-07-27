@@ -324,9 +324,9 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 # Screenshots
 
-- Login screen
+- Login form
 
-![Login screen](screenshots/login_screen.png)
+![Login form](screenshots/login_form.png)
 
 - Searching and filtering options
 
