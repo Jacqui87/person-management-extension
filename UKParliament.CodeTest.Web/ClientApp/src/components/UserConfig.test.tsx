@@ -148,22 +148,4 @@ describe("mainPageReducer", () => {
     expect(personServiceMock.filterPeople).toHaveBeenCalledWith("term", 1, 2);
     expect(newState.filteredPeople).toEqual(mockFilteredPeople);
   });
-
-  it("should handle UNIQUE_EMAIL_CHECK by calling PersonService.isEmailUnique", () => {
-    const personServiceMock = {
-      isEmailUnique: vi.fn(() => true),
-    };
-    const payload = {
-      email: "email@example.com",
-      excludePersonId: 42,
-      personService: personServiceMock as any,
-    };
-    const action: MainPageAction = { type: "UNIQUE_EMAIL_CHECK", payload };
-    const newState = mainPageReducer(initialState, action);
-    expect(personServiceMock.isEmailUnique).toHaveBeenCalledWith(
-      "email@example.com",
-      42
-    );
-    expect(newState.uniqueEmail).toBe(true);
-  });
 });

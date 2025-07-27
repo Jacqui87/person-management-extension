@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -15,17 +15,14 @@ import { RoleViewModel } from "../models/RoleViewModel";
 import { PersonService } from "../services/personService";
 
 // Create dynamic Yup validation schema based on user role and passwordChanged status
-const makeValidationSchema = (
-  person: PersonViewModel,
-  personService: PersonService,
-  dispatch: React.Dispatch<MainPageAction>,
-  uniqueEmail: boolean,
-  userRole?: number,
-  passwordChanged?: boolean
-) =>
+const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
   Yup.object({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
+    firstName: Yup.string()
+      .required("First Name is required")
+      .max(50, "First Name must be 50 characters or less"),
+    lastName: Yup.string()
+      .required("Last Name is required")
+      .max(50, "Last Name must be 50 characters or less"),
     dateOfBirth: Yup.string()
       .required("Date of Birth is required")
       .matches(
@@ -56,19 +53,7 @@ const makeValidationSchema = (
 
           return localValid && domainValid;
         }
-      )
-      .test("email-unique", "Email must be unique", function (value) {
-        if (!personService) return true; // skip if no service
-        dispatch({
-          type: "UNIQUE_EMAIL_CHECK",
-          payload: {
-            email: value,
-            excludePersonId: person.id,
-            personService: personService,
-          },
-        });
-        return uniqueEmail;
-      }),
+      ),
     password: Yup.string().test(
       "password-strength-if-changed",
       "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
@@ -93,6 +78,11 @@ const makeValidationSchema = (
         return true; // skip if password not changed
       }
     ),
+    confirmPassword: passwordChanged
+      ? Yup.string()
+          .oneOf([Yup.ref("password")], "Passwords do not match")
+          .required("Confirm Password is required")
+      : Yup.string().notRequired(),
     biography: Yup.string().max(
       500,
       "Biography must be 500 characters or less"
@@ -133,11 +123,8 @@ const PersonEditor = ({
   const roles: RoleViewModel[] = state.roles;
   const serverErrors = state.errors;
 
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState<
-    string | null
-  >(null);
   const [passwordChanged, setPasswordChanged] = useState(false);
+  const [emailUniqueError, setEmailUniqueError] = useState<string | null>(null);
 
   const today = new Date();
   const maxDate = today.toISOString().split("T")[0];
@@ -149,9 +136,6 @@ const PersonEditor = ({
   const defaultDob = eighteenYearsAgo.toISOString().split("T")[0];
 
   useEffect(() => {
-    // Reset confirm password and flags when person changes
-    setConfirmPassword("");
-    setConfirmPasswordError(null);
     setPasswordChanged(false);
   }, [person]);
 
@@ -162,49 +146,66 @@ const PersonEditor = ({
   const canEdit =
     currentUser.role === ADMIN_ROLE_ID || currentUser.id === person.id;
 
-  const validationSchema = useCallback(
-    () =>
-      makeValidationSchema(
-        person,
-        personService,
-        dispatch,
-        state.uniqueEmail,
-        currentUser.role,
-        passwordChanged
-      ),
-    [
-      person,
-      personService,
-      dispatch,
-      currentUser.role,
-      passwordChanged,
-      state.uniqueEmail,
-    ]
+  const getValidationSchema = useCallback(
+    () => makeValidationSchema(currentUser.role, passwordChanged),
+    [currentUser.role, passwordChanged]
   );
 
-  const initialPersonValues: PersonViewModel = {
+  const initialPersonValues: PersonViewModel & { confirmPassword: string } = {
     ...person,
+    confirmPassword: "",
     dateOfBirth:
       person.dateOfBirth && person.dateOfBirth.trim() !== ""
         ? person.dateOfBirth
         : defaultDob,
   };
 
-  const formik = useFormik<PersonViewModel>({
+  const formik = useFormik<PersonViewModel & { confirmPassword: string }>({
     enableReinitialize: true,
     initialValues: initialPersonValues,
-    validationSchema,
+    validationSchema: useMemo(
+      () => getValidationSchema(),
+      [getValidationSchema]
+    ),
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: (values) => {
-      if (passwordChanged && values.password !== confirmPassword) {
-        setConfirmPasswordError("Passwords do not match");
-        return;
-      }
-      setConfirmPasswordError(null);
-      onSave(values);
+      onSave({
+        ...values,
+        confirmPassword: undefined,
+      } as PersonViewModel);
     },
   });
+
+  useEffect(() => {
+    if (!canEdit) return; // skip if no permission
+
+    const email = formik.values.email;
+    if (!email) {
+      setEmailUniqueError(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    // Call personService to check if email is unique (assume personService.hasEmailUniqueAsync returns Promise<boolean>)
+    personService
+      .isEmailUnique(email, person.id) // pass exclude id to skip current person
+      .then((isUnique: boolean) => {
+        if (isMounted) {
+          setEmailUniqueError(isUnique ? null : "Email must be unique");
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setEmailUniqueError(null); // or some error message if desired
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [formik.values.email, person.id, personService, canEdit]);
 
   const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -218,7 +219,6 @@ const PersonEditor = ({
 
     if (name === "password") {
       setPasswordChanged(true);
-      setConfirmPasswordError(null);
     }
   };
 
@@ -358,13 +358,15 @@ const PersonEditor = ({
           onChange={handleFieldChange}
           onBlur={formik.handleBlur}
           disabled={!canEdit}
-          error={
-            (formik.touched.email && Boolean(formik.errors.email)) ||
-            Boolean(serverErrors.Email)
-          }
           helperText={
             (formik.touched.email && formik.errors.email) ??
+            emailUniqueError ??
             (serverErrors.Email ? serverErrors.Email.join(" ") : "")
+          }
+          error={
+            (formik.touched.email && Boolean(formik.errors.email)) ||
+            Boolean(emailUniqueError) ||
+            Boolean(serverErrors.Email)
           }
         />
 
@@ -388,18 +390,21 @@ const PersonEditor = ({
           autoComplete="new-password"
         />
 
-        {passwordChanged && (
+        {passwordChanged && formik.touched.password && (
           <TextField
             label="Confirm Password"
+            name="confirmPassword"
             type="password"
-            fullWidth
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={formik.values.confirmPassword}
+            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            disabled={!canEdit}
-            error={Boolean(confirmPasswordError)}
-            helperText={confirmPasswordError ?? ""}
-            autoComplete="new-password"
+            error={
+              formik.touched.confirmPassword &&
+              Boolean(formik.errors.confirmPassword)
+            }
+            helperText={
+              formik.touched.confirmPassword && formik.errors.confirmPassword
+            }
           />
         )}
 
@@ -428,7 +433,11 @@ const PersonEditor = ({
             <Button
               variant="contained"
               onClick={() => formik.handleSubmit()}
-              disabled={!formik.isValid} // Only disable if invalid, allow save even if untouched but valid
+              disabled={
+                !formik.isValid ||
+                formik.isSubmitting ||
+                Boolean(emailUniqueError)
+              }
             >
               Save
             </Button>

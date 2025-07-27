@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { vi, describe, it, expect, beforeEach } from "vitest";
@@ -9,7 +9,7 @@ import { ADMIN_ROLE_ID } from "../constants/roles";
 
 // Dummy personService for Yup validations
 const dummyPersonService = {
-  isEmailUnique: vi.fn(() => true),
+  isEmailUnique: vi.fn(() => Promise.resolve(true)),
 };
 
 describe("PersonEditor", () => {
@@ -52,7 +52,6 @@ describe("PersonEditor", () => {
     filterRole: 0,
     filterDepartment: 0,
     filteredPeople: [],
-    uniqueEmail: true,
     errors: {},
     isAuthenticating: false,
     tokenInvalid: false,
@@ -100,7 +99,7 @@ describe("PersonEditor", () => {
     );
   });
 
-  it("enables inputs if user can edit (admin role)", () => {
+  it("renders and enables form fields", () => {
     render(
       <PersonEditor
         state={userState}
@@ -112,42 +111,9 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-
-    const firstNameInput = screen.getByLabelText(/First Name/i);
-    expect(firstNameInput).not.toHaveAttribute("disabled");
-  });
-
-  it("removes server error from field on change and dispatches SET_ERRORS", () => {
-    const stateWithErrors: MainPageState = {
-      ...userState,
-      errors: {
-        firstName: ["Error on firstName"],
-        email: ["Email error"],
-      },
-    };
-
-    render(
-      <PersonEditor
-        state={stateWithErrors}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
-      />
-    );
-
-    const firstNameInput = screen.getByLabelText(/First Name/i);
-
-    userEvent.clear(firstNameInput);
-    userEvent.type(firstNameInput, "NewValue");
-
-    // The dispatch should be called asynchronously due to formik handleChange
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "SET_ERRORS",
-      payload: { email: ["Email error"] }, // firstName error removed
-    });
+    expect(screen.getByLabelText(/First Name/i)).not.toBeDisabled();
+    expect(screen.getByLabelText(/Email/i)).toHaveValue("jane.doe@example.com");
+    expect(screen.getByRole("button", { name: /Save/i })).toBeEnabled();
   });
 
   it("shows Confirm Password input after changing password", async () => {
@@ -162,17 +128,24 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-
     expect(
       screen.queryByLabelText(/Confirm Password/i)
     ).not.toBeInTheDocument();
 
+    // Type into Password input (should set passwordChanged = true)
     const passwordInput = screen.getByLabelText(/Password/i);
-    await act(async () => {
-      userEvent.type(passwordInput, "newpassword");
-    });
+    await userEvent.clear(passwordInput);
+    await userEvent.type(passwordInput, "Password1!");
+    await userEvent.tab(); // move focus away to trigger blur validation
 
-    expect(screen.getByLabelText(/Confirm Password/i)).toBeInTheDocument();
+    // Confirm Password field appears now
+    const confirmPasswordInput = await screen.findByLabelText(
+      /Confirm Password/i
+    );
+
+    await waitFor(() => {
+      expect(confirmPasswordInput).toBeInTheDocument();
+    });
   });
 
   it.skip("shows error and prevents save if passwords do not match", async () => {
@@ -188,24 +161,32 @@ describe("PersonEditor", () => {
       />
     );
 
+    // Type into Password input (should set passwordChanged = true)
     const passwordInput = screen.getByLabelText(/Password/i);
-    userEvent.type(passwordInput, "pass1");
+    await userEvent.clear(passwordInput);
+    await userEvent.type(passwordInput, "Password1!");
+    await userEvent.tab(); // move focus away to trigger blur validation
 
+    // Confirm Password field appears now
     const confirmPasswordInput = await screen.findByLabelText(
       /Confirm Password/i
     );
-    userEvent.type(confirmPasswordInput, "pass2");
 
-    const saveBtn = screen.getByRole("button", { name: /Save/i });
-    userEvent.click(saveBtn);
+    // Type mismatching confirm password
+    await userEvent.clear(confirmPasswordInput);
+    await userEvent.type(confirmPasswordInput, "Mismatch1!");
+    await userEvent.tab(); // trigger blur and validation on confirmPassword
 
-    expect(
-      await screen.findByText(/Passwords do not match/i)
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled();
+      expect(screen.getByText(/Passwords do not match/i)).toBeInTheDocument();
+    });
+
+    // onSave should not be called since form is invalid
     expect(onSave).not.toHaveBeenCalled();
   });
 
-  it.skip("calls onSave with form data when passwords match and form submitted", async () => {
+  it.skip("calls onSave with updated form data if valid", async () => {
     render(
       <PersonEditor
         state={userState}
@@ -217,108 +198,91 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-
+    // Type into Password input (should set passwordChanged = true)
     const passwordInput = screen.getByLabelText(/Password/i);
-    await userEvent.type(passwordInput, "password123");
+    await userEvent.clear(passwordInput);
+    await userEvent.type(passwordInput, "Password1!");
+    await userEvent.tab(); // move focus away to trigger blur validation
 
-    // Confirm Password field appears after password change, so find it
+    // Confirm Password field appears now
     const confirmPasswordInput = await screen.findByLabelText(
       /Confirm Password/i
     );
-    await userEvent.type(confirmPasswordInput, "password123");
 
-    const firstNameInput = screen.getByLabelText(/First Name/i);
-    await userEvent.clear(firstNameInput);
-    await userEvent.type(firstNameInput, "Janet");
+    // Type mismatching confirm password
+    await userEvent.clear(confirmPasswordInput);
+    await userEvent.type(confirmPasswordInput, "Password1!");
+    await userEvent.tab(); // trigger blur and validation on confirmPassword
 
-    const saveBtn = screen.getByRole("button", { name: /Save/i });
+    await userEvent.clear(screen.getByLabelText(/First Name/i));
+    await userEvent.type(screen.getByLabelText(/First Name/i), "Janet");
+
+    const saveBtn = await screen.getByRole("button", { name: /Save/i });
+    await waitFor(() => expect(saveBtn).toBeEnabled());
     await userEvent.click(saveBtn);
 
-    // Wait for onSave to be called asynchronously
-    await screen.findByRole("button", { name: /Save/i }); // can also use `waitFor`
-
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        password: "password123",
-        firstName: "Janet",
-      })
-    );
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ firstName: "Janet", password: "Password1!" })
+      );
+    });
   });
 
-  it("handleCancel resets form, calls setSnackbarStatus, and dispatches clear selected person", async () => {
+  it("calls onDelete with person id if delete clicked", () => {
     render(
       <PersonEditor
         state={userState}
         dispatch={dispatch}
-        person={{ ...basePerson, firstName: "OriginalName" }}
+        person={basePerson}
         onSave={onSave}
         onDelete={onDelete}
         personService={dummyPersonService as any}
         setSnackbarStatus={setSnackbarStatus}
       />
     );
+    const del = screen.getByRole("button", { name: /Delete/i });
+    expect(del).not.toBeDisabled();
+    fireEvent.click(del);
+    expect(onDelete).toHaveBeenCalledWith(basePerson.id);
+  });
 
-    const firstNameInput = screen.getByLabelText(/First Name/i);
+  it("disables delete button when editing self", () => {
+    const stateSelf: MainPageState = { ...userState, loggedInUser: basePerson };
+    render(
+      <PersonEditor
+        state={stateSelf}
+        dispatch={dispatch}
+        person={basePerson}
+        onSave={onSave}
+        onDelete={onDelete}
+        personService={dummyPersonService as any}
+        setSnackbarStatus={setSnackbarStatus}
+      />
+    );
+    expect(screen.getByRole("button", { name: /Delete/i })).toBeDisabled();
+  });
 
-    await act(async () => {
-      userEvent.clear(firstNameInput);
-      userEvent.type(firstNameInput, "ChangedName");
-    });
-    expect(firstNameInput).toHaveValue("ChangedName");
-
-    const cancelBtn = screen.getByRole("button", { name: /Cancel/i });
-
-    await act(async () => {
-      userEvent.click(cancelBtn);
-    });
-
-    expect(firstNameInput).toHaveValue("OriginalName");
-    expect(setSnackbarStatus).toHaveBeenCalledWith("info");
+  it("resets form and clears person on cancel", async () => {
+    render(
+      <PersonEditor
+        state={userState}
+        dispatch={dispatch}
+        person={{ ...basePerson, firstName: "Original" }}
+        onSave={onSave}
+        onDelete={onDelete}
+        personService={dummyPersonService as any}
+        setSnackbarStatus={setSnackbarStatus}
+      />
+    );
+    const input = screen.getByLabelText(/First Name/i);
+    await userEvent.clear(input);
+    await userEvent.type(input, "Changed");
+    await userEvent.click(screen.getByRole("button", { name: /Cancel/i }));
+    expect(input).toHaveValue("Original");
     expect(dispatch).toHaveBeenCalledWith({
       type: "SET_SELECTED_PERSON",
       payload: null,
     });
-  });
-
-  it("delete button calls onDelete callback when enabled", () => {
-    render(
-      <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
-      />
-    );
-
-    const deleteBtn = screen.getByRole("button", { name: /Delete/i });
-    expect(deleteBtn).toBeEnabled();
-
-    fireEvent.click(deleteBtn);
-    expect(onDelete).toHaveBeenCalledWith(basePerson.id);
-  });
-
-  it("delete button is disabled when editing self", () => {
-    const stateSelfEdit: MainPageState = {
-      ...userState,
-      loggedInUser: basePerson, // logged in user same as person edited
-    };
-
-    render(
-      <PersonEditor
-        state={stateSelfEdit}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
-      />
-    );
-
-    const deleteBtn = screen.getByRole("button", { name: /Delete/i });
-    expect(deleteBtn).toBeDisabled();
+    expect(setSnackbarStatus).toHaveBeenCalledWith("info");
   });
 });

@@ -14,7 +14,6 @@ export interface MainPageState {
   filterRole: number;
   filterDepartment: number;
   filteredPeople: PersonViewModel[];
-  uniqueEmail: boolean;
   errors: Record<string, any>;
   isAuthenticating: boolean;
   tokenInvalid: boolean;
@@ -30,7 +29,6 @@ export const initialState: MainPageState = {
   filterRole: 0,
   filterDepartment: 0,
   filteredPeople: [],
-  uniqueEmail: true,
   errors: {},
   isAuthenticating: true,
   tokenInvalid: false,
@@ -47,14 +45,6 @@ export type MainPageAction =
   | { type: "SET_FILTER_ROLE"; payload: number }
   | { type: "SET_FILTER_DEPARTMENT"; payload: number }
   | { type: "SET_FILTERED_PEOPLE"; payload: PersonService }
-  | {
-      type: "UNIQUE_EMAIL_CHECK";
-      payload: {
-        email: string;
-        excludePersonId?: number;
-        personService: PersonService;
-      };
-    }
   | { type: "SET_ERRORS"; payload: Record<string, any> }
   | { type: "SET_AUTHENTICATING"; payload: boolean }
   | { type: "SET_TOKEN_INVALID"; payload: boolean };
@@ -73,10 +63,10 @@ export function mainPageReducer(
       return { ...state, people: action.payload };
     case "SET_SELECTED_PERSON":
       return { ...state, selectedPerson: action.payload };
-    case "SET_DEPARTMENTS":
-      return { ...state, departments: action.payload };
     case "SET_ROLES":
       return { ...state, roles: action.payload };
+    case "SET_DEPARTMENTS":
+      return { ...state, departments: action.payload };
     case "SET_SEARCH_TERM":
       return { ...state, searchTerm: action.payload };
     case "SET_FILTER_ROLE":
@@ -91,16 +81,6 @@ export function mainPageReducer(
       );
 
       return { ...state, filteredPeople: results };
-    case "UNIQUE_EMAIL_CHECK":
-      const unique = action.payload.personService.isEmailUnique(
-        action.payload.email,
-        action.payload.excludePersonId
-      );
-
-      return {
-        ...state,
-        uniqueEmail: unique,
-      };
     case "SET_ERRORS":
       return { ...state, errors: action.payload };
     case "SET_AUTHENTICATING":

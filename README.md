@@ -37,6 +37,7 @@ This project originated from the [UK Parliament's product-senior-developer-home-
 - [Running and Debugging](#running-and-debugging)
 - [API Documentation and Usage](#api-documentation-and-usage)
 - [Performance Testing plus Lighthouse Audit](#performance-testing-plus-lighthouse-audit)
+- [Frontend Code Coverage](#frontend-code-coverage)
 - [Code Quality and Architecture](#code-quality-and-architecture)
 - [What I would do given more time to complete this task](#what-i-would-do-given-more-time-to-complete-this-task)
 - [API Schema Descriptions](#api-schema-dDescriptions)
@@ -231,6 +232,10 @@ The frontend production build was audited with `https://developers.google.com/we
 
 These results demonstrate strong readiness for production deployment.
 
+# Frontend Code Coverage
+
+Used the V8 code coverage tool to verify React frontend test coverage via Chrome's V8 engine using `npm run coverage`. The latest results indicate that MainPage.tsx, UserConfig.tsx, PersonEditor.tsx, personService.ts, and mainPageReducer.ts require more testing
+
 # Code Quality and Architecture
 
 - Based on SOLID principles and separation of concerns.
@@ -243,10 +248,10 @@ These results demonstrate strong readiness for production deployment.
 
 # What I would do given more time to complete this task
 
-1. Testing coverage:
+1. Testing coverage frontend & backend:
 
-   - Increase coverage for edge cases and integration flows.
-     Fix or remove skipped/failing tests.
+   - Increase coverage and add more tests dealing with edge cases.
+   - Fix or remove skipped tests - there are currently 2 skipped tests.
 
 2. API Improvements:
 

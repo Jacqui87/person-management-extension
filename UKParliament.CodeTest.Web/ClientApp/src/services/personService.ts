@@ -116,21 +116,22 @@ export class PersonService {
     });
   }
 
-  isEmailUnique(email: string, excludePersonId: number | undefined): boolean {
+  isEmailUnique(
+    email: string,
+    excludePersonId: number | undefined
+  ): Promise<boolean> {
     const emailToCheck = email.toLowerCase().trim();
-    if (excludePersonId === 0) {
-      // New user - check all records without exclusion
-      return !this.peopleCache.some(
-        (p) => p.email.toLowerCase().trim() === emailToCheck
-      );
-    } else {
-      // Existing user update - exclude their own id
-      return !this.peopleCache.some(
-        (p) =>
-          p.email.toLowerCase().trim() === emailToCheck &&
-          p.id !== excludePersonId
-      );
-    }
+    const isUnique =
+      excludePersonId === 0
+        ? !this.peopleCache.some(
+            (p) => p.email.toLowerCase().trim() === emailToCheck
+          )
+        : !this.peopleCache.some(
+            (p) =>
+              p.email.toLowerCase().trim() === emailToCheck &&
+              p.id !== excludePersonId
+          );
+    return Promise.resolve(isUnique);
   }
 
   // Invalidate the people cache

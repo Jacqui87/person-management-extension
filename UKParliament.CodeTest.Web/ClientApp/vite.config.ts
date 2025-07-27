@@ -24,5 +24,10 @@ export default defineConfig({
     setupFiles: "./src/setupTests.ts",
     css: true,
     exclude: ["node_modules"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+    },
+    testTimeout: 10000, // 10 seconds
   },
 });

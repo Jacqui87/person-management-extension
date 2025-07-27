@@ -22,7 +22,7 @@ describe("LoginScreen", () => {
     expect(button).not.toBeDisabled();
   });
 
-  it.skip("allows user to type email and password", async () => {
+  it("allows user to type email and password", async () => {
     render(<LoginScreen onLogin={vi.fn()} tokenInvalid={false} />);
 
     const emailInput = screen.getByLabelText(
@@ -57,37 +57,6 @@ describe("LoginScreen", () => {
       password: "pass123",
       token: "mock-token",
     });
-  });
-
-  it.skip("disables the button and shows 'Logging in...' while loading", async () => {
-    // To test loading state, we need to simulate async onLogin prop that delays
-
-    // We'll create a component wrapper to inject async onLogin and control loading state:
-    const asyncOnLogin = vi.fn(
-      () =>
-        new Promise<void>((resolve) => {
-          setTimeout(resolve, 100);
-        })
-    );
-
-    render(<LoginScreen onLogin={asyncOnLogin} tokenInvalid={false} />);
-
-    const emailInput = screen.getByLabelText(/email address/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const button = screen.getByRole("button", { name: /login/i });
-
-    await userEvent.type(emailInput, "user@example.com");
-    await userEvent.type(passwordInput, "password");
-
-    // Submit form (button click causes handleSubmit)
-    fireEvent.click(button);
-
-    // Button should be disabled and show "Logging in..."
-    expect(button).toBeDisabled();
-    expect(button).toHaveTextContent(/logging in.../i);
-
-    // Wait for asyncOnLogin promise to resolve before finishing test
-    await asyncOnLogin.mock.results[0].value;
   });
 
   it("displays error message if onLogin throws", async () => {

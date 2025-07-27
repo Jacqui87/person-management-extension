@@ -36,7 +36,7 @@ describe("PersonList Component", () => {
     }
   });
 
-  it.skip("calls onSelect with correct id when a person is clicked", () => {
+  it("calls onSelect with correct id when a person is clicked", async () => {
     const onSelect = vi.fn();
     render(
       <PersonList
@@ -47,14 +47,15 @@ describe("PersonList Component", () => {
     );
 
     // Click on the first person's ListItemButton
-    const firstPersonButton = screen
-      .getByText(`${samplePeople[0].firstName} ${samplePeople[0].lastName}`)
-      .closest("button");
+    const firstPersonButton = screen.getByRole("button", {
+      name: new RegExp(
+        `${samplePeople[0].firstName} ${samplePeople[0].lastName}`,
+        "i"
+      ),
+    });
     expect(firstPersonButton).not.toBeNull();
 
-    if (firstPersonButton) {
-      fireEvent.click(firstPersonButton);
-    }
+    await fireEvent.click(firstPersonButton);
 
     expect(onSelect).toHaveBeenCalledTimes(1);
     expect(onSelect).toHaveBeenCalledWith(samplePeople[0].id);
