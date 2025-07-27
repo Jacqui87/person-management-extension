@@ -16,6 +16,7 @@ import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
 import { RoleViewModel } from "../models/RoleViewModel";
 import { PersonService } from "../services/personService";
+import useTheme from "@mui/material/styles/useTheme";
 
 // Create dynamic Yup validation schema based on user role and passwordChanged status
 const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
@@ -121,6 +122,7 @@ const PersonEditor = ({
   personService,
   setSnackbarStatus,
 }: PersonEditorProps) => {
+  const theme = useTheme();
   const currentUser = state.loggedInUser;
   const departments: DepartmentViewModel[] = state.departments;
   const roles: RoleViewModel[] = state.roles;
@@ -255,7 +257,7 @@ const PersonEditor = ({
               >
                 <FontAwesomeIcon
                   icon={faInfoCircle}
-                  style={{ color: "#1976d2", cursor: "pointer" }}
+                  style={{ color: theme.palette.info.main, cursor: "pointer" }}
                 />
               </Tooltip>
             </Box>
@@ -293,7 +295,7 @@ const PersonEditor = ({
               >
                 <FontAwesomeIcon
                   icon={faInfoCircle}
-                  style={{ color: "#1976d2", cursor: "pointer" }}
+                  style={{ color: theme.palette.info.main, cursor: "pointer" }}
                 />
               </Tooltip>
             </Box>
@@ -433,7 +435,7 @@ const PersonEditor = ({
               >
                 <FontAwesomeIcon
                   icon={faInfoCircle}
-                  style={{ color: "#1976d2", cursor: "pointer" }}
+                  style={{ color: theme.palette.info.main, cursor: "pointer" }}
                 />
               </Tooltip>
             </Box>
@@ -495,32 +497,42 @@ const PersonEditor = ({
         />
 
         {canEdit && (
-          <Box display="flex" justifyContent="flex-end" gap={2} pt={2}>
-            <Button
-              variant="contained"
-              onClick={() => formik.handleSubmit()}
-              disabled={
-                !formik.isValid ||
-                formik.isSubmitting ||
-                Boolean(emailUniqueError)
-              }
-            >
-              Save
-            </Button>
-            <Button variant="outlined" onClick={handleCancel}>
-              Cancel
-            </Button>
-            {currentUser.role === ADMIN_ROLE_ID && (
+          <>
+            <Box display="flex" justifyContent="flex-end" gap={2} pt={2}>
               <Button
-                variant="outlined"
-                color="error"
-                disabled={person.id === currentUser.id}
-                onClick={() => onDelete?.(person.id)}
+                variant="contained"
+                onClick={() => formik.handleSubmit()}
+                disabled={
+                  !formik.isValid ||
+                  formik.isSubmitting ||
+                  Boolean(emailUniqueError)
+                }
               >
-                Delete
+                Save
               </Button>
-            )}
-          </Box>
+              <Button variant="outlined" onClick={handleCancel}>
+                Cancel
+              </Button>
+              {currentUser.role === ADMIN_ROLE_ID && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  disabled={person.id === currentUser.id}
+                  onClick={() => onDelete?.(person.id)}
+                >
+                  Delete
+                </Button>
+              )}
+            </Box>
+
+            {person.id === currentUser.id &&
+              currentUser.role === ADMIN_ROLE_ID && (
+                <Typography component="p" color="info.main" align="right">
+                  <FontAwesomeIcon icon={faInfoCircle} />
+                  You cannot delete yourself
+                </Typography>
+              )}
+          </>
         )}
       </Stack>
     </Box>
