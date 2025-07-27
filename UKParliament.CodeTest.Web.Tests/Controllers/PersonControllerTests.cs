@@ -104,6 +104,28 @@ public class PersonControllerTests
   }
 
   [Fact]
+public async Task GetRoles_ReturnsOkWithRoles()
+{
+    // Arrange
+    var roles = new List<Role>
+    {
+        new Role { Id = 1, Type = "User" },
+        new Role { Id = 2, Type = "Admin" }
+    };
+    _personService.GetAllRolesAsync().Returns(roles);
+
+    // Act
+    var result = await _controller.GetRoles();
+
+    // Assert
+    var okResult = Assert.IsType<OkObjectResult>(result.Result);
+    var returnedRoles = Assert.IsAssignableFrom<RoleViewModel[]>(okResult.Value);
+    Assert.Equal(2, returnedRoles.Length);
+    Assert.Contains(returnedRoles, r => r.Id == 1 && r.Type == "User");
+    Assert.Contains(returnedRoles, r => r.Id == 2 && r.Type == "Admin");
+}
+
+  [Fact]
   public async Task GetById_ReturnsNotFound_WhenPersonIsNull()
   {
     // Arrange
@@ -147,6 +169,62 @@ public class PersonControllerTests
     Assert.Equal(person.Password, returnedPerson.Password);
     Assert.Equal(person.Department, returnedPerson.Department);
     Assert.Equal(person.DateOfBirth, returnedPerson.DateOfBirth);
+  }
+
+  [Fact]
+  public async Task AddPerson_ReturnsOkWithCreatedPerson()
+  {
+    // Arrange
+    var personViewModel = new PersonViewModel
+    {
+      Id = 0, // Assuming 0 for a new person
+      FirstName = "Emma",
+      LastName = "Brown",
+      Email = "emma.brown@example.com",
+      Password = "StrongPassword123",
+      Role = 1,
+      Department = 2,
+      DateOfBirth = new DateOnly(1992, 3, 15),
+      Biography = "Some bio text"
+    };
+
+    var createdPerson = new Person
+    {
+      Id = 10,
+      FirstName = personViewModel.FirstName,
+      LastName = personViewModel.LastName,
+      Email = personViewModel.Email,
+      Password = personViewModel.Password,
+      Role = personViewModel.Role,
+      Department = personViewModel.Department,
+      DateOfBirth = personViewModel.DateOfBirth,
+      Biography = personViewModel.Biography
+    };
+
+    var serviceResult = new ServiceResult<Person?>
+    {
+      StatusCode = StatusCodes.Success,
+      Data = createdPerson
+    };
+
+    _personService.AddAsync(Arg.Any<Person>()).Returns(serviceResult);
+
+    // Act
+    var result = await _controller.AddPerson(personViewModel);
+
+    // Assert
+    var okResult = Assert.IsType<OkObjectResult>(result.Result);
+    var returnedPerson = Assert.IsType<Person>(okResult.Value);
+
+    Assert.Equal(createdPerson.Id, returnedPerson.Id);
+    Assert.Equal(createdPerson.FirstName, returnedPerson.FirstName);
+    Assert.Equal(createdPerson.LastName, returnedPerson.LastName);
+    Assert.Equal(createdPerson.Email, returnedPerson.Email);
+    Assert.Equal(createdPerson.Password, returnedPerson.Password);
+    Assert.Equal(createdPerson.Role, returnedPerson.Role);
+    Assert.Equal(createdPerson.Department, returnedPerson.Department);
+    Assert.Equal(createdPerson.DateOfBirth, returnedPerson.DateOfBirth);
+    Assert.Equal(createdPerson.Biography, returnedPerson.Biography);
   }
 
   [Fact]

@@ -78,6 +78,32 @@ public class PersonServiceTests
 
     #endregion
 
+    #region GetAllRolesAsync_ReturnsAllRoles
+
+    [Fact]
+    public async Task GetAllRolesAsync_ReturnsAllRoles()
+    {
+      var dbName = nameof(GetAllRolesAsync_ReturnsAllRoles);
+      await using var context = CreateInMemoryContext(dbName);
+
+      var roles = new List<Role>
+      {
+        new Role { Id = 1, Type = "Admin" },
+        new Role { Id = 2, Type = "User" }
+      };
+      context.Roles.AddRange(roles);
+      await context.SaveChangesAsync();
+
+      var service = CreateService(context, out _);
+      var result = await service.GetAllRolesAsync();
+
+      Assert.Equal(2, result.Count);
+      Assert.Contains(result, r => r.Type == "Admin");
+      Assert.Contains(result, r => r.Type == "User");
+    }
+
+    #endregion
+
     #region GetByIdAsync
 
     [Fact]
