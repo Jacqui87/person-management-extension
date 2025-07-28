@@ -330,19 +330,27 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 - Searching and filtering options
 
-![Searching and filtering options](screenshots/searching_filtering.png)
+![Searching and filtering options](screenshots/searching_filtering_example.png)
 
-- Edit person screen
+- Edit person form
 
-![Edit person screen](screenshots/edit_person.png)
+![Edit person form](screenshots/edit_person_form.png)
 
-- Add person screen
+- Add person form
 
-![Add person screen](screenshots/add_person.png)
+![Add person form](screenshots/add_person_form.png)
 
 - Client side validation using formik/yup
 
-![Client side validation using formik/yup](screenshots/client_side_validation.png)
+![Client side validation using formik/yup](screenshots/client_side_validation_example.png)
+
+- No one can delete themselves but admins can delete other people
+
+![No one can delete themselves but admins can delete other people](screenshots/cannot_delete_yourself.png)
+
+- User only login as opposed to an admin login
+
+![User only login as opposed to an admin login](screenshots/user_login.png)
 
 - Success snackbar when add/update had been successful
 
@@ -354,7 +362,7 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 - Mobile friendly layout
 
-![Mobile friendly layout](screenshots/mobile_friendly.png)
+![Mobile friendly layout](screenshots/mobile_friendly_example.png)
 
 - JWT token example: navigate to [https://www.jwt.io/](https://www.jwt.io/) & paste in the token
 
