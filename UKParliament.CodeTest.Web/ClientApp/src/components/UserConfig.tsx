@@ -29,7 +29,6 @@ const LeftPane = styled(Box)(({ theme }) => ({
   flex: "0 0 100%",
   padding: "1rem",
   borderRight: "none",
-  backgroundColor: "#f9f9f9",
   borderBottom: "2px dotted #ccc",
 
   [theme.breakpoints.up("md")]: {
