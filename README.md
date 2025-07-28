@@ -342,7 +342,7 @@ Used the V8 code coverage tool to verify React frontend test coverage via Chrome
 
 - Client side validation using formik/yup
 
-![Client side validation using formik/yup](screenshots/client_side_validation_example.png)
+![Client side validation using formik/yup](screenshots/client_side_all_validation_example.png)
 
 - No one can delete themselves but admins can delete other people
 
