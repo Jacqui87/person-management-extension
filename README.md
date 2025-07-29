@@ -28,7 +28,7 @@ This repository continues that work — evolving it toward a more robust, produc
 
 ### 🛠️ Planned Enhancements
 
-**_(Adapted and expanded from the original [“What I would do given more time to complete this task”](https://github.com/Jacqui87/product-senior-developer-home-exercise?tab=readme-ov-file#what-i-would-do-given-more-time-to-complete-this-task))_**
+_*(Adapted and expanded from the original [“What I would do given more time to complete this task”](https://github.com/Jacqui87/product-senior-developer-home-exercise?tab=readme-ov-file#what-i-would-do-given-more-time-to-complete-this-task))*_
 
 1. **Testing Coverage (Frontend & Backend)**
 
