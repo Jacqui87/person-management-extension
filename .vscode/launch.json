@@ -6,9 +6,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/UKParliament.CodeTest.Web/bin/Debug/net8.0/UKParliament.CodeTest.Web.dll",
+      "program": "${workspaceFolder}/PersonManagementExtension.Web/bin/Debug/net8.0/PersonManagementExtension.Web.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/UKParliament.CodeTest.Web",
+      "cwd": "${workspaceFolder}/PersonManagementExtension.Web",
       "stopAtEntry": false,
       "serverReadyAction": {
         "action": "openExternally",
@@ -18,7 +18,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "sourceFileMap": {
-        "/Views": "${workspaceFolder}/UKParliament.CodeTest.Web/Views"
+        "/Views": "${workspaceFolder}/PersonManagementExtension.Web/Views"
       }
     }
   ]
