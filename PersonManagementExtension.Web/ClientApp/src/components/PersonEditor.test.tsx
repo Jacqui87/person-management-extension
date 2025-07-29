@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import PersonEditor from "./PersonEditor";
 import { PersonViewModel } from "../models/PersonViewModel";
-import { MainPageState } from "../state/mainPageReducer";
+import { PersonState } from "../state/personReducer";
 import { ADMIN_ROLE_ID } from "../constants/roles";
 
 // Dummy personService for Yup validations
@@ -42,7 +42,7 @@ describe("PersonEditor", () => {
     biography: "",
   };
 
-  const userState: MainPageState = {
+  const userState: PersonState = {
     loggedInUser: adminUser,
     people: [],
     selectedPerson: basePerson,
@@ -247,7 +247,7 @@ describe("PersonEditor", () => {
   });
 
   it("disables delete button when editing self", () => {
-    const stateSelf: MainPageState = { ...userState, loggedInUser: basePerson };
+    const stateSelf: PersonState = { ...userState, loggedInUser: basePerson };
     render(
       <PersonEditor
         state={stateSelf}

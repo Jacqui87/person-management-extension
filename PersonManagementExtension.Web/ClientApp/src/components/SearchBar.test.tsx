@@ -2,10 +2,10 @@ import React from "react";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import SearchBar from "./SearchBar";
-import { MainPageState, MainPageAction } from "../state/mainPageReducer";
+import { PersonState, PersonAction } from "../state/personReducer";
 
 describe("SearchBar", () => {
-  const baseState: MainPageState = {
+  const baseState: PersonState = {
     loggedInUser: null,
     people: [],
     selectedPerson: null,
@@ -21,13 +21,12 @@ describe("SearchBar", () => {
     filterRole: 20,
     filterDepartment: 2,
     filteredPeople: [],
-    uniqueEmail: true,
     errors: {},
     isAuthenticating: false,
     tokenInvalid: false,
   };
 
-  let dispatch: React.Dispatch<MainPageAction>;
+  let dispatch: React.Dispatch<PersonAction>;
 
   beforeEach(() => {
     dispatch = vi.fn();

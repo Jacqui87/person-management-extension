@@ -2,14 +2,14 @@ import React from "react";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import MenuItem from "@mui/material/MenuItem";
-import { MainPageState, MainPageAction } from "../state/mainPageReducer";
+import { PersonState, PersonAction } from "../state/personReducer";
 
 const SearchBar = ({
   state,
   dispatch,
 }: {
-  state: MainPageState;
-  dispatch: React.Dispatch<MainPageAction>;
+  state: PersonState;
+  dispatch: React.Dispatch<PersonAction>;
 }) => {
   const { searchTerm, filterRole, filterDepartment, departments, roles } =
     state;

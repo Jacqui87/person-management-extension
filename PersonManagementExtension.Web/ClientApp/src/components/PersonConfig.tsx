@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MainPageAction, MainPageState } from "../state/mainPageReducer";
+import { PersonAction, PersonState } from "../state/personReducer";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
 import { PersonViewModel } from "../models/PersonViewModel";
@@ -46,13 +46,13 @@ const RightPane = styled(Box)(({ theme }) => ({
   },
 }));
 
-const UserConfig = ({
+const PersonConfig = ({
   state,
   dispatch,
   personService,
 }: {
-  state: MainPageState;
-  dispatch: React.Dispatch<MainPageAction>;
+  state: PersonState;
+  dispatch: React.Dispatch<PersonAction>;
   personService: PersonService;
 }) => {
   const [snackbarStatus, setSnackbarStatus] = useState<
@@ -60,7 +60,7 @@ const UserConfig = ({
   >("closed");
 
   const loadPeople = async () => {
-    const all = await personService.getAllPeople(false);
+    const all = await personService.getAllPeople();
     dispatch({ type: "SET_PEOPLE", payload: all });
   };
 
@@ -82,11 +82,11 @@ const UserConfig = ({
   const handleSave = async (person: PersonViewModel) => {
     let success = false;
     if (person.id === 0 && state.loggedInUser) {
-      success = await personService.addPerson(person, (errors: any) =>
+      success = await personService.add(person, (errors: any) =>
         dispatch({ type: "SET_ERRORS", payload: errors })
       );
     } else {
-      success = await personService.updatePerson(person, (errors: any) =>
+      success = await personService.update(person, (errors: any) =>
         dispatch({ type: "SET_ERRORS", payload: errors })
       );
     }
@@ -101,7 +101,7 @@ const UserConfig = ({
 
   const handleDelete = async (id: number) => {
     if (id > 0 && state.loggedInUser && state.loggedInUser.id !== id) {
-      await personService.deletePerson(id);
+      await personService.delete(id);
     }
     await loadPeople();
     dispatch({ type: "SET_SELECTED_PERSON", payload: null });
@@ -120,7 +120,7 @@ const UserConfig = ({
           <PersonList
             people={visiblePeople}
             onSelect={async (id: number) => {
-              const person = await personService.getPerson(id);
+              const person = await personService.getById(id);
               dispatch({ type: "SET_SELECTED_PERSON", payload: person });
             }}
             onAddNew={() =>
@@ -183,4 +183,4 @@ const UserConfig = ({
   );
 };
 
-export default UserConfig;
+export default PersonConfig;

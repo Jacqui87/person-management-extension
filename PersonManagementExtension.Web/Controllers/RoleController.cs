@@ -8,12 +8,12 @@ namespace PersonManagementExtension.Web.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class RoleController(IRoleService roleService) : ControllerBase
+public class RoleController(IRoleService service) : ControllerBase
 {
   [HttpGet]
   public async Task<ActionResult<RoleViewModel[]>> Get()
   {
-    var roles = await roleService.GetAllAsync();
+    var roles = await service.GetAllAsync();
 
     return Ok(roles.Select(d => new RoleViewModel
     {

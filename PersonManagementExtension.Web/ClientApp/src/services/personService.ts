@@ -1,7 +1,5 @@
 import axios from "axios";
 import { PersonViewModel } from "../models/PersonViewModel";
-import { DepartmentViewModel } from "../models/DepartmentViewModel";
-import { RoleViewModel } from "../models/RoleViewModel";
 
 const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api/person`;
 
@@ -19,22 +17,25 @@ function getAuthHeaders(): Record<string, string> {
 
 export class PersonService {
   private peopleCache: PersonViewModel[] = [];
-  private rolesCache: RoleViewModel[] = [];
-  private departmentsCache: DepartmentViewModel[] = [];
 
-  // Use Axios to get all people
-  async getAllPeople(clear: boolean): Promise<PersonViewModel[]> {
-    if (clear) return (this.peopleCache = []);
-    if (this.peopleCache.length > 0) return this.peopleCache;
-    return await this.allPeople();
+  // Invalidate the people cache
+  invalidatePeopleCache(): PersonViewModel[] {
+    this.peopleCache = [];
+    return this.peopleCache;
   }
 
   async refreshAllPeople(): Promise<PersonViewModel[]> {
     this.invalidatePeopleCache();
-    return await this.allPeople();
+    return await this.get();
   }
 
-  async allPeople(): Promise<PersonViewModel[]> {
+  // Use Axios to get all people
+  async getAllPeople(): Promise<PersonViewModel[]> {
+    if (this.peopleCache.length > 0) return this.peopleCache;
+    return await this.get();
+  }
+
+  async get(): Promise<PersonViewModel[]> {
     try {
       const res = await axios.get<PersonViewModel[]>(BASE_URL, {
         headers: getAuthHeaders(),
@@ -93,13 +94,8 @@ export class PersonService {
     return Promise.resolve(isUnique);
   }
 
-  // Invalidate the people cache
-  invalidatePeopleCache() {
-    this.peopleCache = [];
-  }
-
   // Get one person by ID with Axios
-  async getPerson(id: number): Promise<PersonViewModel> {
+  async getById(id: number): Promise<PersonViewModel> {
     // Try to find the person in the cache first
     const cachedPerson = this.peopleCache.find((p) => p.id === id);
     if (cachedPerson) {
@@ -133,7 +129,7 @@ export class PersonService {
   }
 
   // Add person with Axios post
-  async addPerson(
+  async add(
     person: PersonViewModel,
     setErrors: React.Dispatch<React.SetStateAction<{}>>
   ): Promise<boolean> {
@@ -156,7 +152,7 @@ export class PersonService {
   }
 
   // Update person
-  async updatePerson(
+  async update(
     person: PersonViewModel,
     setErrors: React.Dispatch<React.SetStateAction<{ [key: string]: string[] }>>
   ): Promise<boolean> {
@@ -181,7 +177,7 @@ export class PersonService {
   }
 
   // Delete person using Axios
-  async deletePerson(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     try {
       await axios.delete(`${BASE_URL}/${id}`, {
         headers: getAuthHeaders(),

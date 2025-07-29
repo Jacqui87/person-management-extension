@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import { mainPageReducer, initialState } from "../state/mainPageReducer";
+import { personReducer, initialState } from "../state/personReducer";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
@@ -9,14 +9,14 @@ import { DepartmentService } from "../services/departmentService";
 import { login } from "../services/authService";
 import LoginScreen from "./LoginScreen";
 import NavBar from "./NavBar";
-import UserConfig from "./UserConfig";
+import PersonConfig from "./PersonConfig";
 
 const roleService = new RoleService();
 const personService = new PersonService();
 const departmentService = new DepartmentService();
 
 const MainPage = () => {
-  const [state, dispatch] = useReducer(mainPageReducer, initialState);
+  const [state, dispatch] = useReducer(personReducer, initialState);
 
   useEffect(() => {
     const doLogin = async () => {
@@ -39,7 +39,12 @@ const MainPage = () => {
   }, []);
 
   useEffect(() => {
-    dispatch({ type: "SET_FILTERED_PEOPLE", payload: personService });
+    const results = personService.filterPeople(
+      state.searchTerm,
+      state.filterRole,
+      state.filterDepartment
+    );
+    dispatch({ type: "SET_FILTERED_PEOPLE", payload: results });
   }, [
     state.people,
     state.searchTerm,
@@ -58,7 +63,7 @@ const MainPage = () => {
   };
 
   const loadPeople = async () => {
-    const all = await personService.getAllPeople(false);
+    const all = await personService.getAllPeople();
     dispatch({ type: "SET_PEOPLE", payload: all });
   };
 
@@ -126,7 +131,7 @@ const MainPage = () => {
             personService={personService}
           />
           <Container>
-            <UserConfig
+            <PersonConfig
               state={state}
               dispatch={dispatch}
               personService={personService}

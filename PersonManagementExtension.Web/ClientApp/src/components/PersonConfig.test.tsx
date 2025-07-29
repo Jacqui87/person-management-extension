@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import {
-  mainPageReducer,
+  personReducer,
   initialState,
-  MainPageState,
-  MainPageAction,
-} from "../state/mainPageReducer";
+  PersonState,
+  PersonAction,
+} from "../state/personReducer";
 import { PersonViewModel } from "../models/PersonViewModel";
 
-describe("mainPageReducer", () => {
+describe("personReducer", () => {
   beforeAll(() => {
     Object.defineProperty(window, "localStorage", {
       value: {
@@ -36,13 +36,13 @@ describe("mainPageReducer", () => {
       role: 2,
       biography: "Sample bio",
     };
-    const action: MainPageAction = { type: "LOGIN", payload: user };
-    const newState = mainPageReducer(initialState, action);
+    const action: PersonAction = { type: "LOGIN", payload: user };
+    const newState = personReducer(initialState, action);
     expect(newState.loggedInUser).toEqual(user);
   });
 
   it("should handle LOGOUT action and clear token", () => {
-    const state: MainPageState = {
+    const state: PersonState = {
       ...initialState,
       loggedInUser: {
         id: 1,
@@ -57,8 +57,8 @@ describe("mainPageReducer", () => {
       },
       tokenInvalid: false,
     };
-    const action: MainPageAction = { type: "LOGOUT" };
-    const newState = mainPageReducer(state, action);
+    const action: PersonAction = { type: "LOGOUT" };
+    const newState = personReducer(state, action);
     expect(window.localStorage.removeItem).toHaveBeenCalledWith("token");
     expect(newState).toEqual(initialState);
   });
@@ -88,8 +88,8 @@ describe("mainPageReducer", () => {
         biography: "Bio B",
       },
     ];
-    const action: MainPageAction = { type: "SET_PEOPLE", payload: people };
-    const newState = mainPageReducer(initialState, action);
+    const action: PersonAction = { type: "SET_PEOPLE", payload: people };
+    const newState = personReducer(initialState, action);
     expect(newState.people).toEqual(people);
   });
 
@@ -105,22 +105,19 @@ describe("mainPageReducer", () => {
       role: 5,
       biography: "Selected biography",
     };
-    const action: MainPageAction = {
+    const action: PersonAction = {
       type: "SET_SELECTED_PERSON",
       payload: person,
     };
-    const newState = mainPageReducer(initialState, action);
+    const newState = personReducer(initialState, action);
     expect(newState.selectedPerson).toEqual(person);
   });
 
   // Remaining tests unchanged except using matching PersonViewModel in test data:
 
   it("should handle SET_FILTERED_PEOPLE by calling PersonService.filterPeople", () => {
-    const state: MainPageState = {
+    const state: PersonState = {
       ...initialState,
-      searchTerm: "term",
-      filterRole: 1,
-      filterDepartment: 2,
     };
 
     const mockFilteredPeople: PersonViewModel[] = [
@@ -136,16 +133,12 @@ describe("mainPageReducer", () => {
         biography: "filtered biography",
       },
     ];
-    const personServiceMock = {
-      filterPeople: vi.fn(() => mockFilteredPeople),
-    };
 
-    const action: MainPageAction = {
+    const action: PersonAction = {
       type: "SET_FILTERED_PEOPLE",
-      payload: personServiceMock as any,
+      payload: mockFilteredPeople as PersonViewModel[],
     };
-    const newState = mainPageReducer(state, action);
-    expect(personServiceMock.filterPeople).toHaveBeenCalledWith("term", 1, 2);
+    const newState = personReducer(state, action);
     expect(newState.filteredPeople).toEqual(mockFilteredPeople);
   });
 });

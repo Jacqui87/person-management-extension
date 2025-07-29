@@ -18,8 +18,24 @@ function getAuthHeaders(): Record<string, string> {
 export class RoleService {
   private rolesCache: RoleViewModel[] = [];
 
+  // Invalidate the people cache
+  invalidateRolesCache() {
+    this.rolesCache = [];
+  }
+
+  async refreshAllRoles(): Promise<RoleViewModel[]> {
+    this.invalidateRolesCache();
+    return await this.get();
+  }
+
   // Use Axios to get all roles
   async getAllRoles(): Promise<RoleViewModel[]> {
+    if (this.rolesCache.length > 0) return this.rolesCache;
+    return await this.get();
+  }
+
+  // Use Axios to get all roles
+  async get(): Promise<RoleViewModel[]> {
     if (this.rolesCache.length > 0) return this.rolesCache;
 
     try {

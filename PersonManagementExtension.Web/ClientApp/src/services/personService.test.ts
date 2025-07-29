@@ -29,18 +29,13 @@ describe("PersonService", () => {
     vi.clearAllMocks();
   });
 
-  it("getAllPeople with clear=true returns empty array", async () => {
-    const result = await service.getAllPeople(true);
-    expect(result).toEqual([]);
-  });
-
   it("throws if no auth token is found", async () => {
     vi.stubGlobal("localStorage", {
       getItem: vi.fn().mockReturnValue(null),
     });
 
     service = new PersonService();
-    await expect(service.getAllPeople(false)).rejects.toThrow(
+    await expect(service.getAllPeople()).rejects.toThrow(
       "No authentication token found"
     );
   });
@@ -58,16 +53,9 @@ describe("PersonService", () => {
     ];
     mockedAxios.get.mockResolvedValueOnce({ data: fakePeople });
 
-    const result = await service.getAllPeople(false);
+    const result = await service.getAllPeople();
     expect(result).toEqual(fakePeople);
     expect(service["peopleCache"]).toEqual(fakePeople);
-  });
-
-  it("clears people cache when getAllPeople(true) is called", async () => {
-    service["peopleCache"] = [{ id: 123, email: "a@b.com" } as any];
-    const result = await service.getAllPeople(true);
-    expect(service["peopleCache"]).toEqual([]);
-    expect(result).toEqual([]);
   });
 
   it("isEmailUnique returns false for existing email with different ID", async () => {
@@ -82,13 +70,13 @@ describe("PersonService", () => {
     expect(result).toBe(true);
   });
 
-  it("getPerson throws if not found in cache or API", async () => {
+  it("getById throws if not found in cache or API", async () => {
     mockedAxios.get.mockRejectedValueOnce({ message: "Not Found" });
 
-    await expect(service.getPerson(404)).rejects.toThrow("Not Found");
+    await expect(service.getById(404)).rejects.toThrow("Not Found");
   });
 
-  it("getPerson returns person from cache if present", async () => {
+  it("getById returns person from cache if present", async () => {
     const cachedPerson = {
       id: 5,
       firstName: "Ella",
@@ -99,11 +87,11 @@ describe("PersonService", () => {
     } as any;
 
     service["peopleCache"] = [cachedPerson];
-    const result = await service.getPerson(5);
+    const result = await service.getById(5);
     expect(result).toBe(cachedPerson);
   });
 
-  it("getPerson fetches from API if not in cache", async () => {
+  it("getById fetches from API if not in cache", async () => {
     const personFromApi = {
       id: 6,
       firstName: "Luke",
@@ -115,7 +103,7 @@ describe("PersonService", () => {
 
     mockedAxios.get.mockResolvedValueOnce({ data: personFromApi });
 
-    const result = await service.getPerson(6);
+    const result = await service.getById(6);
     expect(result).toEqual(personFromApi);
     expect(service["peopleCache"]).toContainEqual(personFromApi);
   });
@@ -135,51 +123,51 @@ describe("PersonService", () => {
     expect(result[0].firstName).toBe("Anna");
   });
 
-  it("addPerson posts and refreshes people", async () => {
+  it("add posts and refreshes people", async () => {
     mockedAxios.post.mockResolvedValueOnce({});
     mockedAxios.get.mockResolvedValueOnce({ data: [] }); // refreshAllPeople
 
     const setErrors = vi.fn();
-    const result = await service.addPerson({} as any, setErrors);
+    const result = await service.add({} as any, setErrors);
     expect(result).toBe(true);
     expect(mockedAxios.post).toHaveBeenCalled();
     expect(setErrors).toHaveBeenCalledWith({});
   });
 
-  it("updatePerson handles success", async () => {
+  it("update handles success", async () => {
     mockedAxios.put.mockResolvedValueOnce({});
     const setErrors = vi.fn();
 
-    const result = await service.updatePerson({ id: 1 } as any, setErrors);
+    const result = await service.update({ id: 1 } as any, setErrors);
     expect(result).toBe(true);
     expect(setErrors).toHaveBeenCalledWith({});
   });
 
-  it("updatePerson handles validation error response", async () => {
+  it("update handles validation error response", async () => {
     mockedAxios.put.mockRejectedValueOnce({
       response: { data: { errors: { email: ["Invalid email"] } } },
     });
 
     const setErrors = vi.fn();
-    const result = await service.updatePerson({ id: 1 } as any, setErrors);
+    const result = await service.update({ id: 1 } as any, setErrors);
     expect(result).toBe(false);
     expect(setErrors).toHaveBeenCalledWith({ email: ["Invalid email"] });
   });
 
-  it("deletePerson deletes person and refreshes", async () => {
+  it("delete deletes person and refreshes", async () => {
     mockedAxios.delete.mockResolvedValueOnce({});
     mockedAxios.get.mockResolvedValueOnce({ data: [] }); // refreshAllPeople
 
-    await service.deletePerson(1);
+    await service.delete(1);
     expect(mockedAxios.delete).toHaveBeenCalledWith(
       expect.stringContaining("/1"),
       expect.anything()
     );
   });
 
-  it("deletePerson throws on failure", async () => {
+  it("delete throws on failure", async () => {
     mockedAxios.delete.mockRejectedValueOnce({ message: "fail" });
 
-    await expect(service.deletePerson(99)).rejects.toThrow("fail");
+    await expect(service.delete(99)).rejects.toThrow("fail");
   });
 });

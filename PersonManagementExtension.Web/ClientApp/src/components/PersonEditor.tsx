@@ -11,7 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ADMIN_ROLE_ID } from "../constants/roles";
-import { MainPageState, MainPageAction } from "../state/mainPageReducer";
+import { PersonState, PersonAction } from "../state/personReducer";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
 import { RoleViewModel } from "../models/RoleViewModel";
@@ -102,8 +102,8 @@ const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
   });
 
 interface PersonEditorProps {
-  state: MainPageState;
-  dispatch: React.Dispatch<MainPageAction>;
+  state: PersonState;
+  dispatch: React.Dispatch<PersonAction>;
   person: PersonViewModel;
   onSave: (person: PersonViewModel) => void;
   onDelete?: (id: number) => void;

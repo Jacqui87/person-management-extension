@@ -1,5 +1,5 @@
 import { PersonService } from "../services/personService";
-import { MainPageState, MainPageAction } from "../state/mainPageReducer";
+import { PersonState, PersonAction } from "../state/personReducer";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -11,12 +11,12 @@ const NavBar = ({
   dispatch,
   personService,
 }: {
-  state: MainPageState;
-  dispatch: React.Dispatch<MainPageAction>;
+  state: PersonState;
+  dispatch: React.Dispatch<PersonAction>;
   personService: PersonService;
 }) => {
   const handleLogout = async () => {
-    const all = await personService.getAllPeople(true);
+    const all = personService.invalidatePeopleCache();
     dispatch({ type: "SET_PEOPLE", payload: all });
 
     dispatch({ type: "LOGOUT" });

@@ -1,10 +1,8 @@
-// mainPageReducer.ts
 import { RoleViewModel } from "../models/RoleViewModel";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { DepartmentViewModel } from "../models/DepartmentViewModel";
-import { PersonService } from "../services/personService";
 
-export interface MainPageState {
+export interface PersonState {
   loggedInUser: PersonViewModel | null;
   people: PersonViewModel[];
   selectedPerson: PersonViewModel | null;
@@ -19,7 +17,7 @@ export interface MainPageState {
   tokenInvalid: boolean;
 }
 
-export const initialState: MainPageState = {
+export const initialState: PersonState = {
   loggedInUser: null,
   people: [],
   selectedPerson: null,
@@ -34,7 +32,7 @@ export const initialState: MainPageState = {
   tokenInvalid: false,
 };
 
-export type MainPageAction =
+export type PersonAction =
   | { type: "LOGIN"; payload: PersonViewModel }
   | { type: "LOGOUT" }
   | { type: "SET_PEOPLE"; payload: PersonViewModel[] }
@@ -44,15 +42,15 @@ export type MainPageAction =
   | { type: "SET_SEARCH_TERM"; payload: string }
   | { type: "SET_FILTER_ROLE"; payload: number }
   | { type: "SET_FILTER_DEPARTMENT"; payload: number }
-  | { type: "SET_FILTERED_PEOPLE"; payload: PersonService }
+  | { type: "SET_FILTERED_PEOPLE"; payload: PersonViewModel[] }
   | { type: "SET_ERRORS"; payload: Record<string, any> }
   | { type: "SET_AUTHENTICATING"; payload: boolean }
   | { type: "SET_TOKEN_INVALID"; payload: boolean };
 
-export function mainPageReducer(
-  state: MainPageState,
-  action: MainPageAction
-): MainPageState {
+export function personReducer(
+  state: PersonState,
+  action: PersonAction
+): PersonState {
   switch (action.type) {
     case "LOGIN":
       return { ...state, loggedInUser: action.payload };
@@ -74,13 +72,7 @@ export function mainPageReducer(
     case "SET_FILTER_DEPARTMENT":
       return { ...state, filterDepartment: action.payload };
     case "SET_FILTERED_PEOPLE":
-      const results = action.payload.filterPeople(
-        state.searchTerm,
-        state.filterRole,
-        state.filterDepartment
-      );
-
-      return { ...state, filteredPeople: results };
+      return { ...state, filteredPeople: action.payload };
     case "SET_ERRORS":
       return { ...state, errors: action.payload };
     case "SET_AUTHENTICATING":

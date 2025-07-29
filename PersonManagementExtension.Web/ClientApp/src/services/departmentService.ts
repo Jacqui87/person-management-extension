@@ -18,8 +18,24 @@ function getAuthHeaders(): Record<string, string> {
 export class DepartmentService {
   private departmentsCache: DepartmentViewModel[] = [];
 
+  // Invalidate the people cache
+  invalidateDepartmentsCache() {
+    this.departmentsCache = [];
+  }
+
+  async refreshAllDepartments(): Promise<DepartmentViewModel[]> {
+    this.invalidateDepartmentsCache();
+    return await this.get();
+  }
+
   // Use Axios to get all departments
   async getAllDepartments(): Promise<DepartmentViewModel[]> {
+    if (this.departmentsCache.length > 0) return this.departmentsCache;
+    return await this.get();
+  }
+
+  // Use Axios to get all departments
+  async get(): Promise<DepartmentViewModel[]> {
     if (this.departmentsCache.length > 0) return this.departmentsCache;
 
     try {

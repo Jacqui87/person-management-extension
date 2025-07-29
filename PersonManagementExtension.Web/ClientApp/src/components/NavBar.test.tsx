@@ -31,16 +31,13 @@ describe("NavBar component", () => {
 
   let dispatchMock: ReturnType<typeof vi.fn>;
   let personServiceMock: {
-    getAllPeople: ReturnType<typeof vi.fn>;
+    invalidatePeopleCache: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     dispatchMock = vi.fn();
     personServiceMock = {
-      getAllPeople: vi.fn().mockResolvedValue([
-        { id: 1, firstName: "Alice" },
-        { id: 2, firstName: "Bob" },
-      ]),
+      invalidatePeopleCache: vi.fn(() => []),
     };
   });
 
@@ -80,16 +77,13 @@ describe("NavBar component", () => {
 
     // Wait for async calls inside handleLogout
     await waitFor(() => {
-      expect(personServiceMock.getAllPeople).toHaveBeenCalledWith(true);
+      expect(personServiceMock.invalidatePeopleCache).toHaveBeenCalled();
     });
 
     // Check dispatch calls - order matters
     expect(dispatchMock).toHaveBeenNthCalledWith(1, {
       type: "SET_PEOPLE",
-      payload: [
-        { id: 1, firstName: "Alice" },
-        { id: 2, firstName: "Bob" },
-      ],
+      payload: [],
     });
     expect(dispatchMock).toHaveBeenNthCalledWith(2, { type: "LOGOUT" });
     expect(dispatchMock).toHaveBeenNthCalledWith(3, {
