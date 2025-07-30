@@ -120,4 +120,4 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 
 ### ✅ UI available in Welsh - includes a language drop-down which is automatically applied the next time they log in.
 
-![UI available in Welsh - includes a language drop-down which is automatically applied the next time they log in](screenshots/Welsh_translations.png)
+![UI available in Welsh - includes a language drop-down which is automatically applied the next time they log in](screenshots/welsh_ui.png)
