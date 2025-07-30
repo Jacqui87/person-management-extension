@@ -14,10 +14,12 @@ describe("LoginScreen", () => {
   it("renders email and password inputs and login button", () => {
     render(<LoginScreen onLogin={vi.fn()} tokenInvalid={false} />);
 
-    expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/person_editor.email/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/person_editor.password/i)
+    ).toBeInTheDocument();
 
-    const button = screen.getByRole("button", { name: /login/i });
+    const button = screen.getByRole("button", { name: /login.login/i });
     expect(button).toBeInTheDocument();
     expect(button).not.toBeDisabled();
   });
@@ -26,10 +28,10 @@ describe("LoginScreen", () => {
     render(<LoginScreen onLogin={vi.fn()} tokenInvalid={false} />);
 
     const emailInput = screen.getByLabelText(
-      /email address/i
+      /person_editor.email/i
     ) as HTMLInputElement;
     const passwordInput = screen.getByLabelText(
-      /password/i
+      /person_editor.password/i
     ) as HTMLInputElement;
 
     await userEvent.type(emailInput, "user@example.com");
@@ -43,9 +45,9 @@ describe("LoginScreen", () => {
     const mockOnLogin = vi.fn();
     render(<LoginScreen onLogin={mockOnLogin} tokenInvalid={false} />);
 
-    const emailInput = screen.getByLabelText(/email address/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const button = screen.getByRole("button", { name: /login/i });
+    const emailInput = screen.getByLabelText(/person_editor.email/i);
+    const passwordInput = screen.getByLabelText(/person_editor.password/i);
+    const button = screen.getByRole("button", { name: /login.login/i });
 
     await userEvent.type(emailInput, "test@example.com");
     await userEvent.type(passwordInput, "pass123");
@@ -67,9 +69,9 @@ describe("LoginScreen", () => {
 
     render(<LoginScreen onLogin={throwingOnLogin} tokenInvalid={false} />);
 
-    const emailInput = screen.getByLabelText(/email address/i);
-    const passwordInput = screen.getByLabelText(/password/i);
-    const button = screen.getByRole("button", { name: /login/i });
+    const emailInput = screen.getByLabelText(/person_editor.email/i);
+    const passwordInput = screen.getByLabelText(/person_editor.password/i);
+    const button = screen.getByRole("button", { name: /login.login/i });
 
     await userEvent.type(emailInput, "fail@example.com");
     await userEvent.type(passwordInput, "wrongpass");
@@ -79,8 +81,6 @@ describe("LoginScreen", () => {
     // Because onLogin throws synchronously in this code,
     // error message should be set and rendered.
 
-    expect(
-      await screen.findByText(/login failed\. please check your credentials\./i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/login.failed/i)).toBeInTheDocument();
   });
 });

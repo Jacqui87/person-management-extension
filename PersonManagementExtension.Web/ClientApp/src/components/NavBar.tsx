@@ -1,27 +1,27 @@
-import { PersonService } from "../services/personService";
-import { PersonState, PersonAction } from "../state/personReducer";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import { PersonState, PersonAction } from "../state/personReducer";
 
 const NavBar = ({
   state,
   dispatch,
-  personService,
 }: {
   state: PersonState;
   dispatch: React.Dispatch<PersonAction>;
-  personService: PersonService;
 }) => {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
-    const all = personService.invalidatePeopleCache();
-    dispatch({ type: "SET_PEOPLE", payload: all });
+    // Invalidate React Query cache for people data
+    await queryClient.invalidateQueries({ queryKey: ["people"] });
 
+    dispatch({ type: "SET_PEOPLE", payload: [] });
     dispatch({ type: "LOGOUT" });
     dispatch({ type: "SET_AUTHENTICATING", payload: false });
   };

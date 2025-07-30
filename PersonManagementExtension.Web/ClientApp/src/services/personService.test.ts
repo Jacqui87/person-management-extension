@@ -1,173 +1,171 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import { PersonService } from "./personService";
 import type { PersonViewModel } from "../models/PersonViewModel";
 
-// Vitest way to mock axios
 vi.mock("axios");
-const mockedAxios = axios as unknown as {
-  get: ReturnType<typeof vi.fn>;
-  post: ReturnType<typeof vi.fn>;
-  put: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
-};
+
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("PersonService", () => {
+  const tokenValue = "fake-jwt-token";
+  const baseUrl = `${import.meta.env.VITE_BASE_URL}/api/person`;
   let service: PersonService;
-  const token = "test-token";
 
+  // Set up localStorage mock
   beforeEach(() => {
     service = new PersonService();
-
-    // Simulate localStorage for token
-    vi.stubGlobal("localStorage", {
-      getItem: vi
-        .fn()
-        .mockImplementation((key) => (key === "token" ? token : null)),
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation((key) => {
+      if (key === "token") return tokenValue;
+      return null;
     });
-
-    vi.clearAllMocks();
   });
 
-  it("throws if no auth token is found", async () => {
-    vi.stubGlobal("localStorage", {
-      getItem: vi.fn().mockReturnValue(null),
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetAllMocks();
+  });
 
-    service = new PersonService();
-    await expect(service.getAllPeople()).rejects.toThrow(
+  it("should throw error if token not found", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockReturnValueOnce(null);
+
+    await expect(service.getAllPeople()).rejects.toThrowError(
       "No authentication token found"
     );
   });
 
-  it("should return people data from API and cache", async () => {
-    const fakePeople: PersonViewModel[] = [
+  it("getAllPeople should call axios.get with correct headers and URL and return data", async () => {
+    const peopleMock: PersonViewModel[] = [
       {
         id: 1,
-        firstName: "Jane",
+        firstName: "John",
         lastName: "Doe",
-        email: "jane@x.com",
-        role: 1,
+        dateOfBirth: "1990-05-15",
+        email: "john@example.com",
         department: 1,
-      } as any,
+        password: "pass",
+        role: 2,
+        cultureCode: "en-GB",
+        biography: "",
+      },
     ];
-    mockedAxios.get.mockResolvedValueOnce({ data: fakePeople });
+
+    mockedAxios.get.mockResolvedValueOnce({ data: peopleMock });
 
     const result = await service.getAllPeople();
-    expect(result).toEqual(fakePeople);
-    expect(service["peopleCache"]).toEqual(fakePeople);
-  });
 
-  it("isEmailUnique returns false for existing email with different ID", async () => {
-    service["peopleCache"] = [{ id: 10, email: "test@x.com" } as any];
-    const result = await service.isEmailUnique("test@x.com", 11);
-    expect(result).toBe(false);
-  });
-
-  it("isEmailUnique returns true for unique email", async () => {
-    service["peopleCache"] = [{ id: 10, email: "test@x.com" } as any];
-    const result = await service.isEmailUnique("unique@x.com", 0);
-    expect(result).toBe(true);
-  });
-
-  it("getById throws if not found in cache or API", async () => {
-    mockedAxios.get.mockRejectedValueOnce({ message: "Not Found" });
-
-    await expect(service.getById(404)).rejects.toThrow("Not Found");
-  });
-
-  it("getById returns person from cache if present", async () => {
-    const cachedPerson = {
-      id: 5,
-      firstName: "Ella",
-      lastName: "Stone",
-      email: "ella@example.com",
-      role: 1,
-      department: 2,
-    } as any;
-
-    service["peopleCache"] = [cachedPerson];
-    const result = await service.getById(5);
-    expect(result).toBe(cachedPerson);
-  });
-
-  it("getById fetches from API if not in cache", async () => {
-    const personFromApi = {
-      id: 6,
-      firstName: "Luke",
-      lastName: "Skywalker",
-      email: "luke@x.com",
-      role: 3,
-      department: 1,
-    } as any;
-
-    mockedAxios.get.mockResolvedValueOnce({ data: personFromApi });
-
-    const result = await service.getById(6);
-    expect(result).toEqual(personFromApi);
-    expect(service["peopleCache"]).toContainEqual(personFromApi);
-  });
-
-  it("should filter people by name", () => {
-    service["peopleCache"] = [
-      {
-        id: 2,
-        firstName: "Anna",
-        lastName: "Smith",
-        email: "anna@x.com",
-        role: 2,
-        department: 2,
-      } as any,
-    ];
-    const result = service.filterPeople("anna", 0, 0);
-    expect(result[0].firstName).toBe("Anna");
-  });
-
-  it("add posts and refreshes people", async () => {
-    mockedAxios.post.mockResolvedValueOnce({});
-    mockedAxios.get.mockResolvedValueOnce({ data: [] }); // refreshAllPeople
-
-    const setErrors = vi.fn();
-    const result = await service.add({} as any, setErrors);
-    expect(result).toBe(true);
-    expect(mockedAxios.post).toHaveBeenCalled();
-    expect(setErrors).toHaveBeenCalledWith({});
-  });
-
-  it("update handles success", async () => {
-    mockedAxios.put.mockResolvedValueOnce({});
-    const setErrors = vi.fn();
-
-    const result = await service.update({ id: 1 } as any, setErrors);
-    expect(result).toBe(true);
-    expect(setErrors).toHaveBeenCalledWith({});
-  });
-
-  it("update handles validation error response", async () => {
-    mockedAxios.put.mockRejectedValueOnce({
-      response: { data: { errors: { email: ["Invalid email"] } } },
+    expect(mockedAxios.get).toHaveBeenCalledWith(baseUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenValue}`,
+      },
+      withCredentials: true,
     });
-
-    const setErrors = vi.fn();
-    const result = await service.update({ id: 1 } as any, setErrors);
-    expect(result).toBe(false);
-    expect(setErrors).toHaveBeenCalledWith({ email: ["Invalid email"] });
+    expect(result).toEqual(peopleMock);
   });
 
-  it("delete deletes person and refreshes", async () => {
-    mockedAxios.delete.mockResolvedValueOnce({});
-    mockedAxios.get.mockResolvedValueOnce({ data: [] }); // refreshAllPeople
+  it("getById should call axios.get with correct URL, headers and return data", async () => {
+    const personMock: PersonViewModel = {
+      id: 42,
+      firstName: "Alice",
+      lastName: "Smith",
+      dateOfBirth: "1990-05-15",
+      email: "alice@example.com",
+      department: 1,
+      password: "pass",
+      role: 2,
+      cultureCode: "en-GB",
+      biography: "",
+    };
 
-    await service.delete(1);
-    expect(mockedAxios.delete).toHaveBeenCalledWith(
-      expect.stringContaining("/1"),
-      expect.anything()
+    mockedAxios.get.mockResolvedValueOnce({ data: personMock });
+
+    const result = await service.getById(42);
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(`${baseUrl}/42`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenValue}`,
+      },
+      withCredentials: true,
+    });
+    expect(result).toEqual(personMock);
+  });
+
+  it("add should call axios.post with person and correct headers", async () => {
+    const personToAdd: PersonViewModel = {
+      id: 0,
+      firstName: "New",
+      lastName: "Person",
+      dateOfBirth: "1990-05-15",
+      email: "new@example.com",
+      department: 1,
+      password: "pass",
+      role: 2,
+      cultureCode: "en-GB",
+      biography: "",
+    };
+
+    mockedAxios.post.mockResolvedValueOnce({});
+
+    await service.add(personToAdd);
+
+    expect(mockedAxios.post).toHaveBeenCalledWith(baseUrl, personToAdd, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenValue}`,
+      },
+      withCredentials: true,
+    });
+  });
+
+  it("update should call axios.put with person and correct URL and headers", async () => {
+    const personToUpdate: PersonViewModel = {
+      id: 5,
+      firstName: "Update",
+      lastName: "Person",
+      dateOfBirth: "1990-05-15",
+      email: "update@example.com",
+      department: 1,
+      password: "pass",
+      role: 2,
+      cultureCode: "en-GB",
+      biography: "",
+    };
+
+    mockedAxios.put.mockResolvedValueOnce({});
+
+    await service.update(personToUpdate);
+
+    expect(mockedAxios.put).toHaveBeenCalledWith(
+      `${baseUrl}/5`,
+      personToUpdate,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenValue}`,
+        },
+        withCredentials: true,
+      }
     );
   });
 
-  it("delete throws on failure", async () => {
-    mockedAxios.delete.mockRejectedValueOnce({ message: "fail" });
+  it("delete should call axios.delete with correct URL and headers", async () => {
+    const idToDelete = 7;
 
-    await expect(service.delete(99)).rejects.toThrow("fail");
+    mockedAxios.delete.mockResolvedValueOnce({});
+
+    await service.delete(idToDelete);
+
+    expect(mockedAxios.delete).toHaveBeenCalledWith(
+      `${baseUrl}/${idToDelete}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenValue}`,
+        },
+        withCredentials: true,
+      }
+    );
   });
 });

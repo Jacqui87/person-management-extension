@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
 import { RoleService } from "../services/roleService";
-import { PersonService } from "../services/personService";
 import { DepartmentService } from "../services/departmentService";
 import { login } from "../services/authService";
 import LoginScreen from "./LoginScreen";
@@ -13,7 +12,6 @@ import i18n from "../i18n";
 import PersonConfig from "./PersonConfig";
 
 const roleService = new RoleService();
-const personService = new PersonService();
 const departmentService = new DepartmentService();
 
 const MainPage = () => {
@@ -39,20 +37,6 @@ const MainPage = () => {
     doLogin();
   }, []);
 
-  useEffect(() => {
-    const results = personService.filterPeople(
-      state.searchTerm,
-      state.filterRole,
-      state.filterDepartment
-    );
-    dispatch({ type: "SET_FILTERED_PEOPLE", payload: results });
-  }, [
-    state.people,
-    state.searchTerm,
-    state.filterRole,
-    state.filterDepartment,
-  ]);
-
   const loadDepartments = async () => {
     const result = await departmentService.getAllDepartments();
     dispatch({ type: "SET_DEPARTMENTS", payload: result });
@@ -61,11 +45,6 @@ const MainPage = () => {
   const loadRoles = async () => {
     const result = await roleService.getAllRoles();
     dispatch({ type: "SET_ROLES", payload: result });
-  };
-
-  const loadPeople = async () => {
-    const all = await personService.getAllPeople();
-    dispatch({ type: "SET_PEOPLE", payload: all });
   };
 
   const handleLogin = async (user: {
@@ -81,7 +60,7 @@ const MainPage = () => {
       dispatch({ type: "SET_TOKEN_INVALID", payload: false });
       localStorage.setItem("token", loginData.session.token);
       dispatch({ type: "LOGIN", payload: loginData.user });
-      await loadPeople();
+
       await loadRoles();
       await loadDepartments();
     };
@@ -129,17 +108,9 @@ const MainPage = () => {
         <LoginScreen onLogin={handleLogin} tokenInvalid={state.tokenInvalid} />
       ) : (
         <>
-          <NavBar
-            state={state}
-            dispatch={dispatch}
-            personService={personService}
-          />
+          <NavBar state={state} dispatch={dispatch} />
           <Container>
-            <PersonConfig
-              state={state}
-              dispatch={dispatch}
-              personService={personService}
-            />
+            <PersonConfig state={state} dispatch={dispatch} />
           </Container>
         </>
       )}

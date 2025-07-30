@@ -1,305 +1,391 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import "@testing-library/jest-dom";
-import { vi, describe, it, expect, beforeEach } from "vitest";
+import React, { useEffect } from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import PersonEditor from "./PersonEditor";
-import { PersonViewModel } from "../models/PersonViewModel";
-import { PersonState } from "../state/personReducer";
+
+// --- Mocks for all form fields and buttons ---
+
+vi.mock("../elements/PersonForm/FirstnameField", () => ({
+  default: ({ canEdit, formik, handleFieldChange }: any) => (
+    <input
+      data-testid="FirstnameField"
+      type="text"
+      disabled={!canEdit}
+      value={formik.values.firstName || ""}
+      onChange={handleFieldChange}
+      onBlur={formik.handleBlur}
+    />
+  ),
+}));
+
+vi.mock("../elements/PersonForm/LastnameField", () => ({
+  default: ({ canEdit, formik, handleFieldChange }: any) => (
+    <input
+      data-testid="LastnameField"
+      type="text"
+      disabled={!canEdit}
+      value={formik.values.lastName || ""}
+      onChange={handleFieldChange}
+      onBlur={formik.handleBlur}
+    />
+  ),
+}));
+
+vi.mock("../elements/PersonForm/BiographyField", () => ({
+  default: ({ canEdit, formik, handleFieldChange }: any) => (
+    <textarea
+      data-testid="BiographyField"
+      disabled={!canEdit}
+      value={formik.values.biography || ""}
+      onChange={handleFieldChange}
+      onBlur={formik.handleBlur}
+    />
+  ),
+}));
+
+vi.mock("../elements/PersonForm/DobField", () => ({
+  default: ({ canEdit, formik, handleFieldChange, defaultDob }: any) => (
+    <input
+      data-testid="DobField"
+      type="date"
+      disabled={!canEdit}
+      value={formik.values.dateOfBirth || defaultDob}
+      onChange={handleFieldChange}
+      onBlur={formik.handleBlur}
+    />
+  ),
+}));
+
+vi.mock("../elements/PersonForm/DepartmentSelect", () => ({
+  default: ({ canEdit, formik, handleFieldChange, departments }: any) => (
+    <select
+      data-testid="DepartmentSelect"
+      disabled={!canEdit}
+      value={formik.values.department || ""}
+      onChange={handleFieldChange}
+      onBlur={formik.handleBlur}
+    >
+      {departments.map((dept: any) => (
+        <option key={dept.id} value={dept.id}>
+          {dept.name}
+        </option>
+      ))}
+    </select>
+  ),
+}));
+
+vi.mock("../elements/PersonForm/RoleSelect", () => ({
+  default: ({ canEdit, formik, handleFieldChange, roles }: any) =>
+    canEdit ? (
+      <select
+        data-testid="RoleSelect"
+        disabled={!canEdit}
+        value={formik.values.role || ""}
+        onChange={handleFieldChange}
+        onBlur={formik.handleBlur}
+      >
+        {roles.map((role: any) => (
+          <option key={role.id} value={role.id}>
+            {role.type}
+          </option>
+        ))}
+      </select>
+    ) : null,
+}));
+
+vi.mock("../elements/PersonForm/EmailField", () => {
+  // We mock useIsEmailUnique internally here if necessary
+  return {
+    default: ({ canEdit, formik, handleFieldChange }: any) => {
+      useEffect(() => {
+        // Simulate clearing uniqueness error
+        formik.setFieldError("email", undefined);
+      }, [formik.values.email]);
+
+      return (
+        <input
+          type="email"
+          data-testid="EmailField"
+          disabled={!canEdit}
+          value={formik.values.email || ""}
+          onChange={handleFieldChange}
+          onBlur={formik.handleBlur}
+        />
+      );
+    },
+  };
+});
+
+vi.mock("../elements/PersonForm/LanguageSelect", () => ({
+  default: ({ canEdit, formik, handleFieldChange }: any) => (
+    <select
+      data-testid="LanguageSelect"
+      disabled={!canEdit}
+      value={formik.values.cultureCode || "en-GB"}
+      onChange={handleFieldChange}
+      onBlur={formik.handleBlur}
+    >
+      <option value="en-GB">en_GB</option>
+      <option value="cy-GB">cy_GB</option>
+    </select>
+  ),
+}));
+
+vi.mock("../elements/PersonForm/PasswordFields", () => ({
+  default: ({
+    canEdit,
+    passwordChanged,
+    formik,
+    handleFieldChange,
+  }: {
+    canEdit: boolean;
+    passwordChanged: boolean;
+    formik: any;
+    handleFieldChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  }) => (
+    <>
+      <input
+        data-testid="PasswordInput"
+        type="password"
+        disabled={!canEdit}
+        value={formik.values.password}
+        onChange={handleFieldChange}
+      />
+      {passwordChanged && (
+        <input
+          data-testid="ConfirmPasswordInput"
+          type="password"
+          value={formik.values.confirmPassword}
+          onChange={formik.handleChange}
+        />
+      )}
+    </>
+  ),
+}));
+
+vi.mock("../elements/PersonForm/PersonFormButtons", () => ({
+  default: ({ formik }: { formik: any }) => (
+    <button
+      data-testid="PersonFormButtons"
+      onClick={() => formik.handleSubmit()}
+    >
+      Submit
+    </button>
+  ),
+}));
+
+// Mock personFormik to return mock handlers and values
+const mockFormikHandleChange = vi.fn();
+const mockFormikHandleSubmit = vi.fn();
+
+vi.mock("../elements/PersonForm/personFormik", () => ({
+  personFormik: vi.fn(() => ({
+    handleChange: mockFormikHandleChange,
+    handleSubmit: mockFormikHandleSubmit,
+    values: {
+      password: "",
+      confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      dateOfBirth: "",
+      biography: "",
+      department: "",
+      role: "",
+      email: "",
+      cultureCode: "",
+    },
+    touched: {},
+    errors: {},
+    setFieldError: vi.fn(),
+    handleBlur: vi.fn(),
+  })),
+}));
+
+// Mock usePeople hook
+const mockUsePeople = vi.fn();
+
+vi.mock("../hooks/personHooks", () => ({
+  usePeople: () => mockUsePeople(),
+  useAddPerson: vi.fn(() => ({ mutate: vi.fn() })),
+  useUpdatePerson: vi.fn(() => ({ mutate: vi.fn() })),
+}));
+
+// Mock useTranslation to just echo keys
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 import { ADMIN_ROLE_ID } from "../constants/roles";
 
-// Dummy personService for Yup validations
-const dummyPersonService = {
-  isEmailUnique: vi.fn(() => Promise.resolve(true)),
+const fakeUser = {
+  id: 123,
+  firstName: "Jane",
+  lastName: "Doe",
+  dateOfBirth: "1990-05-15",
+  email: "jane.doe@example.com",
+  department: 1,
+  password: "secret123",
+  role: 2,
+  cultureCode: "en-GB",
+  biography: "Software developer with 10 years experience.",
 };
 
-describe("PersonEditor", () => {
-  let dispatch: ReturnType<typeof vi.fn>;
-  let onSave: ReturnType<typeof vi.fn>;
-  let onDelete: ReturnType<typeof vi.fn>;
-  let setSnackbarStatus: ReturnType<typeof vi.fn>;
+const adminUser = { ...fakeUser, role: ADMIN_ROLE_ID };
 
-  const basePerson: PersonViewModel = {
-    id: 2,
-    firstName: "Jane",
-    lastName: "Doe",
-    dateOfBirth: "1990-01-01",
-    email: "jane.doe@example.com",
-    department: 1,
-    password: "",
-    role: 2,
-    cultureCode: "en-GB",
-    biography: "A short biography",
-  };
+const initialState = {
+  loggedInUser: adminUser,
+  people: [],
+  selectedPerson: null,
+  departments: [{ id: 1, name: "Department A" }],
+  roles: [{ id: 2, type: "Role B" }],
+  searchTerm: "",
+  filterRole: 0,
+  filterDepartment: 0,
+  filteredPeople: [],
+  isAuthenticating: false,
+  tokenInvalid: false,
+};
 
-  const adminUser: PersonViewModel = {
-    id: 1,
-    firstName: "Admin",
-    lastName: "User",
-    dateOfBirth: "1980-12-12",
-    email: "admin@example.com",
-    department: 1,
-    password: "",
-    role: ADMIN_ROLE_ID,
-    cultureCode: "en-GB",
-    biography: "",
-  };
-
-  const userState: PersonState = {
-    loggedInUser: adminUser,
-    people: [],
-    selectedPerson: basePerson,
-    departments: [{ id: 1, name: "Dept 1" }],
-    roles: [{ id: 2, type: "Role 1" }],
-    searchTerm: "",
-    filterRole: 0,
-    filterDepartment: 0,
-    filteredPeople: [],
-    errors: {},
-    isAuthenticating: false,
-    tokenInvalid: false,
-  };
+describe("PersonEditor Full Test Suite", () => {
+  let dispatchMock: ReturnType<typeof vi.fn>;
+  let snackbarMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    dispatch = vi.fn();
-    onSave = vi.fn();
-    onDelete = vi.fn();
-    setSnackbarStatus = vi.fn();
-    dummyPersonService.isEmailUnique.mockClear();
+    dispatchMock = vi.fn();
+    snackbarMock = vi.fn();
+    mockUsePeople.mockReturnValue({ isLoading: false });
+    mockFormikHandleChange.mockClear();
+    mockFormikHandleSubmit.mockClear();
   });
 
-  it("renders Add Person title when person id is 0", () => {
+  it("renders unauthorised message if no currentUser", () => {
     render(
       <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={{ ...basePerson, id: 0 }}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
+        state={{ ...initialState, loggedInUser: null }}
+        dispatch={dispatchMock}
+        person={fakeUser}
+        setSnackbarStatus={snackbarMock}
       />
     );
-    expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent(
-      /person_editor.add/i
-    );
+    expect(screen.getByText("common.unathorised_access")).toBeDefined();
   });
 
-  it("renders Edit Person title when person id is not 0", () => {
+  it("shows loading spinner when loading", () => {
+    mockUsePeople.mockReturnValue({ isLoading: true });
+
     render(
       <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
+        state={initialState}
+        dispatch={dispatchMock}
+        person={fakeUser}
+        setSnackbarStatus={snackbarMock}
       />
     );
-    expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent(
-      /person_editor.edit/i
-    );
+    expect(screen.getByRole("progressbar")).toBeDefined();
   });
 
-  it("renders and enables form fields", () => {
+  it("renders add or edit title correctly", () => {
     render(
       <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
+        state={initialState}
+        dispatch={dispatchMock}
+        person={{ ...fakeUser, id: 0 }}
+        setSnackbarStatus={snackbarMock}
       />
     );
-    expect(
-      screen.getByLabelText(/person_editor.first_name/i)
-    ).not.toBeDisabled();
-    expect(screen.getByLabelText(/person_editor.email/i)).toHaveValue(
-      "jane.doe@example.com"
-    );
-    expect(screen.getByRole("button", { name: /common.save/i })).toBeEnabled();
-  });
+    expect(screen.getByText("person_editor.add")).toBeDefined();
 
-  it.skip("shows Confirm Password input after changing password", async () => {
     render(
       <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
+        state={initialState}
+        dispatch={dispatchMock}
+        person={fakeUser}
+        setSnackbarStatus={snackbarMock}
       />
     );
-    expect(
-      screen.queryByLabelText(/person_editor.confirm_password/i)
-    ).not.toBeInTheDocument();
-
-    // Type into Password input (should set passwordChanged = true)
-    const passwordInput = screen.getByLabelText(/person_editor.password/i);
-    await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, "Password1!");
-    await userEvent.tab(); // move focus away to trigger blur validation
-
-    // Confirm Password field appears now
-    const confirmPasswordInput = await screen.findByLabelText(
-      /person_editor.confirm_password/i
-    );
-
-    await waitFor(() => {
-      expect(confirmPasswordInput).toBeInTheDocument();
-    });
+    expect(screen.getByText("person_editor.edit")).toBeDefined();
   });
 
-  it.skip("shows error and prevents save if passwords do not match", async () => {
+  it("renders fields with correct permissions and values", () => {
     render(
       <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
+        state={initialState}
+        dispatch={dispatchMock}
+        person={{ ...fakeUser, id: 456 }}
+        setSnackbarStatus={snackbarMock}
       />
     );
 
-    // Type into Password input (should set passwordChanged = true)
-    const passwordInput = screen.getByLabelText(/person_editor.password/i);
-    await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, "Password1!");
-    await userEvent.tab(); // move focus away to trigger blur validation
+    expect(screen.getByTestId("FirstnameField")).toBeDefined();
+    expect(screen.getByTestId("LastnameField")).toBeDefined();
+    expect(screen.getByTestId("BiographyField")).toBeDefined();
+    expect(screen.getByTestId("DobField")).toBeDefined();
+    expect(screen.getByTestId("EmailField")).toBeDefined();
+    expect(screen.getByTestId("LanguageSelect")).toBeDefined();
+    expect(screen.getByTestId("PasswordInput")).toBeDefined();
 
-    // Confirm Password field appears now
-    const confirmPasswordInput = await screen.findByLabelText(
-      /person_editor.confirm_password/i
+    // Admin editing other person - RoleSelect and DepartmentSelect present
+    expect(screen.getByTestId("RoleSelect")).toBeDefined();
+    expect(screen.getByTestId("DepartmentSelect")).toBeDefined();
+  });
+
+  it("does not render RoleSelect and DepartmentSelect for non-admin editing self", () => {
+    const fakeUser_user = {
+      id: 123,
+      firstName: "Jane",
+      lastName: "Doe",
+      dateOfBirth: "1990-05-15",
+      email: "jane.doe@example.com",
+      department: 1,
+      password: "secret123",
+      role: 1,
+      cultureCode: "en-GB",
+      biography: "Software developer with 10 years experience.",
+    };
+
+    render(
+      <PersonEditor
+        state={{ ...initialState, loggedInUser: fakeUser_user }}
+        dispatch={dispatchMock}
+        person={fakeUser_user}
+        setSnackbarStatus={snackbarMock}
+      />
     );
 
-    // Type mismatching confirm password
-    await userEvent.clear(confirmPasswordInput);
-    await userEvent.type(confirmPasswordInput, "Mismatch1!");
-    await userEvent.tab(); // trigger blur and validation on confirmPassword
+    expect(screen.queryByTestId("RoleSelect")).toBeNull();
+    expect(screen.queryByTestId("DepartmentSelect")).toBeNull();
+  });
 
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: /common.save/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByText(/person_editor.passwords_do_not_match/i)
-      ).toBeInTheDocument();
+  it("handleFieldChange triggers formik handler and sets passwordChanged", () => {
+    render(
+      <PersonEditor
+        state={initialState}
+        dispatch={dispatchMock}
+        person={fakeUser}
+        setSnackbarStatus={snackbarMock}
+      />
+    );
+
+    fireEvent.change(screen.getByTestId("PasswordInput"), {
+      target: { name: "password", value: "newPassword1!" },
     });
 
-    // onSave should not be called since form is invalid
-    expect(onSave).not.toHaveBeenCalled();
+    expect(mockFormikHandleChange).toHaveBeenCalled();
   });
 
-  it.skip("calls onSave with updated form data if valid", async () => {
+  it("calls formik.handleSubmit on submit", () => {
     render(
       <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
+        state={initialState}
+        dispatch={dispatchMock}
+        person={fakeUser}
+        setSnackbarStatus={snackbarMock}
       />
     );
-    // Type into Password input (should set passwordChanged = true)
-    const passwordInput = screen.getByLabelText(/person_editor.password/i);
-    await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, "Password1!");
-    await userEvent.tab(); // move focus away to trigger blur validation
 
-    // Confirm Password field appears now
-    const confirmPasswordInput = await screen.findByLabelText(
-      /person_editor.confirm_password/i
-    );
-
-    // Type mismatching confirm password
-    await userEvent.clear(confirmPasswordInput);
-    await userEvent.type(confirmPasswordInput, "Password1!");
-    await userEvent.tab(); // trigger blur and validation on confirmPassword
-
-    await userEvent.clear(screen.getByLabelText(/person_editor.first_name/i));
-    await userEvent.type(
-      screen.getByLabelText(/person_editor.first_name/i),
-      "Janet"
-    );
-
-    const saveBtn = await screen.getByRole("button", { name: /common.save/i });
-    await waitFor(() => expect(saveBtn).toBeEnabled());
-    await userEvent.click(saveBtn);
-
-    await waitFor(() => {
-      expect(onSave).toHaveBeenCalledWith(
-        expect.objectContaining({ firstName: "Janet", password: "Password1!" })
-      );
-    });
-  });
-
-  it("calls onDelete with person id if delete clicked", () => {
-    render(
-      <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
-      />
-    );
-    const del = screen.getByRole("button", { name: /common.delete/i });
-    expect(del).not.toBeDisabled();
-    fireEvent.click(del);
-    expect(onDelete).toHaveBeenCalledWith(basePerson.id);
-  });
-
-  it("disables delete button when editing self", () => {
-    const stateSelf: PersonState = { ...userState, loggedInUser: basePerson };
-    render(
-      <PersonEditor
-        state={stateSelf}
-        dispatch={dispatch}
-        person={basePerson}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
-      />
-    );
-    expect(
-      screen.getByRole("button", { name: /common.delete/i })
-    ).toBeDisabled();
-  });
-
-  it.skip("resets form and clears person on cancel", async () => {
-    render(
-      <PersonEditor
-        state={userState}
-        dispatch={dispatch}
-        person={{ ...basePerson, firstName: "Original" }}
-        onSave={onSave}
-        onDelete={onDelete}
-        personService={dummyPersonService as any}
-        setSnackbarStatus={setSnackbarStatus}
-      />
-    );
-    const input = screen.getByLabelText(/person_editor.first_name/i);
-    await userEvent.clear(input);
-    await userEvent.type(input, "Changed");
-    await userEvent.click(
-      screen.getByRole("button", { name: /common.cancel/i })
-    );
-    expect(input).toHaveValue("Original");
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "SET_SELECTED_PERSON",
-      payload: null,
-    });
-    expect(setSnackbarStatus).toHaveBeenCalledWith("info");
+    fireEvent.click(screen.getByTestId("PersonFormButtons"));
+    expect(mockFormikHandleSubmit).toHaveBeenCalled();
   });
 });

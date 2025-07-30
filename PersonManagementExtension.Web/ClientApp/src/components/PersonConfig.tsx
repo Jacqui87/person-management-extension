@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import { PersonAction, PersonState } from "../state/personReducer";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
-import { PersonViewModel } from "../models/PersonViewModel";
-import { PersonService } from "../services/personService";
 import PersonEditor from "./PersonEditor";
 import PersonList from "./PersonList";
 import PersonSummary from "./PersonSummary";
@@ -12,6 +10,7 @@ import SearchBar from "./SearchBar";
 import { ADMIN_ROLE_ID } from "../constants/roles";
 import theme from "../theme";
 import ActionSnackbar from "../elements/ActionSnackbar";
+import { usePeople, useFilteredPeople } from "../hooks/personHooks";
 
 // Styled layout containers
 const ContentWrapper = styled(Box)({
@@ -50,70 +49,50 @@ const RightPane = styled(Box)(({ theme }) => ({
 const PersonConfig = ({
   state,
   dispatch,
-  personService,
 }: {
   state: PersonState;
   dispatch: React.Dispatch<PersonAction>;
-  personService: PersonService;
 }) => {
   const { t } = useTranslation();
+
+  const filteredPeople = useFilteredPeople(
+    state.searchTerm,
+    state.filterRole,
+    state.filterDepartment
+  );
 
   const [snackbarStatus, setSnackbarStatus] = useState<
     "success" | "failed" | "info" | "warning" | "closed"
   >("closed");
 
-  const loadPeople = async () => {
-    const all = await personService.getAllPeople();
-    dispatch({ type: "SET_PEOPLE", payload: all });
-  };
+  const { data: people, isLoading, isError, error } = usePeople();
 
   useEffect(() => {
-    loadPeople();
-  }, [state.loggedInUser]);
+    if (people) {
+      dispatch({ type: "SET_PEOPLE", payload: people });
+    }
+  }, [people, dispatch]);
 
   const handleSnackbarClose = (
     _event?: React.SyntheticEvent | Event,
     reason?: string
   ) => {
-    // Prevent closing on clickaway if you want
     if (reason === "clickaway") {
       return;
     }
     setSnackbarStatus("closed");
   };
 
-  const handleSave = async (person: PersonViewModel) => {
-    let success = false;
-    if (person.id === 0 && state.loggedInUser) {
-      success = await personService.add(person, (errors: any) =>
-        dispatch({ type: "SET_ERRORS", payload: errors })
-      );
-    } else {
-      success = await personService.update(person, (errors: any) =>
-        dispatch({ type: "SET_ERRORS", payload: errors })
-      );
-    }
-    if (success) {
-      setSnackbarStatus("success");
-      await loadPeople();
-      dispatch({ type: "SET_SELECTED_PERSON", payload: null });
-    } else {
-      setSnackbarStatus("failed");
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (id > 0 && state.loggedInUser && state.loggedInUser.id !== id) {
-      await personService.delete(id);
-    }
-    await loadPeople();
-    dispatch({ type: "SET_SELECTED_PERSON", payload: null });
-  };
-
+  // Admin filtering logic
   const isAdmin = state.loggedInUser?.role === ADMIN_ROLE_ID;
   const visiblePeople = isAdmin
-    ? state.filteredPeople
-    : state.filteredPeople.filter((p) => p.id === state.loggedInUser!.id);
+    ? filteredPeople
+    : filteredPeople.filter((p) => p.id === state.loggedInUser!.id);
+
+  // Optional: handle loading and error states
+  if (isLoading) return <div>{t("common.loading_people")}</div>;
+  if (isError)
+    return <div>Error loading people: {(error as Error).message}</div>;
 
   return (
     <ContentWrapper>
@@ -123,8 +102,11 @@ const PersonConfig = ({
           <PersonList
             people={visiblePeople}
             onSelect={async (id: number) => {
-              const person = await personService.getById(id);
-              dispatch({ type: "SET_SELECTED_PERSON", payload: person });
+              const selectedPerson = people?.find((p) => p.id === id) || null;
+              dispatch({
+                type: "SET_SELECTED_PERSON",
+                payload: selectedPerson,
+              });
             }}
             onAddNew={() =>
               dispatch({
@@ -153,9 +135,6 @@ const PersonConfig = ({
             state={state}
             dispatch={dispatch}
             person={state.selectedPerson}
-            personService={personService}
-            onSave={handleSave}
-            onDelete={() => handleDelete(state.selectedPerson!.id)}
             setSnackbarStatus={setSnackbarStatus}
           />
         ) : (
@@ -167,9 +146,6 @@ const PersonConfig = ({
             state={state}
             dispatch={dispatch}
             person={state.loggedInUser!}
-            personService={personService}
-            onSave={handleSave}
-            onDelete={() => handleDelete(state.selectedPerson!.id)}
             setSnackbarStatus={setSnackbarStatus}
           />
         )}

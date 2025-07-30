@@ -131,7 +131,6 @@ describe("personReducer - additional tests", () => {
       searchTerm: "old term",
       filterRole: 0,
       filterDepartment: 0,
-      errors: { some: "error" },
     };
 
     const withNewSearchTerm = personReducer(state, {
@@ -140,7 +139,6 @@ describe("personReducer - additional tests", () => {
     });
     expect(withNewSearchTerm.searchTerm).toBe("new term");
     expect(withNewSearchTerm.filterRole).toBe(state.filterRole);
-    expect(withNewSearchTerm.errors).toEqual(state.errors);
 
     const withNewFilterRole = personReducer(state, {
       type: "SET_FILTER_ROLE",
@@ -148,7 +146,6 @@ describe("personReducer - additional tests", () => {
     });
     expect(withNewFilterRole.filterRole).toBe(42);
     expect(withNewFilterRole.searchTerm).toBe(state.searchTerm);
-    expect(withNewFilterRole.errors).toEqual(state.errors);
 
     const withNewFilterDepartment = personReducer(state, {
       type: "SET_FILTER_DEPARTMENT",
@@ -156,7 +153,6 @@ describe("personReducer - additional tests", () => {
     });
     expect(withNewFilterDepartment.filterDepartment).toBe(99);
     expect(withNewFilterDepartment.searchTerm).toBe(state.searchTerm);
-    expect(withNewFilterDepartment.errors).toEqual(state.errors);
   });
 
   it("should update filterRole on SET_FILTER_ROLE", () => {
@@ -191,26 +187,6 @@ describe("personReducer - additional tests", () => {
     });
 
     expect(newState.filteredPeople).toEqual(people);
-  });
-
-  it("should set errors map on SET_ERRORS", () => {
-    const errors = { email: "Invalid" };
-    const newState = personReducer(initialState, {
-      type: "SET_ERRORS",
-      payload: errors,
-    });
-
-    expect(newState.errors).toEqual(errors);
-  });
-
-  it("should set multiple error fields in SET_ERRORS", () => {
-    const errors = { email: "Invalid email", password: "Too short" };
-    const newState = personReducer(initialState, {
-      type: "SET_ERRORS",
-      payload: errors,
-    });
-
-    expect(newState.errors).toEqual(errors);
   });
 
   it("should set isAuthenticating on SET_AUTHENTICATING", () => {

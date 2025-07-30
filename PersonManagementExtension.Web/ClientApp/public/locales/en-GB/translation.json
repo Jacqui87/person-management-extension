@@ -3,8 +3,16 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "loading": "Loading",
-    "people": "People"
+    "loading": "Loading...",
+    "people": "People",
+    "loading_people": "Loading people...",
+    "invalid_credentials": "Invalid credentials",
+    "unathorised_access": "Unathorised access"
+  },
+  "login": {
+    "failed": "Login failed. Please check your credentials.",
+    "logging_in": "Logging in...",
+    "login": "Login"
   },
   "person_summary": {
     "isAdmin": "Select a person from the list or click 'Add Person' to begin.",

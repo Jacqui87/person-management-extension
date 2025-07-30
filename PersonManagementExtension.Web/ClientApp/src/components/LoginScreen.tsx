@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   onLogin: (user: {
@@ -16,6 +17,8 @@ type Props = {
 };
 
 const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +35,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
         token: localStorage.getItem("token"),
       });
     } catch (err) {
-      setError("Login failed. Please check your credentials.");
+      setError(t("login.failed"));
     } finally {
       setLoading(false);
     }
@@ -42,7 +45,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ padding: 4, marginTop: 10 }}>
         <Typography variant="h5" gutterBottom>
-          Login
+          {t("login.login")}
         </Typography>
 
         {tokenInvalid && (
@@ -53,7 +56,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
             role="alert"
             aria-live="assertive"
           >
-            Invalid credentials
+            {t("common.invalid_credentials")}
           </Typography>
         )}
 
@@ -65,7 +68,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
           gap={2}
         >
           <TextField
-            label="Email Address"
+            label={t("person_editor.email")}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -73,7 +76,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
             fullWidth
           />
           <TextField
-            label="Password"
+            label={t("person_editor.password")}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -91,7 +94,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
             color="primary"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? t("login.logging_in") : t("login.login")}
           </Button>
         </Box>
       </Paper>

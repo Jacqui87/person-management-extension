@@ -12,7 +12,6 @@ export interface PersonState {
   filterRole: number;
   filterDepartment: number;
   filteredPeople: PersonViewModel[];
-  errors: Record<string, any>;
   isAuthenticating: boolean;
   tokenInvalid: boolean;
 }
@@ -27,7 +26,6 @@ export const initialState: PersonState = {
   filterRole: 0,
   filterDepartment: 0,
   filteredPeople: [],
-  errors: {},
   isAuthenticating: true,
   tokenInvalid: false,
 };
@@ -35,7 +33,7 @@ export const initialState: PersonState = {
 export type PersonAction =
   | { type: "LOGIN"; payload: PersonViewModel }
   | { type: "LOGOUT" }
-  | { type: "SET_PEOPLE"; payload: PersonViewModel[] }
+  | { type: "SET_PEOPLE"; payload: PersonViewModel[] | undefined }
   | { type: "SET_SELECTED_PERSON"; payload: PersonViewModel | null }
   | { type: "SET_DEPARTMENTS"; payload: DepartmentViewModel[] }
   | { type: "SET_ROLES"; payload: RoleViewModel[] }
@@ -43,7 +41,6 @@ export type PersonAction =
   | { type: "SET_FILTER_ROLE"; payload: number }
   | { type: "SET_FILTER_DEPARTMENT"; payload: number }
   | { type: "SET_FILTERED_PEOPLE"; payload: PersonViewModel[] }
-  | { type: "SET_ERRORS"; payload: Record<string, any> }
   | { type: "SET_AUTHENTICATING"; payload: boolean }
   | { type: "SET_TOKEN_INVALID"; payload: boolean };
 
@@ -58,7 +55,8 @@ export function personReducer(
       localStorage.removeItem("token");
       return { ...initialState };
     case "SET_PEOPLE":
-      return { ...state, people: action.payload };
+      if (action.payload) return { ...state, people: action.payload };
+      else return { ...state };
     case "SET_SELECTED_PERSON":
       return { ...state, selectedPerson: action.payload };
     case "SET_ROLES":
@@ -73,8 +71,6 @@ export function personReducer(
       return { ...state, filterDepartment: action.payload };
     case "SET_FILTERED_PEOPLE":
       return { ...state, filteredPeople: action.payload };
-    case "SET_ERRORS":
-      return { ...state, errors: action.payload };
     case "SET_AUTHENTICATING":
       return { ...state, isAuthenticating: action.payload };
     case "SET_TOKEN_INVALID":

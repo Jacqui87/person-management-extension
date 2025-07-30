@@ -21,7 +21,6 @@ describe("SearchBar", () => {
     filterRole: 20,
     filterDepartment: 2,
     filteredPeople: [],
-    errors: {},
     isAuthenticating: false,
     tokenInvalid: false,
   };
