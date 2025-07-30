@@ -8,6 +8,14 @@ This repository continues that work — evolving it toward a more robust, produc
 
 ---
 
+### 🌐 Bilingual Support (Cymorth Dwyieithog)
+
+The application now fully supports both **English** (`en-GB`) and **Welsh** (`cy-GB`) across the entire user interface — including form labels, validation messages, error feedback, navigation items, and instructional text.
+
+Users can choose their preferred language from a dropdown in the interface. This preference is saved and automatically applied the next time they log in, ensuring a consistent experience in their selected language.
+
+---
+
 ## 🚀 Improvements in Progress
 
 ### ✅ Completed
@@ -33,6 +41,7 @@ This repository continues that work — evolving it toward a more robust, produc
 
 - Integrated react-i18next for translation handling.
 - All major UI labels, validation messages, and instructional content now available in both English and Welsh.
+- Users can choose their preferred language via the UI.
 - Translation keys grouped by domain (common, person_editor, search_bar, etc.) for clarity and scalability.
 
 ---

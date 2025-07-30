@@ -32,28 +32,6 @@ const SearchBar = ({
 
       <TextField
         select
-        label={t("person_editor.department")}
-        fullWidth
-        value={filterDepartment}
-        onChange={(e) =>
-          dispatch({
-            type: "SET_FILTER_DEPARTMENT",
-            payload: Number(e.target.value),
-          })
-        }
-      >
-        <MenuItem key={99} value={0}>
-          {t("search_bar.all_departments")}
-        </MenuItem>
-        {departments.map((dept) => (
-          <MenuItem key={dept.id} value={dept.id}>
-            {dept.name}
-          </MenuItem>
-        ))}
-      </TextField>
-
-      <TextField
-        select
         label={t("person_editor.role")}
         fullWidth
         value={filterRole}
@@ -70,6 +48,28 @@ const SearchBar = ({
         {roles.map((role) => (
           <MenuItem key={role.id} value={role.id}>
             {role.type}
+          </MenuItem>
+        ))}
+      </TextField>
+
+      <TextField
+        select
+        label={t("person_editor.department")}
+        fullWidth
+        value={filterDepartment}
+        onChange={(e) =>
+          dispatch({
+            type: "SET_FILTER_DEPARTMENT",
+            payload: Number(e.target.value),
+          })
+        }
+      >
+        <MenuItem key={99} value={0}>
+          {t("search_bar.all_departments")}
+        </MenuItem>
+        {departments.map((dept) => (
+          <MenuItem key={dept.id} value={dept.id}>
+            {dept.name}
           </MenuItem>
         ))}
       </TextField>

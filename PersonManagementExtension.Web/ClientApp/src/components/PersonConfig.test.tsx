@@ -34,6 +34,7 @@ describe("personReducer", () => {
       department: 5,
       password: "password123",
       role: 2,
+      cultureCode: "en-GB",
       biography: "Sample bio",
     };
     const action: PersonAction = { type: "LOGIN", payload: user };
@@ -53,6 +54,7 @@ describe("personReducer", () => {
         department: 3,
         password: "123456",
         role: 1,
+        cultureCode: "en-GB",
         biography: "Bio text",
       },
       tokenInvalid: false,
@@ -74,6 +76,7 @@ describe("personReducer", () => {
         department: 2,
         password: "alicepass",
         role: 3,
+        cultureCode: "en-GB",
         biography: "Bio A",
       },
       {
@@ -85,6 +88,7 @@ describe("personReducer", () => {
         department: 4,
         password: "bobpass",
         role: 4,
+        cultureCode: "en-GB",
         biography: "Bio B",
       },
     ];
@@ -103,6 +107,7 @@ describe("personReducer", () => {
       department: 7,
       password: "selectedpass",
       role: 5,
+      cultureCode: "en-GB",
       biography: "Selected biography",
     };
     const action: PersonAction = {
@@ -130,6 +135,7 @@ describe("personReducer", () => {
         department: 1,
         password: "password",
         role: 1,
+        cultureCode: "en-GB",
         biography: "filtered biography",
       },
     ];

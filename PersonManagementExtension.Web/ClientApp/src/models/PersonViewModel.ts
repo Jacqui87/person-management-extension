@@ -3,9 +3,10 @@ export interface PersonViewModel {
   firstName: string;
   lastName: string;
   dateOfBirth: string | null;
-  email: string;
   department: number;
-  password: string;
   role: number;
+  email: string;
+  password: string;
+  cultureCode: string;
   biography?: string;
 }

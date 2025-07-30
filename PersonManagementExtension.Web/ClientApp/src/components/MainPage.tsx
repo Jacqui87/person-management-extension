@@ -9,6 +9,7 @@ import { DepartmentService } from "../services/departmentService";
 import { login } from "../services/authService";
 import LoginScreen from "./LoginScreen";
 import NavBar from "./NavBar";
+import i18n from "../i18n";
 import PersonConfig from "./PersonConfig";
 
 const roleService = new RoleService();
@@ -74,6 +75,9 @@ const MainPage = () => {
   }) => {
     // A helper to handle successful login
     const handleLoginSuccess = async (loginData: any) => {
+      const lang = loginData.user.cultureCode || "en-GB";
+      i18n.changeLanguage(lang);
+
       dispatch({ type: "SET_TOKEN_INVALID", payload: false });
       localStorage.setItem("token", loginData.session.token);
       dispatch({ type: "LOGIN", payload: loginData.user });

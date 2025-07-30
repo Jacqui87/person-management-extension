@@ -10,5 +10,6 @@ public class Person
     public required string Password { get; set; }
     public string? Biography { get; set; }
     public int Department { get; set; }
+    public string? CultureCode { get; set; }
     public DateOnly DateOfBirth { get; set; }
 }

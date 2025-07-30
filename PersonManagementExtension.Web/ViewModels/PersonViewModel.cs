@@ -10,5 +10,6 @@ public class PersonViewModel
     public required string Password { get; set; }
     public int Department { get; set; }
     public DateOnly DateOfBirth { get; set; }
+    public string? CultureCode { get; set; }
     public string? Biography { get; set; }
 }

@@ -12,6 +12,7 @@ describe("NavBar component", () => {
     department: 1,
     password: "secret123",
     role: 2,
+    cultureCode: "en-GB",
     biography: "Software developer with 10 years experience.",
   };
   const initialState = {

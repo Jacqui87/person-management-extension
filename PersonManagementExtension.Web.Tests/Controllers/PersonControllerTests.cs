@@ -141,6 +141,7 @@ public class PersonControllerTests
       Role = 1,
       Department = 2,
       DateOfBirth = new DateOnly(1992, 3, 15),
+      CultureCode = "en-GB",
       Biography = "Some bio text"
     };
 
@@ -154,6 +155,7 @@ public class PersonControllerTests
       Role = personViewModel.Role,
       Department = personViewModel.Department,
       DateOfBirth = personViewModel.DateOfBirth,
+      CultureCode = personViewModel.CultureCode,
       Biography = personViewModel.Biography
     };
 
@@ -180,6 +182,7 @@ public class PersonControllerTests
     Assert.Equal(createdPerson.Role, returnedPerson.Role);
     Assert.Equal(createdPerson.Department, returnedPerson.Department);
     Assert.Equal(createdPerson.DateOfBirth, returnedPerson.DateOfBirth);
+    Assert.Equal(createdPerson.CultureCode, returnedPerson.CultureCode);
     Assert.Equal(createdPerson.Biography, returnedPerson.Biography);
   }
 
@@ -228,6 +231,7 @@ public class PersonControllerTests
       Role = 1,
       Email = "testuser@example.com",
       Password = "Password123!",
+      CultureCode = "en-GB",
       Biography = "Test biography",
       Department = 2,
       DateOfBirth = DateOnly.Parse("1980-01-01")
@@ -257,6 +261,7 @@ public class PersonControllerTests
       Email = "testuser@example.com",
       Password = "Password123!",
       Biography = "Test biography",
+      CultureCode = "en-GB",
       Department = 2,
       DateOfBirth = DateOnly.Parse("1980-01-01")
     };

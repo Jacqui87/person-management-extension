@@ -27,6 +27,7 @@ describe("PersonEditor", () => {
     department: 1,
     password: "",
     role: 2,
+    cultureCode: "en-GB",
     biography: "A short biography",
   };
 
@@ -39,6 +40,7 @@ describe("PersonEditor", () => {
     department: 1,
     password: "",
     role: ADMIN_ROLE_ID,
+    cultureCode: "en-GB",
     biography: "",
   };
 

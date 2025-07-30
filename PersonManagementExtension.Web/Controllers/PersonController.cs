@@ -91,6 +91,7 @@ public class PersonController(IAuthService authService, IPersonService service) 
     Password = p.Password,
     Department = p.Department,
     DateOfBirth = p.DateOfBirth,
+    CultureCode = p.CultureCode,
     Biography = p.Biography
   };
 
@@ -104,6 +105,7 @@ public class PersonController(IAuthService authService, IPersonService service) 
     Password = vm.Password,
     Department = vm.Department,
     DateOfBirth = vm.DateOfBirth,
+    CultureCode = vm.CultureCode,
     Biography = vm.Biography
   };
 }

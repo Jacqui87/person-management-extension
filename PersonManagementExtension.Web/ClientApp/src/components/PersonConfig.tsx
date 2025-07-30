@@ -135,6 +135,7 @@ const PersonConfig = ({
                   dateOfBirth: "",
                   password: "",
                   email: "",
+                  cultureCode: "en-GB",
                   biography: "",
                 },
               })

@@ -18,6 +18,7 @@ import { RoleViewModel } from "../models/RoleViewModel";
 import { PersonService } from "../services/personService";
 import useTheme from "@mui/material/styles/useTheme";
 import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 import type { TFunction } from "i18next";
 
 // Create dynamic Yup validation schema based on user role and passwordChanged status
@@ -88,6 +89,9 @@ const makeValidationSchema = (
           .required(t("person_editor.confirm_password_required"))
       : Yup.string().notRequired(),
     biography: Yup.string().max(500, t("person_editor.biography_invalid")),
+    cultureCode: Yup.string()
+      .oneOf(["en-GB", "cy-GB"])
+      .required(t("person_editor.language_required")),
     department:
       userRole === ADMIN_ROLE_ID
         ? Yup.number().required(t("person_editor.department_required"))
@@ -138,6 +142,11 @@ const PersonEditor = ({
     today.getDate()
   );
   const defaultDob = eighteenYearsAgo.toISOString().split("T")[0];
+
+  const languageOptions = [
+    { value: "en-GB", labelKey: "languages.en_GB" },
+    { value: "cy-GB", labelKey: "languages.cy_GB" },
+  ];
 
   useEffect(() => {
     setPasswordChanged(false);
@@ -347,61 +356,6 @@ const PersonEditor = ({
           }}
         />
 
-        {currentUser.role === ADMIN_ROLE_ID && (
-          <TextField
-            select
-            label={`${t("person_editor.department")} *`}
-            name="department"
-            fullWidth
-            value={formik.values.department}
-            onChange={handleFieldChange}
-            onBlur={formik.handleBlur}
-            disabled={!canEdit}
-            error={
-              (formik.touched.department &&
-                Boolean(formik.errors.department)) ||
-              Boolean(serverErrors.Department)
-            }
-            helperText={
-              (formik.touched.department && formik.errors.department) ??
-              (serverErrors.Department ? serverErrors.Department.join(" ") : "")
-            }
-          >
-            {departments.map((dept) => (
-              <MenuItem key={dept.id} value={dept.id}>
-                {dept.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-
-        {person.id !== currentUser.id && currentUser.role === ADMIN_ROLE_ID && (
-          <TextField
-            select
-            label={`${t("person_editor.role")} *`}
-            name="role"
-            fullWidth
-            value={formik.values.role}
-            onChange={handleFieldChange}
-            onBlur={formik.handleBlur}
-            disabled={!canEdit}
-            error={
-              (formik.touched.role && Boolean(formik.errors.role)) ||
-              Boolean(serverErrors.Role)
-            }
-            helperText={
-              (formik.touched.role && formik.errors.role) ??
-              (serverErrors.Role ? serverErrors.Role.join(" ") : "")
-            }
-          >
-            {roles.map((role) => (
-              <MenuItem key={role.id} value={role.id}>
-                {role.type}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-
         <TextField
           label={`${t("person_editor.email")} *`}
           name="email"
@@ -421,6 +375,32 @@ const PersonEditor = ({
             Boolean(serverErrors.Email)
           }
         />
+
+        <TextField
+          select
+          label={t("person_editor.language")}
+          name="cultureCode"
+          fullWidth
+          value={formik.values.cultureCode || "en-GB"}
+          onChange={handleFieldChange}
+          onBlur={formik.handleBlur}
+          disabled={!canEdit}
+          error={
+            (formik.touched.cultureCode &&
+              Boolean(formik.errors.cultureCode)) ||
+            Boolean(serverErrors.CultureCode)
+          }
+          helperText={
+            (formik.touched.cultureCode && formik.errors.cultureCode) ??
+            (serverErrors.CultureCode ? serverErrors.CultureCode.join(" ") : "")
+          }
+        >
+          {languageOptions.map(({ value, labelKey }) => (
+            <MenuItem key={value} value={value}>
+              {t(labelKey)}
+            </MenuItem>
+          ))}
+        </TextField>
 
         <TextField
           label={
@@ -483,6 +463,61 @@ const PersonEditor = ({
               formik.touched.confirmPassword && formik.errors.confirmPassword
             }
           />
+        )}
+
+        {person.id !== currentUser.id && currentUser.role === ADMIN_ROLE_ID && (
+          <TextField
+            select
+            label={`${t("person_editor.role")} *`}
+            name="role"
+            fullWidth
+            value={formik.values.role}
+            onChange={handleFieldChange}
+            onBlur={formik.handleBlur}
+            disabled={!canEdit}
+            error={
+              (formik.touched.role && Boolean(formik.errors.role)) ||
+              Boolean(serverErrors.Role)
+            }
+            helperText={
+              (formik.touched.role && formik.errors.role) ??
+              (serverErrors.Role ? serverErrors.Role.join(" ") : "")
+            }
+          >
+            {roles.map((role) => (
+              <MenuItem key={role.id} value={role.id}>
+                {role.type}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
+
+        {currentUser.role === ADMIN_ROLE_ID && (
+          <TextField
+            select
+            label={`${t("person_editor.department")} *`}
+            name="department"
+            fullWidth
+            value={formik.values.department}
+            onChange={handleFieldChange}
+            onBlur={formik.handleBlur}
+            disabled={!canEdit}
+            error={
+              (formik.touched.department &&
+                Boolean(formik.errors.department)) ||
+              Boolean(serverErrors.Department)
+            }
+            helperText={
+              (formik.touched.department && formik.errors.department) ??
+              (serverErrors.Department ? serverErrors.Department.join(" ") : "")
+            }
+          >
+            {departments.map((dept) => (
+              <MenuItem key={dept.id} value={dept.id}>
+                {dept.name}
+              </MenuItem>
+            ))}
+          </TextField>
         )}
 
         <TextField

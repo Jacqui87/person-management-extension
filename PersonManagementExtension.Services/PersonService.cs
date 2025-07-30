@@ -115,11 +115,12 @@ public class PersonService(PersonManagerContext context, ILogger<PersonService> 
 
             updatePerson.FirstName = person.FirstName;
             updatePerson.LastName = person.LastName;
-            updatePerson.Email = person.Email;
-            updatePerson.Role = person.Role;
-            updatePerson.Password = person.Password;
-            updatePerson.Department = person.Department;
             updatePerson.DateOfBirth = person.DateOfBirth;
+            updatePerson.Email = person.Email;
+            updatePerson.CultureCode = person.CultureCode;
+            updatePerson.Password = person.Password;
+            updatePerson.Role = person.Role;
+            updatePerson.Department = person.Department;
             updatePerson.Biography = person.Biography;
 
             await context.SaveChangesAsync();
