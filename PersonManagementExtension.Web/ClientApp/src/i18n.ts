@@ -11,7 +11,7 @@ i18n
   .init({
     fallbackLng: "en-GB", // default language
     supportedLngs: ["en-GB", "cy-GB"],
-    lng: "cy-GB",
+    lng: "en-GB",
 
     debug: false,
 
