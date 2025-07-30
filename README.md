@@ -20,49 +20,51 @@ Users can choose their preferred language from a dropdown in the interface. This
 
 ## ✅ Completed vs ❌ Planned Enhancements
 
-| Feature Area                         | Description                                                                      | Status |
-| ------------------------------------ | -------------------------------------------------------------------------------- | ------ |
-| **Codebase Refinement**              | Extracted Role/Department logic into dedicated services and controllers.         | ✅     |
-| **Targeted Testing Improvements**    | Split tests per service, modularised coverage, improved maintainability.         | ✅     |
-| **Frontend Performance**             | Lazy-loaded React components with `React.lazy` and `Suspense`.                   | ✅     |
-| **Bilingual UI Support**             | English and Welsh translations via `react-i18next`.                              | ✅     |
-| **User Language Preference**         | Language selection UI with persistence on login.                                 | ✅     |
-| **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage, fix/remove 4 skipped tests.           | ❌     |
-| **API Improvements**                 | Move from `PUT` to `PATCH` for partial updates.                                  | ❌     |
-| **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.                       | ❌     |
-| **Improved UX Features**             | Clearable search, MUI Autocomplete dropdowns, profile photo upload (Azure Blob). | ❌     |
-| **Security - Email Verification**    | Send email with link or code to verify updates.                                  | ❌     |
-| **Bulk Operations**                  | Add bulk upload/edit support for people, departments, roles.                     | ❌     |
-| **Role/Department Admin**            | Allow admin users to manage roles and departments via UI.                        | ❌     |
-| **CI/CD & Tooling**                  | Set up CI/CD pipelines for automated tests, linting, deployment.                 | ❌     |
-| **Refresh Token Support**            | Add refresh token handling to extend sessions without re-login.                  | ❌     |
-| **End-to-End (E2E) Testing**         | Add Cypress or Playwright tests to cover key user workflows.                     | ❌     |
+| Feature Area                         | Description                                                              | Status |
+| ------------------------------------ | ------------------------------------------------------------------------ | ------ |
+| **Codebase Refinement**              | Extracted Role/Department logic into dedicated services and controllers. | ✅     |
+| **Targeted Testing Improvements**    | Split tests per service, modularised coverage, improved maintainability. | ✅     |
+| **Frontend Performance**             | Lazy-loaded React components with `React.lazy` and `Suspense`.           | ✅     |
+| **Bilingual UI Support**             | English and Welsh translations via `react-i18next`.                      | ✅     |
+| **User Language Preference**         | Language selection UI with persistence on login.                         | ✅     |
+| **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage, fix/remove 4 skipped tests.   | ❌     |
+| **API Improvements**                 | Move from `PUT` to `PATCH` for partial updates.                          | ❌     |
+| **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.               | ❌     |
+| **Improved UX Features**             | Clearable search and MUI Autocomplete dropdowns.                         | ✅     |
+| **Profile Photo Upload**             | Support uploading profile photos via Azure Blob Storage integration.     | ❌     |
+| **Security - Email Verification**    | Send email with link or code to verify updates.                          | ❌     |
+| **Bulk Operations**                  | Add bulk upload/edit support for people, departments, roles.             | ❌     |
+| **Role/Department Admin**            | Allow admin users to manage roles and departments via UI.                | ❌     |
+| **CI/CD & Tooling**                  | Set up CI/CD pipelines for automated tests, linting, deployment.         | ❌     |
+| **Refresh Token Support**            | Add refresh token handling to extend sessions without re-login.          | ❌     |
+| **End-to-End (E2E) Testing**         | Add Cypress or Playwright tests to cover key user workflows.             | ❌     |
 
 ### ✅ Completed
 
 #### 1. Codebase Refinement
 
-- Extracted all **role** and **department** logic from `PersonController.cs`, `PersonService.cs`, and `personService.ts`.
-- Created dedicated modules: `RoleService` and `DepartmentService` (both backend and frontend), plus `RoleController` and `DepartmentController`.
-- This improves separation of concerns, simplifies testing, and prepares the codebase for scalability.
+- Extracted role and department logic into dedicated backend and frontend modules (RoleService, DepartmentService, controllers).
+- Improved separation of concerns, simplified testing, and enhanced scalability.
 
 #### 2. Targeted Testing Improvements
 
-- Separated existing tests to match new service boundaries (`PersonService`, `RoleService`, `DepartmentService`, etc.).
-- Tests are now more modular, easier to navigate, and follow single-responsibility principles.
-- Improves maintainability by ensuring tests target specific domain logic rather than broad controller behaviors.
+- Reorganized tests to align with new service boundaries.
+- Made tests more modular and maintainable by focusing on specific domain logic.
 
 #### 3. Frontend Performance Optimisation
 
-- Added lazy loading for top-level React components (PersonConfig, LoginPage, etc.) using React.lazy and Suspense.
-- Improves initial load time and performance by deferring non-critical component loading until needed.
+- Implemented lazy loading of key React components using React.lazy and Suspense.
+- Reduced initial load time by deferring non-essential component loading.
 
 #### 4. English/Welsh Internationalisation (not yet configurable by a user)
 
-- Integrated react-i18next for translation handling.
-- All major UI labels, validation messages, and instructional content now available in both English and Welsh.
-- Users can choose their preferred language via the UI.
-- Translation keys grouped by domain (common, person_editor, search_bar, etc.) for clarity and scalability.
+- Added bilingual support via react-i18next for all UI labels and messages.
+- Users can select preferred language; translation keys are well-organized by domain.
+
+#### 5. Clearable Search & Autocomplete Dropdowns
+
+- Enhanced filtering UI with clearable search inputs and MUI Autocomplete for roles and departments.
+- Improved user experience, accessibility, and integrated translation support.
 
 ---
 
@@ -82,7 +84,7 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 #### 3. **Frontend Enhancements**
 
 - Integrate [TanStack Query](https://tanstack.com/query) for data fetching and caching.
-- Improve UX: clearable search, MUI `Autocomplete` dropdowns, and support for profile photo uploads (via Azure Blob Storage).
+- Support for profile photo uploads (via Azure Blob Storage).
 
 #### 4. **Security Enhancements**
 

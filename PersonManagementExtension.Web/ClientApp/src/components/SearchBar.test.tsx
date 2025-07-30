@@ -42,21 +42,17 @@ describe("SearchBar", () => {
   it("renders Role and Department selects with correct labels and initial values", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
 
-    const roleSelect = screen.getByRole("combobox", {
+    const roleInput = screen.getByRole("combobox", {
       name: /^person_editor.role$/i,
     });
-    expect(roleSelect).toBeInTheDocument();
+    expect(roleInput).toBeInTheDocument();
+    expect(roleInput).toHaveValue("Role 20");
 
-    const deptSelect = screen.getByRole("combobox", {
+    const deptInput = screen.getByRole("combobox", {
       name: /^person_editor.department$/i,
     });
-    expect(deptSelect).toBeInTheDocument();
-
-    // The role select should display the label of selected role
-    expect(roleSelect).toHaveTextContent("Role 20");
-
-    // The department select should display the label of selected department
-    expect(deptSelect).toHaveTextContent("Dept 2");
+    expect(deptInput).toBeInTheDocument();
+    expect(deptInput).toHaveValue("Dept 2");
   });
 
   it("dispatches SET_SEARCH_TERM when typing in search input", () => {

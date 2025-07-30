@@ -70,5 +70,11 @@
   "languages": {
     "en_GB": "English",
     "cy_GB": "Welsh"
+  },
+  "actions": {
+    "successText": "Action was successful!",
+    "failedText": "Action failed. Please try again.",
+    "warningText": "Warning: Check your inputs.",
+    "informationText": "Action cancelled."
   }
 }

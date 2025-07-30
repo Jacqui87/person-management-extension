@@ -70,5 +70,11 @@
   "languages": {
     "en_GB": "Saesneg",
     "cy_GB": "Cymraeg"
+  },
+  "actions": {
+    "successText": "Roedd y weithred yn llwyddiannus!",
+    "failedText": "Methwyd â'r weithred. Ceisiwch eto, os gwelwch yn dda.",
+    "warningText": "Rhybudd: Gwiriwch eich mewnbynnau.",
+    "informationText": "Diddymwyd y weithred."
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { PersonAction, PersonState } from "../state/personReducer";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/system";
@@ -55,6 +56,8 @@ const PersonConfig = ({
   dispatch: React.Dispatch<PersonAction>;
   personService: PersonService;
 }) => {
+  const { t } = useTranslation();
+
   const [snackbarStatus, setSnackbarStatus] = useState<
     "success" | "failed" | "info" | "warning" | "closed"
   >("closed");
@@ -175,10 +178,10 @@ const PersonConfig = ({
       <ActionSnackbar
         status={snackbarStatus}
         handleClose={handleSnackbarClose}
-        successText="Action was successful!"
-        failedText="Action failed. Please try again."
-        warningText="Warning: Check your inputs."
-        informationText="Action cancelled."
+        successText={t("actions.successText")}
+        failedText={t("actions.failedText")}
+        warningText={t("actions.warningText")}
+        informationText={t("actions.informationText")}
       />
     </ContentWrapper>
   );
