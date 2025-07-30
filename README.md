@@ -18,6 +18,26 @@ Users can choose their preferred language from a dropdown in the interface. This
 
 ## 🚀 Improvements in Progress
 
+## ✅ Completed vs ❌ Planned Enhancements
+
+| Feature Area                         | Description                                                                      | Status |
+| ------------------------------------ | -------------------------------------------------------------------------------- | ------ |
+| **Codebase Refinement**              | Extracted Role/Department logic into dedicated services and controllers.         | ✅     |
+| **Targeted Testing Improvements**    | Split tests per service, modularised coverage, improved maintainability.         | ✅     |
+| **Frontend Performance**             | Lazy-loaded React components with `React.lazy` and `Suspense`.                   | ✅     |
+| **Bilingual UI Support**             | English and Welsh translations via `react-i18next`.                              | ✅     |
+| **User Language Preference**         | Language selection UI with persistence on login.                                 | ✅     |
+| **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage, fix/remove 4 skipped tests.           | ❌     |
+| **API Improvements**                 | Move from `PUT` to `PATCH` for partial updates.                                  | ❌     |
+| **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.                       | ❌     |
+| **Improved UX Features**             | Clearable search, MUI Autocomplete dropdowns, profile photo upload (Azure Blob). | ❌     |
+| **Security - Email Verification**    | Send email with link or code to verify updates.                                  | ❌     |
+| **Bulk Operations**                  | Add bulk upload/edit support for people, departments, roles.                     | ❌     |
+| **Role/Department Admin**            | Allow admin users to manage roles and departments via UI.                        | ❌     |
+| **CI/CD & Tooling**                  | Set up CI/CD pipelines for automated tests, linting, deployment.                 | ❌     |
+| **Refresh Token Support**            | Add refresh token handling to extend sessions without re-login.                  | ❌     |
+| **End-to-End (E2E) Testing**         | Add Cypress or Playwright tests to cover key user workflows.                     | ❌     |
+
 ### ✅ Completed
 
 #### 1. Codebase Refinement
