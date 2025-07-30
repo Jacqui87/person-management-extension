@@ -24,51 +24,62 @@ This repository continues that work — evolving it toward a more robust, produc
 - Tests are now more modular, easier to navigate, and follow single-responsibility principles.
 - Improves maintainability by ensuring tests target specific domain logic rather than broad controller behaviors.
 
+#### 3. Frontend Performance Optimisation
+
+- Added lazy loading for top-level React components (PersonConfig, LoginPage, etc.) using React.lazy and Suspense.
+- Improves initial load time and performance by deferring non-critical component loading until needed.
+
+#### 4. English/Welsh Internationalisation (not yet configurable by a user)
+
+- Integrated react-i18next for translation handling.
+- All major UI labels, validation messages, and instructional content now available in both English and Welsh.
+- Translation keys grouped by domain (common, person_editor, search_bar, etc.) for clarity and scalability.
+
 ---
 
 ### 🛠️ Planned Enhancements
 
 _*(Adapted and expanded from the original [“What I would do given more time to complete this task”](https://github.com/Jacqui87/product-senior-developer-home-exercise?tab=readme-ov-file#what-i-would-do-given-more-time-to-complete-this-task))*_
 
-1. **Testing Coverage (Frontend & Backend)**
+#### 1. **Testing Coverage (Frontend & Backend)**
 
-   - Increase test coverage and add more edge case scenarios.
-   - Fix or remove skipped tests (currently 4 are skipped).
+- Increase test coverage and add more edge case scenarios.
+- Fix or remove skipped tests (currently 4 are skipped).
 
-2. **API Improvements**
+#### 2. **API Improvements**
 
-   - Replace `PUT` with `PATCH` for partial updates.
+- Replace `PUT` with `PATCH` for partial updates.
 
-3. **Frontend Enhancements**
+#### 3. **Frontend Enhancements**
 
-   - Integrate [TanStack Query](https://tanstack.com/query) for data fetching and caching.
-   - Add i18n support (e.g., Welsh/English toggle).
-   - Improve UX: clearable search, MUI `Autocomplete` dropdowns, and support for profile photo uploads (via Azure Blob Storage).
+- Integrate [TanStack Query](https://tanstack.com/query) for data fetching and caching.
+- Improve UX: clearable search, MUI `Autocomplete` dropdowns, and support for profile photo uploads (via Azure Blob Storage).
 
-4. **Security Enhancements**
+#### 4. **Security Enhancements**
 
-   - Add email verification for address updates (e.g., send a verification link or code to confirm changes).
+- Add email verification for address updates (e.g., send a verification link or code to confirm changes).
 
-5. **Bulk Operations**
+#### 5. **Bulk Operations**
 
-   - Implement bulk upload/edit features for users, departments, and roles.
+- Implement bulk upload/edit features for users, departments, and roles.
 
-6. **Role & Department Management**
+#### 6. **Role & Department Management**
 
-   - Expand admin functionality to manage departments and roles dynamically.
+- Expand admin functionality to manage departments and roles dynamically.
 
-7. **DevOps & Tooling**
+#### 7. **DevOps & Tooling**
 
-   - Set up CI/CD pipelines for automated testing, linting, and deployment.
+- Set up CI/CD pipelines for automated testing, linting, and deployment.
 
-8. **Refresh Token Support**
+#### 8. **Refresh Token Support**
 
-   - Add refresh tokens to extend JWT-based authentication.
-   - Enables seamless session renewal without forcing frequent logins.
+- Add refresh tokens to extend JWT-based authentication.
+- Enables seamless session renewal without forcing frequent logins.
 
-9. **End-to-End (E2E) Testing**
-   - Add automated UI tests using Cypress or Playwright.
-   - Improve confidence in production-readiness and reduce regression risk.
+#### 9. **End-to-End (E2E) Testing**
+
+- Add automated UI tests using Cypress or Playwright.
+- Improve confidence in production-readiness and reduce regression risk.
 
 ---
 

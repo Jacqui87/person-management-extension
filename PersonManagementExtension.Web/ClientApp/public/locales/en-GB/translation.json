@@ -1,0 +1,68 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "loading": "Loading",
+    "people": "People"
+  },
+  "person_summary": {
+    "isAdmin": "Select a person from the list or click 'Add Person' to begin.",
+    "isUser": "You are logged in - view or edit your own details."
+  },
+  "person_editor": {
+    "add": "Add Person",
+    "edit": "Edit Person",
+    "required": "Required",
+    "no_more_than_x_chars": "No more than {{amount}} characters",
+    "at_least_x_chars": "At least {{amount}} characters",
+    "at_least_1_uppercase_letter": "At least 1 uppercase letter",
+    "at_least_1_lowercase_letter": "At least 1 lowercase letter",
+    "at_least_1_number": "At least 1 number",
+    "at_least_1_special_char": "At least 1 special character (e.g., !@#$%^&*)",
+    "first_name_rules": "First name rules",
+    "first_name": "First Name",
+    "first_name_required": "First Name is required",
+    "first_name_invalid": "First Name must be 50 characters or less",
+    "last_name_rules": "Last name rules",
+    "last_name_required": "Last Name is required",
+    "last_name_invalid": "Last Name must be 50 characters or less",
+    "last_name": "Last Name",
+    "dob": "Date of Birth",
+    "dob_name_required": "Date of Birth is required",
+    "dob_name_invalid": "Date of Birth must be in DD-MM-YYYY format",
+    "department": "Department",
+    "department_required": "Department is required",
+    "role": "Role",
+    "role_required": "Role is required",
+    "email": "Email",
+    "email_required": "Email is required",
+    "email_unique": "Email must be unique",
+    "email_invalid": "Invalid email address",
+    "email_rules": "Email domain must contain at least one dot and valid characters",
+    "password_rules": "Password rules",
+    "password": "Password",
+    "password_invalid": "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+    "passwords_do_not_match": "Passwords do not match",
+    "confirm_password": "Confirm Password",
+    "confirm_password_required": "Confirm Password is required",
+    "biography": "Biography",
+    "biography_invalid": "Biography must be 500 characters or less",
+    "cannot_delete_self": "You cannot delete yourself"
+  },
+  "nav_bar": {
+    "person_manager": "Person Manager",
+    "logout": "Logout"
+  },
+  "search_bar": {
+    "search_people": "Search people...",
+    "all_roles": "All roles",
+    "user": "User",
+    "admin": "Admin",
+    "all_departments": "All departments",
+    "sales": "Sales",
+    "marketing": "Marketing",
+    "finance": "Finance",
+    "hr": "HR"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "common": {
+    "save": "Cadw",
+    "cancel": "Canslo",
+    "delete": "Dileu",
+    "loading": "Llwytho",
+    "people": "Pobl"
+  },
+  "person_summary": {
+    "isAdmin": "Dewiswch berson o'r rhestr neu cliciwch 'Ychwanegu Person' i ddechrau.",
+    "isUser": "Rydych wedi mewngofnodi – gwelwch neu golygwch eich manylion eich hun."
+  },
+  "person_editor": {
+    "add": "Ychwanegu Person",
+    "edit": "Golygu Person",
+    "required": "Angenrheidiol",
+    "no_more_than_x_chars": "Dim mwy na {{amount}} nod",
+    "at_least_x_chars": "O leiaf {{amount}} nod",
+    "at_least_1_uppercase_letter": "O leiaf 1 lythyren fawr",
+    "at_least_1_lowercase_letter": "O leiaf 1 lythyren fach",
+    "at_least_1_number": "O leiaf 1 rhif",
+    "at_least_1_special_char": "O leiaf 1 nod arbennig (e.e., !@#$%^&*)",
+    "first_name_rules": "Rheolau enw cyntaf",
+    "first_name": "Enw Cyntaf",
+    "first_name_required": "Mae angen Enw Cyntaf",
+    "first_name_invalid": "Rhaid i’r Enw Cyntaf fod yn 50 nod neu lai",
+    "last_name_rules": "Rheolau enw olaf",
+    "last_name_required": "Mae angen Enw Olaf",
+    "last_name_invalid": "Rhaid i’r Enw Olaf fod yn 50 nod neu lai",
+    "last_name": "Enw Olaf",
+    "dob": "Dyddiad Geni",
+    "dob_name_required": "Mae angen Dyddiad Geni",
+    "dob_name_invalid": "Rhaid i’r Dyddiad Geni fod yn fformat DD-MM-BBBB",
+    "department": "Adran",
+    "department_required": "Mae angen Adran",
+    "role": "Rôl",
+    "role_required": "Mae angen Rôl",
+    "email": "E-bost",
+    "email_required": "Mae angen E-bost",
+    "email_unique": "Rhaid i’r e-bost fod yn unigryw",
+    "email_invalid": "Cyfeiriad e-bost annilys",
+    "email_rules": "Rhaid i barth e-bost gynnwys o leiaf un dot a nodau dilys",
+    "password_rules": "Rheolau cyfrinair",
+    "password": "Cyfrinair",
+    "password_invalid": "Rhaid i'r cyfrinair fod yn o leiaf 8 nod ac gynnwys llythyren fawr, fach, rhif a nod arbennig",
+    "passwords_do_not_match": "Nid yw’r cyfrineiriau’n cyfateb",
+    "confirm_password": "Cadarnhau Cyfrinair",
+    "confirm_password_required": "Mae angen Cadarnhau Cyfrinair",
+    "biography": "Bywgraffiad",
+    "biography_invalid": "Rhaid i’r Bywgraffiad fod yn 500 nod neu lai",
+    "cannot_delete_self": "Ni allwch ddileu eich hun"
+  },
+  "nav_bar": {
+    "person_manager": "Rheolwr Pobl",
+    "logout": "Allgofnodi"
+  },
+  "search_bar": {
+    "search_people": "Chwilio pobl...",
+    "all_roles": "Pob rôl",
+    "user": "Defnyddiwr",
+    "admin": "Gweinyddwr",
+    "all_departments": "Pob adran",
+    "sales": "Gwerthiant",
+    "marketing": "Marchnata",
+    "finance": "Cyllid",
+    "hr": "AD"
+  }
+}

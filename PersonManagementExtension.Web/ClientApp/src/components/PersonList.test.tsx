@@ -24,14 +24,16 @@ describe("PersonList Component", () => {
       <PersonList people={samplePeople} onSelect={vi.fn()} onAddNew={vi.fn()} />
     );
 
-    expect(screen.getByText("People")).toBeInTheDocument();
+    expect(screen.getByText("common.people")).toBeInTheDocument();
 
     for (const person of samplePeople) {
       expect(
         screen.getByText(`${person.firstName} ${person.lastName}`)
       ).toBeInTheDocument();
       expect(
-        screen.getByText(new RegExp(`email: ${person.email}`, "i"))
+        screen.getByText(
+          new RegExp(`person_editor.email: ${person.email}`, "i")
+        )
       ).toBeInTheDocument();
     }
   });
@@ -65,7 +67,9 @@ describe("PersonList Component", () => {
     const onAddNew = vi.fn();
     render(<PersonList people={[]} onSelect={vi.fn()} onAddNew={onAddNew} />);
 
-    const addButton = screen.getByRole("button", { name: /add person/i });
+    const addButton = screen.getByRole("button", {
+      name: /person_editor.add/i,
+    });
 
     fireEvent.click(addButton);
 

@@ -17,50 +17,47 @@ import { DepartmentViewModel } from "../models/DepartmentViewModel";
 import { RoleViewModel } from "../models/RoleViewModel";
 import { PersonService } from "../services/personService";
 import useTheme from "@mui/material/styles/useTheme";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 // Create dynamic Yup validation schema based on user role and passwordChanged status
-const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
+const makeValidationSchema = (
+  t: TFunction,
+  userRole?: number,
+  passwordChanged?: boolean
+) =>
   Yup.object({
     firstName: Yup.string()
-      .required("First Name is required")
-      .max(50, "First Name must be 50 characters or less"),
+      .required(t("person_editor.first_name_required"))
+      .max(50, t("person_editor.first_name_invalid")),
     lastName: Yup.string()
-      .required("Last Name is required")
-      .max(50, "Last Name must be 50 characters or less"),
+      .required(t("person_editor.last_name_required"))
+      .max(50, t("person_editor.last_name_invalid")),
     dateOfBirth: Yup.string()
-      .required("Date of Birth is required")
-      .matches(
-        /^\d{4}-\d{2}-\d{2}$/,
-        "Date of Birth must be in YYYY-MM-DD format"
-      ),
+      .required(t("person_editor.dob_name_required"))
+      .matches(/^\d{4}-\d{2}-\d{2}$/, t("person_editor.dob_name_invalid")),
     email: Yup.string()
-      .required("Email is required")
-      .email("Invalid email address")
-      .test(
-        "strict-domain",
-        "Email domain must contain at least one dot and valid characters",
-        (value) => {
-          if (!value) return false;
-          const [localPart, domain] = value.split("@");
-          if (!localPart || !domain) return false;
+      .required(t("person_editor.email"))
+      .email(t("person_editor.email_invalid"))
+      .test("strict-domain", t("person_editor.email_rules"), (value) => {
+        if (!value) return false;
+        const [localPart, domain] = value.split("@");
+        if (!localPart || !domain) return false;
 
-          // Check domain contains at least one dot and valid domain format
-          if (!/\.[a-zA-Z]{2,}$/.test(domain)) return false;
+        // Check domain contains at least one dot and valid domain format
+        if (!/\.[a-zA-Z]{2,}$/.test(domain)) return false;
 
-          // Optional: Additional character restrictions on local and domain parts
-          // Basic regex for allowed characters in local part (simplified)
-          const localValid = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+$/.test(
-            localPart
-          );
-          // Basic regex for allowed characters in domain part
-          const domainValid = /^[a-zA-Z0-9.-]+$/.test(domain);
+        // Optional: Additional character restrictions on local and domain parts
+        // Basic regex for allowed characters in local part (simplified)
+        const localValid = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+$/.test(localPart);
+        // Basic regex for allowed characters in domain part
+        const domainValid = /^[a-zA-Z0-9.-]+$/.test(domain);
 
-          return localValid && domainValid;
-        }
-      ),
+        return localValid && domainValid;
+      }),
     password: Yup.string().test(
       "password-strength-if-changed",
-      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+      t("person_editor.password_invalid"),
       (value) => {
         if (passwordChanged) {
           if (!value) return false;
@@ -84,20 +81,20 @@ const makeValidationSchema = (userRole?: number, passwordChanged?: boolean) =>
     ),
     confirmPassword: passwordChanged
       ? Yup.string()
-          .oneOf([Yup.ref("password")], "Passwords do not match")
-          .required("Confirm Password is required")
+          .oneOf(
+            [Yup.ref("password")],
+            t("person_editor.passwords_do_not_match")
+          )
+          .required(t("person_editor.confirm_password_required"))
       : Yup.string().notRequired(),
-    biography: Yup.string().max(
-      500,
-      "Biography must be 500 characters or less"
-    ),
+    biography: Yup.string().max(500, t("person_editor.biography_invalid")),
     department:
       userRole === ADMIN_ROLE_ID
-        ? Yup.number().required("Department is required")
+        ? Yup.number().required(t("person_editor.department_required"))
         : Yup.number().notRequired(),
     role:
       userRole === ADMIN_ROLE_ID
-        ? Yup.number().required("Role is required")
+        ? Yup.number().required(t("person_editor.role_required"))
         : Yup.number().notRequired(),
   });
 
@@ -122,6 +119,8 @@ const PersonEditor = ({
   personService,
   setSnackbarStatus,
 }: PersonEditorProps) => {
+  const { t } = useTranslation();
+
   const theme = useTheme();
   const currentUser = state.loggedInUser;
   const departments: DepartmentViewModel[] = state.departments;
@@ -152,8 +151,8 @@ const PersonEditor = ({
     currentUser.role === ADMIN_ROLE_ID || currentUser.id === person.id;
 
   const getValidationSchema = useCallback(
-    () => makeValidationSchema(currentUser.role, passwordChanged),
-    [currentUser.role, passwordChanged]
+    () => makeValidationSchema(t, currentUser.role, passwordChanged),
+    [t, currentUser.role, passwordChanged]
   );
 
   const initialPersonValues: PersonViewModel & { confirmPassword: string } = {
@@ -198,7 +197,9 @@ const PersonEditor = ({
       .isEmailUnique(email, person.id) // pass exclude id to skip current person
       .then((isUnique: boolean) => {
         if (isMounted) {
-          setEmailUniqueError(isUnique ? null : "Email must be unique");
+          setEmailUniqueError(
+            isUnique ? null : t("person_editor.email_unique")
+          );
         }
       })
       .catch(() => {
@@ -236,20 +237,23 @@ const PersonEditor = ({
   return (
     <Box p={3}>
       <Typography variant="h5" gutterBottom>
-        {person.id === 0 ? "Add Person" : "Edit Person"}
+        {person.id === 0 ? t("person_editor.add") : t("person_editor.edit")}
       </Typography>
 
       <Stack spacing={2}>
         <TextField
           label={
             <Box display="flex" alignItems="center" gap={0.5}>
-              First Name *
+              {t("person_editor.first_name")} *
               <Tooltip
                 title={
                   <span style={{ whiteSpace: "pre-line", fontSize: 12 }}>
-                    First Name Rules:
-                    {"\n"}- Required
-                    {"\n"}- No more than 50 characters
+                    {t("person_editor.first_name_rules")}:{"\n"}-{" "}
+                    {t("person_editor.required")}
+                    {"\n"}-{" "}
+                    {t("person_editor.no_more_than_x_chars", {
+                      amount: 50,
+                    })}
                   </span>
                 }
                 arrow
@@ -281,13 +285,16 @@ const PersonEditor = ({
         <TextField
           label={
             <Box display="flex" alignItems="center" gap={0.5}>
-              Last Name *
+              {t("person_editor.last_name")} *
               <Tooltip
                 title={
                   <span style={{ whiteSpace: "pre-line", fontSize: 12 }}>
-                    Last Name Rules:
-                    {"\n"}- Required
-                    {"\n"}- No more than 50 characters
+                    {t("person_editor.last_name_rules")}:{"\n"}-{" "}
+                    {t("person_editor.required")}
+                    {"\n"}-{" "}
+                    {t("person_editor.no_more_than_x_chars", {
+                      amount: 50,
+                    })}
                   </span>
                 }
                 arrow
@@ -317,7 +324,7 @@ const PersonEditor = ({
         />
 
         <TextField
-          label="Date of Birth *"
+          label={`${t("person_editor.dob")} *`}
           type="date"
           name="dateOfBirth"
           value={formik.values.dateOfBirth ?? defaultDob}
@@ -343,7 +350,7 @@ const PersonEditor = ({
         {currentUser.role === ADMIN_ROLE_ID && (
           <TextField
             select
-            label="Department *"
+            label={`${t("person_editor.department")} *`}
             name="department"
             fullWidth
             value={formik.values.department}
@@ -371,7 +378,7 @@ const PersonEditor = ({
         {person.id !== currentUser.id && currentUser.role === ADMIN_ROLE_ID && (
           <TextField
             select
-            label="Role *"
+            label={`${t("person_editor.role")} *`}
             name="role"
             fullWidth
             value={formik.values.role}
@@ -396,7 +403,7 @@ const PersonEditor = ({
         )}
 
         <TextField
-          label="Email *"
+          label={`${t("person_editor.email")} *`}
           name="email"
           fullWidth
           value={formik.values.email}
@@ -418,16 +425,18 @@ const PersonEditor = ({
         <TextField
           label={
             <Box display="flex" alignItems="center" gap={0.5}>
-              Password *
+              {t("person_editor.password")} *
               <Tooltip
                 title={
                   <span style={{ whiteSpace: "pre-line", fontSize: 12 }}>
-                    Password Rules:
-                    {"\n"}- At least 8 characters
-                    {"\n"}- At least 1 uppercase letter
-                    {"\n"}- At least 1 lowercase letter
-                    {"\n"}- At least 1 number
-                    {"\n"}- At least 1 special character (e.g., !@#$%^&*)
+                    {t("person_editor.password_rules")}:{"\n"}-{" "}
+                    {t("person_editor.at_least_x_chars", {
+                      amount: 8,
+                    })}
+                    {"\n"}- {t("person_editor.at_least_1_uppercase_letter")}
+                    {"\n"}- {t("person_editor.at_least_1_lowercase_letter")}
+                    {"\n"}- {t("person_editor.at_least_1_number")}
+                    {"\n"}- {t("person_editor.at_least_1_special_char")}
                   </span>
                 }
                 arrow
@@ -460,7 +469,7 @@ const PersonEditor = ({
 
         {passwordChanged && formik.touched.password && (
           <TextField
-            label="Confirm Password"
+            label={t("person_editor.confirm_password")}
             name="confirmPassword"
             type="password"
             value={formik.values.confirmPassword}
@@ -477,7 +486,7 @@ const PersonEditor = ({
         )}
 
         <TextField
-          label="Biography"
+          label={t("person_editor.biography")}
           name="biography"
           fullWidth
           multiline
@@ -508,10 +517,10 @@ const PersonEditor = ({
                   Boolean(emailUniqueError)
                 }
               >
-                Save
+                {t("common.save")}
               </Button>
               <Button variant="outlined" onClick={handleCancel}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               {currentUser.role === ADMIN_ROLE_ID && (
                 <Button
@@ -520,7 +529,7 @@ const PersonEditor = ({
                   disabled={person.id === currentUser.id}
                   onClick={() => onDelete?.(person.id)}
                 >
-                  Delete
+                  {t("common.delete")}
                 </Button>
               )}
             </Box>
@@ -529,7 +538,7 @@ const PersonEditor = ({
               currentUser.role === ADMIN_ROLE_ID && (
                 <Typography component="p" color="info.main" align="right">
                   <FontAwesomeIcon icon={faInfoCircle} />
-                  You cannot delete yourself
+                  {t("person_editor.cannot_delete_self")}
                 </Typography>
               )}
           </>

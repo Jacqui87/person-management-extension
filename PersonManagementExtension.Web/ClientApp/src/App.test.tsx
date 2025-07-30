@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import App from "./App";
-import MainPage from "./components/MainPage";
 import { vi } from "vitest";
 
 // Mock MainPage so tests focus on App only
@@ -13,7 +12,7 @@ vi.mock("./components/MainPage", () => {
 describe("App component", () => {
   it("renders the header text", () => {
     render(<App />);
-    expect(screen.getByText("Person Manager")).toBeInTheDocument();
+    expect(screen.getByText("nav_bar.person_manager")).toBeInTheDocument();
   });
 
   it("renders the MainPage component", () => {

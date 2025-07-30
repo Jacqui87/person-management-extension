@@ -78,7 +78,7 @@ describe("PersonEditor", () => {
       />
     );
     expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent(
-      /Add Person/i
+      /person_editor.add/i
     );
   });
 
@@ -95,7 +95,7 @@ describe("PersonEditor", () => {
       />
     );
     expect(screen.getByRole("heading", { level: 5 })).toHaveTextContent(
-      /Edit Person/i
+      /person_editor.edit/i
     );
   });
 
@@ -111,9 +111,13 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-    expect(screen.getByLabelText(/First Name/i)).not.toBeDisabled();
-    expect(screen.getByLabelText(/Email/i)).toHaveValue("jane.doe@example.com");
-    expect(screen.getByRole("button", { name: /Save/i })).toBeEnabled();
+    expect(
+      screen.getByLabelText(/person_editor.first_name/i)
+    ).not.toBeDisabled();
+    expect(screen.getByLabelText(/person_editor.email/i)).toHaveValue(
+      "jane.doe@example.com"
+    );
+    expect(screen.getByRole("button", { name: /common.save/i })).toBeEnabled();
   });
 
   it.skip("shows Confirm Password input after changing password", async () => {
@@ -129,18 +133,18 @@ describe("PersonEditor", () => {
       />
     );
     expect(
-      screen.queryByLabelText(/Confirm Password/i)
+      screen.queryByLabelText(/person_editor.confirm_password/i)
     ).not.toBeInTheDocument();
 
     // Type into Password input (should set passwordChanged = true)
-    const passwordInput = screen.getByLabelText(/Password/i);
+    const passwordInput = screen.getByLabelText(/person_editor.password/i);
     await userEvent.clear(passwordInput);
     await userEvent.type(passwordInput, "Password1!");
     await userEvent.tab(); // move focus away to trigger blur validation
 
     // Confirm Password field appears now
     const confirmPasswordInput = await screen.findByLabelText(
-      /Confirm Password/i
+      /person_editor.confirm_password/i
     );
 
     await waitFor(() => {
@@ -162,14 +166,14 @@ describe("PersonEditor", () => {
     );
 
     // Type into Password input (should set passwordChanged = true)
-    const passwordInput = screen.getByLabelText(/Password/i);
+    const passwordInput = screen.getByLabelText(/person_editor.password/i);
     await userEvent.clear(passwordInput);
     await userEvent.type(passwordInput, "Password1!");
     await userEvent.tab(); // move focus away to trigger blur validation
 
     // Confirm Password field appears now
     const confirmPasswordInput = await screen.findByLabelText(
-      /Confirm Password/i
+      /person_editor.confirm_password/i
     );
 
     // Type mismatching confirm password
@@ -178,8 +182,12 @@ describe("PersonEditor", () => {
     await userEvent.tab(); // trigger blur and validation on confirmPassword
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Save/i })).toBeDisabled();
-      expect(screen.getByText(/Passwords do not match/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /common.save/i })
+      ).toBeDisabled();
+      expect(
+        screen.getByText(/person_editor.passwords_do_not_match/i)
+      ).toBeInTheDocument();
     });
 
     // onSave should not be called since form is invalid
@@ -199,14 +207,14 @@ describe("PersonEditor", () => {
       />
     );
     // Type into Password input (should set passwordChanged = true)
-    const passwordInput = screen.getByLabelText(/Password/i);
+    const passwordInput = screen.getByLabelText(/person_editor.password/i);
     await userEvent.clear(passwordInput);
     await userEvent.type(passwordInput, "Password1!");
     await userEvent.tab(); // move focus away to trigger blur validation
 
     // Confirm Password field appears now
     const confirmPasswordInput = await screen.findByLabelText(
-      /Confirm Password/i
+      /person_editor.confirm_password/i
     );
 
     // Type mismatching confirm password
@@ -214,10 +222,13 @@ describe("PersonEditor", () => {
     await userEvent.type(confirmPasswordInput, "Password1!");
     await userEvent.tab(); // trigger blur and validation on confirmPassword
 
-    await userEvent.clear(screen.getByLabelText(/First Name/i));
-    await userEvent.type(screen.getByLabelText(/First Name/i), "Janet");
+    await userEvent.clear(screen.getByLabelText(/person_editor.first_name/i));
+    await userEvent.type(
+      screen.getByLabelText(/person_editor.first_name/i),
+      "Janet"
+    );
 
-    const saveBtn = await screen.getByRole("button", { name: /Save/i });
+    const saveBtn = await screen.getByRole("button", { name: /common.save/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
     await userEvent.click(saveBtn);
 
@@ -240,7 +251,7 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-    const del = screen.getByRole("button", { name: /Delete/i });
+    const del = screen.getByRole("button", { name: /common.delete/i });
     expect(del).not.toBeDisabled();
     fireEvent.click(del);
     expect(onDelete).toHaveBeenCalledWith(basePerson.id);
@@ -259,7 +270,9 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-    expect(screen.getByRole("button", { name: /Delete/i })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /common.delete/i })
+    ).toBeDisabled();
   });
 
   it.skip("resets form and clears person on cancel", async () => {
@@ -274,10 +287,12 @@ describe("PersonEditor", () => {
         setSnackbarStatus={setSnackbarStatus}
       />
     );
-    const input = screen.getByLabelText(/First Name/i);
+    const input = screen.getByLabelText(/person_editor.first_name/i);
     await userEvent.clear(input);
     await userEvent.type(input, "Changed");
-    await userEvent.click(screen.getByRole("button", { name: /Cancel/i }));
+    await userEvent.click(
+      screen.getByRole("button", { name: /common.cancel/i })
+    );
     expect(input).toHaveValue("Original");
     expect(dispatch).toHaveBeenCalledWith({
       type: "SET_SELECTED_PERSON",

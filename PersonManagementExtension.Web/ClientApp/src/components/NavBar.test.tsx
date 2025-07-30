@@ -49,7 +49,7 @@ describe("NavBar component", () => {
         personService={personServiceMock as any}
       />
     );
-    expect(screen.getByText("Person Manager")).toBeInTheDocument();
+    expect(screen.getByText("nav_bar.person_manager")).toBeInTheDocument();
   });
 
   it("renders the logged-in user name", () => {
@@ -73,7 +73,7 @@ describe("NavBar component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText("Logout"));
+    fireEvent.click(screen.getByText("nav_bar.logout"));
 
     // Wait for async calls inside handleLogout
     await waitFor(() => {
@@ -102,7 +102,7 @@ describe("NavBar component", () => {
     );
 
     // Should render with no name displayed
-    expect(screen.getByText("Person Manager")).toBeInTheDocument();
+    expect(screen.getByText("nav_bar.person_manager")).toBeInTheDocument();
     // The Typography for user name would be empty, so no errors thrown
   });
 });

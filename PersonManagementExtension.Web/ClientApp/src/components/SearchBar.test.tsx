@@ -34,7 +34,7 @@ describe("SearchBar", () => {
 
   it("renders search input with initial value", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
-    const searchInput = screen.getByLabelText(/search people.../i);
+    const searchInput = screen.getByLabelText(/search_bar.search_people/i);
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveValue("initial search");
   });
@@ -42,10 +42,14 @@ describe("SearchBar", () => {
   it("renders Role and Department selects with correct labels and initial values", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
 
-    const roleSelect = screen.getByRole("combobox", { name: /^role$/i });
+    const roleSelect = screen.getByRole("combobox", {
+      name: /^person_editor.role$/i,
+    });
     expect(roleSelect).toBeInTheDocument();
 
-    const deptSelect = screen.getByRole("combobox", { name: /^department$/i });
+    const deptSelect = screen.getByRole("combobox", {
+      name: /^person_editor.department$/i,
+    });
     expect(deptSelect).toBeInTheDocument();
 
     // The role select should display the label of selected role
@@ -57,7 +61,7 @@ describe("SearchBar", () => {
 
   it("dispatches SET_SEARCH_TERM when typing in search input", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
-    const searchInput = screen.getByLabelText(/search people.../i);
+    const searchInput = screen.getByLabelText(/search_bar.search_people/i);
     fireEvent.change(searchInput, { target: { value: "new query" } });
     expect(dispatch).toHaveBeenCalledWith({
       type: "SET_SEARCH_TERM",
@@ -67,7 +71,9 @@ describe("SearchBar", () => {
 
   it("dispatches SET_FILTER_ROLE when selecting a role", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
-    const roleSelect = screen.getByRole("combobox", { name: /^role$/i });
+    const roleSelect = screen.getByRole("combobox", {
+      name: /^person_editor.role$/i,
+    });
 
     // Open role select menu
     fireEvent.mouseDown(roleSelect);
@@ -85,7 +91,9 @@ describe("SearchBar", () => {
 
   it("dispatches SET_FILTER_DEPARTMENT when selecting a department", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
-    const deptSelect = screen.getByRole("combobox", { name: /^department$/i });
+    const deptSelect = screen.getByRole("combobox", {
+      name: /^person_editor.department$/i,
+    });
 
     // Open department select menu
     fireEvent.mouseDown(deptSelect);
@@ -102,12 +110,14 @@ describe("SearchBar", () => {
 
   it("allows selecting 'All roles' and dispatches 0 as payload", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
-    const roleSelect = screen.getByRole("combobox", { name: /^role$/i });
+    const roleSelect = screen.getByRole("combobox", {
+      name: /^person_editor.role$/i,
+    });
 
     fireEvent.mouseDown(roleSelect);
 
     const listbox = screen.getByRole("listbox");
-    const allRolesOption = within(listbox).getByText(/All roles/i);
+    const allRolesOption = within(listbox).getByText(/search_bar.all_roles/i);
     fireEvent.click(allRolesOption);
 
     expect(dispatch).toHaveBeenCalledWith({
@@ -118,12 +128,16 @@ describe("SearchBar", () => {
 
   it("allows selecting 'All departments' and dispatches 0 as payload", () => {
     render(<SearchBar state={baseState} dispatch={dispatch} />);
-    const deptSelect = screen.getByRole("combobox", { name: /^department$/i });
+    const deptSelect = screen.getByRole("combobox", {
+      name: /^person_editor.department$/i,
+    });
 
     fireEvent.mouseDown(deptSelect);
 
     const listbox = screen.getByRole("listbox");
-    const allDeptsOption = within(listbox).getByText(/All departments/i);
+    const allDeptsOption = within(listbox).getByText(
+      /search_bar.all_departments/i
+    );
     fireEvent.click(allDeptsOption);
 
     expect(dispatch).toHaveBeenCalledWith({

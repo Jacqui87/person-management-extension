@@ -1,14 +1,17 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import { useTranslation } from "react-i18next";
 
-const PersonSummary = ({ isAdmin }: { isAdmin: boolean }) => (
-  <Box mt={3}>
-    <Typography variant="h6">
-      {isAdmin
-        ? "Select a person from the list or click 'Add Person' to begin."
-        : "You are logged in - view or edit your own details."}
-    </Typography>
-  </Box>
-);
+const PersonSummary = ({ isAdmin }: { isAdmin: boolean }) => {
+  const { t } = useTranslation();
+
+  return (
+    <Box mt={3}>
+      <Typography variant="h6">
+        {isAdmin ? t("person_summary.isAdmin") : t("person_summary.isUser")}
+      </Typography>
+    </Box>
+  );
+};
 
 export default PersonSummary;
