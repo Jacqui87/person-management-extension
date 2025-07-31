@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { useTranslation } from "react-i18next";
+import LanguageToggleButton from "../elements/LoginForm/LanguageToggleButton";
 
 type Props = {
   onLogin: (user: {
@@ -44,9 +45,17 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
   return (
     <Container maxWidth="sm">
       <Paper elevation={3} sx={{ padding: 4, marginTop: 10 }}>
-        <Typography variant="h5" gutterBottom>
-          {t("login.login")}
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h5" gutterBottom>
+            {t("login.login")}
+          </Typography>
+          <LanguageToggleButton />
+        </Box>
 
         {tokenInvalid && (
           <Typography

@@ -1,0 +1,88 @@
+{
+  "common": {
+    "save": "Cadw",
+    "cancel": "Canslo",
+    "delete": "Dileu",
+    "loading": "Llwytho...",
+    "people": "Pobl",
+    "loading_people": "Wrthi'n llwytho pobl...",
+    "invalid_credentials": "Tystiolaeth annilys",
+    "unathorised_access": "Mynediad heb awdurdod"
+  },
+  "login": {
+    "failed": "Methodd y mewngofnodi. Gwiriwch eich manylion.",
+    "logging_in": "Wrthi'n mewngofnodi...",
+    "login": "Mewngofnodi"
+  },
+  "person_summary": {
+    "isAdmin": "Dewiswch berson o'r rhestr neu cliciwch 'Ychwanegu Person' i ddechrau.",
+    "isUser": "Rydych wedi mewngofnodi – gwelwch neu golygu eich manylion eich hun."
+  },
+  "person_editor": {
+    "add": "Ychwanegu Person",
+    "edit": "Golygu Person",
+    "required": "Angenrheidiol",
+    "no_more_than_x_chars": "Dim mwy na {{amount}} o gymeriadau",
+    "at_least_x_chars": "O leiaf {{amount}} o gymeriadau",
+    "at_least_1_uppercase_letter": "O leiaf 1 llythyren fawr",
+    "at_least_1_lowercase_letter": "O leiaf 1 llythyren fach",
+    "at_least_1_number": "O leiaf 1 rhif",
+    "at_least_1_special_char": "O leiaf 1 cymeriad arbennig (e.e., !@#$%^&*)",
+    "first_name_rules": "Rheolau'r Enw Cyntaf",
+    "first_name": "Enw Cyntaf",
+    "first_name_required": "Mae angen Enw Cyntaf",
+    "first_name_invalid": "Rhaid i Enw Cyntaf fod yn 50 o gymeriadau neu lai",
+    "last_name_rules": "Rheolau'r Cyfenw",
+    "last_name_required": "Mae angen Cyfenw",
+    "last_name_invalid": "Rhaid i Gyfenw fod yn 50 o gymeriadau neu lai",
+    "last_name": "Cyfenw",
+    "dob": "Dyddiad Geni",
+    "dob_name_required": "Mae angen Dyddiad Geni",
+    "dob_name_invalid": "Rhaid i'r Dyddiad Geni fod yn fformat DD-MM-YYYY",
+    "department": "Adran",
+    "department_required": "Mae angen yr Adran",
+    "role": "Rôl",
+    "role_required": "Mae angen rôl",
+    "email": "E-bost",
+    "email_required": "Mae angen E-bost",
+    "email_unique": "Rhaid i'r E-bost fod yn unigryw",
+    "email_invalid": "Cyfeiriad e-bost annilys",
+    "email_rules": "Rhaid i gyfeiriad e-bost gynnwys o leiaf un pwynt a chymeriadau dilys",
+    "password_rules": "Rheolau cyfrinair",
+    "password": "Cyfrinair",
+    "password_invalid": "Rhaid i'r cyfrinair fod o leiaf 8 nod ac gynnwys llythyren fawr, llythyren fach, rhif a chymeriad arbennig",
+    "passwords_do_not_match": "Nid yw'r cyfrineiriau'n cyfateb",
+    "confirm_password": "Cadarnhau Cyfrinair",
+    "confirm_password_required": "Mae angen Cadarnhau Cyfrinair",
+    "language": "Iaith",
+    "language_required": "Mae angen Iaith",
+    "biography": "Bywgraffiad",
+    "biography_invalid": "Rhaid i'r Bywgraffiad fod yn 500 o gymeriadau neu lai",
+    "cannot_delete_self": "Ni allwch ddileu eich hun"
+  },
+  "nav_bar": {
+    "person_manager": "Rheolwr Person",
+    "logout": "Allgofnodi"
+  },
+  "search_bar": {
+    "search_people": "Chwilio pobl...",
+    "all_roles": "Pob rôl",
+    "user": "Defnyddiwr",
+    "admin": "Rheolwr",
+    "all_departments": "Pob adran",
+    "sales": "Gwerthiannau",
+    "marketing": "Marchnata",
+    "finance": "Cyllid",
+    "hr": "Adnoddau Dynol"
+  },
+  "languages": {
+    "en_GB": "Saesneg",
+    "cy_GB": "Cymraeg"
+  },
+  "actions": {
+    "successText": "Bu'r gweithred yn llwyddiannus!",
+    "failedText": "Methodd y weithred. Ceisiwch eto.",
+    "warningText": "Rhybudd: Gwiriwch eich mewnbynnau.",
+    "informationText": "Daeth y gweithred i ben."
+  }
+}
