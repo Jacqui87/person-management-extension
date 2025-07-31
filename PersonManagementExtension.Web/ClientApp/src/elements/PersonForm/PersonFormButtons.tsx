@@ -50,7 +50,6 @@ const PersonFormButtons = ({
       }
     } catch (err) {
       setSnackbarStatus("failed");
-      console.error("Error deleting person:", err);
     }
   };
 

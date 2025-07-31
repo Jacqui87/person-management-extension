@@ -18,7 +18,7 @@ const RoleSelect = ({
   handleFieldChange,
 }: RoleSelectProps) => {
   const { t } = useTranslation();
-  const { data: roles, isLoading, error } = useRoles();
+  const { data: roles, isLoading } = useRoles();
 
   return (
     <>

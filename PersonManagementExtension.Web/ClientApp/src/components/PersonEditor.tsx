@@ -8,7 +8,7 @@ import { ADMIN_ROLE_ID } from "../constants/roles";
 import { PersonState, PersonAction } from "../state/personReducer";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { usePeople } from "../hooks/usePeopleHooks";
-import { personFormik } from "../elements/PersonForm/personFormik";
+import { usePersonFormik } from "../elements/PersonForm/usePersonFormik";
 import FirstnameField from "../elements/PersonForm/FirstnameField";
 import LastnameField from "../elements/PersonForm/LastnameField";
 import DobField from "../elements/PersonForm/DobField";
@@ -54,7 +54,7 @@ const PersonEditor = ({
   );
   const defaultDob = eighteenYearsAgo.toISOString().split("T")[0];
 
-  const formik = personFormik({
+  const formik = usePersonFormik({
     currentUser: state.loggedInUser,
     dispatch: dispatch,
     person: person,

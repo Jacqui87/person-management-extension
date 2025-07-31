@@ -1,10 +1,12 @@
+import { LoginCredentialsViewModel } from "../models/LoginCredentialsViewModel";
+
 const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api/auth`;
 
 export async function login(user: {
   password: string | null;
   email: string | null;
   token: string | null;
-}) {
+}): Promise<LoginCredentialsViewModel | null> {
   const res = await fetch(`${BASE_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

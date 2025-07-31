@@ -10,51 +10,13 @@ import LoginScreen from "./LoginScreen";
 import NavBar from "./NavBar";
 import i18n from "../i18n";
 import PersonConfig from "./PersonConfig";
+import { LoginCredentialsViewModel } from "../models/LoginCredentialsViewModel";
 
 const roleService = new RoleService();
 const departmentService = new DepartmentService();
 
 const MainPage = () => {
   const [state, dispatch] = useReducer(personReducer, initialState);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const doLogin = async () => {
-      dispatch({ type: "SET_AUTHENTICATING", payload: true });
-
-      // Get token and try login
-      const token = localStorage.getItem("token");
-      if (token) {
-        const data = await login({ password: "", email: "", token });
-        if (mounted) {
-          if (data != null && data.user) {
-            handleLogin(data.user);
-          } else {
-            dispatch({ type: "SET_AUTHENTICATING", payload: false });
-          }
-        }
-      } else {
-        if (mounted) dispatch({ type: "SET_AUTHENTICATING", payload: false });
-      }
-    };
-
-    doLogin();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const loadDepartments = async () => {
-    const result = await departmentService.getAllDepartments();
-    dispatch({ type: "SET_DEPARTMENTS", payload: result });
-  };
-
-  const loadRoles = async () => {
-    const result = await roleService.getAllRoles();
-    dispatch({ type: "SET_ROLES", payload: result });
-  };
 
   const handleLogin = useCallback(
     async (user: {
@@ -63,16 +25,20 @@ const MainPage = () => {
       token: string | null;
     }) => {
       // A helper to handle successful login
-      const handleLoginSuccess = async (loginData: any) => {
-        const lang = loginData.user.cultureCode || "en-GB";
-        i18n.changeLanguage(lang);
+      const handleLoginSuccess = async (
+        loginData: LoginCredentialsViewModel | null
+      ) => {
+        if (loginData != null) {
+          const lang = loginData.user.cultureCode || "en-GB";
+          i18n.changeLanguage(lang);
 
-        dispatch({ type: "SET_TOKEN_INVALID", payload: false });
-        localStorage.setItem("token", loginData.session.token);
-        dispatch({ type: "LOGIN", payload: loginData.user });
+          dispatch({ type: "SET_TOKEN_INVALID", payload: false });
+          localStorage.setItem("token", loginData.session.token);
+          dispatch({ type: "LOGIN", payload: loginData.user });
 
-        await loadRoles();
-        await loadDepartments();
+          await loadRoles();
+          await loadDepartments();
+        }
       };
 
       // Try login once
@@ -102,6 +68,49 @@ const MainPage = () => {
     },
     []
   );
+
+  useEffect(() => {
+    let mounted = true;
+
+    const doLogin = async () => {
+      dispatch({ type: "SET_AUTHENTICATING", payload: true });
+
+      // Get token and try login
+      const token = localStorage.getItem("token");
+      if (token) {
+        const data = await login({ password: "", email: "", token });
+        if (mounted) {
+          if (data != null && data.user) {
+            handleLogin({
+              email: data.user.email,
+              password: data.user.password,
+              token: data.session.token,
+            });
+          } else {
+            dispatch({ type: "SET_AUTHENTICATING", payload: false });
+          }
+        }
+      } else {
+        if (mounted) dispatch({ type: "SET_AUTHENTICATING", payload: false });
+      }
+    };
+
+    doLogin();
+
+    return () => {
+      mounted = false;
+    };
+  }, [handleLogin]);
+
+  const loadDepartments = async () => {
+    const result = await departmentService.getAllDepartments();
+    dispatch({ type: "SET_DEPARTMENTS", payload: result });
+  };
+
+  const loadRoles = async () => {
+    const result = await roleService.getAllRoles();
+    dispatch({ type: "SET_ROLES", payload: result });
+  };
 
   return (
     <>

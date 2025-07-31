@@ -234,12 +234,12 @@ vi.mock("../elements/PersonForm/PersonFormButtons", () => ({
   ),
 }));
 
-// Mock personFormik implementations to track calls & provide values
+// Mock usePersonFormik implementations to track calls & provide values
 const mockFormikHandleChange = vi.fn();
 const mockFormikHandleSubmit = vi.fn();
 
-vi.mock("../elements/PersonForm/personFormik", () => ({
-  personFormik: vi.fn(() => ({
+vi.mock("../elements/PersonForm/usePersonFormik", () => ({
+  usePersonFormik: vi.fn(() => ({
     handleChange: mockFormikHandleChange,
     handleSubmit: mockFormikHandleSubmit,
     values: {

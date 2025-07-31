@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { useFormik } from "formik";
 import { PersonAction } from "../../state/personReducer";
 import { PersonViewModel } from "../../models/PersonViewModel";
-import { useAddPerson, useUpdatePerson } from "../../hooks/usePeopleHooks";
 import { personSchema } from "./personSchema";
+import { useTranslation } from "react-i18next";
+import { useAddPerson, useUpdatePerson } from "../../hooks/usePeopleHooks";
 
 interface PersonEditorProps {
   currentUser: PersonViewModel | null;
@@ -17,7 +17,7 @@ interface PersonEditorProps {
   >;
 }
 
-export const personFormik = ({
+export const usePersonFormik = ({
   currentUser,
   dispatch,
   person,
@@ -26,8 +26,6 @@ export const personFormik = ({
   setSnackbarStatus,
 }: PersonEditorProps) => {
   const { t } = useTranslation();
-
-  // React Query mutations
   const addPersonMutation = useAddPerson();
   const updatePersonMutation = useUpdatePerson();
 

@@ -29,6 +29,7 @@ Users can choose their preferred language from a dropdown in the interface. This
 | **User Language Preference**         | Language selection UI with persistence on login.                         | ✅     |
 | **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.               | ✅     |
 | **Improved UX Features**             | Clearable search and MUI Autocomplete dropdowns.                         | ✅     |
+| **ESLint Integration**               | Integrated ESLint with TypeScript rules for consistency and quality.     | ✅     |
 | **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage                                | ❌     |
 | **API Improvements**                 | Move from `PUT` to `PATCH` for partial updates.                          | ❌     |
 | **Profile Photo Upload**             | Support uploading profile photos via Azure Blob Storage integration.     | ❌     |
@@ -66,6 +67,11 @@ Users can choose their preferred language from a dropdown in the interface. This
 
 - Enhanced filtering UI with clearable search inputs and MUI Autocomplete for roles and departments.
 - Improved user experience, accessibility, and integrated translation support.
+
+#### 6. ESLint Integration
+
+- Added ESLint with TypeScript-specific rules to enforce code quality and consistency.
+- Improved developer experience with better linting feedback during development.
 
 ---
 

@@ -1,6 +1,5 @@
 import TextField from "@mui/material/TextField";
 import { PersonViewModel } from "../../models/PersonViewModel";
-import useTheme from "@mui/material/styles/useTheme";
 import { useTranslation } from "react-i18next";
 import { FormikProps } from "formik";
 
@@ -15,7 +14,6 @@ const BiographyField = ({
   formik,
   handleFieldChange,
 }: BiographyFieldProps) => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   return (
