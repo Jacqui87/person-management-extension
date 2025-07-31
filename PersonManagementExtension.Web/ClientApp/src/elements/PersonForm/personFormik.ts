@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useFormik } from "formik";
 import { PersonAction } from "../../state/personReducer";
 import { PersonViewModel } from "../../models/PersonViewModel";
-import { useAddPerson, useUpdatePerson } from "../../hooks/personHooks";
+import { useAddPerson, useUpdatePerson } from "../../hooks/usePeopleHooks";
 import { personSchema } from "./personSchema";
 
 interface PersonEditorProps {
@@ -34,6 +34,7 @@ export const personFormik = ({
   const initialPersonValues: PersonViewModel & { confirmPassword: string } = {
     ...person,
     confirmPassword: "",
+    cultureCode: person.cultureCode ?? "en-GB",
     dateOfBirth:
       person.dateOfBirth && person.dateOfBirth.trim() !== ""
         ? person.dateOfBirth

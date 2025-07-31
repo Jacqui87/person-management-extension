@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -8,6 +8,14 @@ import { useTranslation } from "react-i18next";
 import { PersonState, PersonAction } from "../state/personReducer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+
+const ClearButton = memo(({ onClick }: { onClick: () => void }) => (
+  <InputAdornment position="end">
+    <IconButton size="small" onClick={onClick} aria-label="Clear">
+      <FontAwesomeIcon icon={faTimesCircle} />
+    </IconButton>
+  </InputAdornment>
+));
 
 const SearchBar = ({
   state,
@@ -21,19 +29,18 @@ const SearchBar = ({
   const { searchTerm, filterRole, filterDepartment, departments, roles } =
     state;
 
-  const roleOptions = [{ id: 0, type: t("search_bar.all_roles") }, ...roles];
-  const departmentOptions = [
-    { id: 0, name: t("search_bar.all_departments") },
-    ...departments,
-  ];
+  const handleClearSearchTerm = useCallback(() => {
+    dispatch({ type: "SET_SEARCH_TERM", payload: "" });
+  }, [dispatch]);
 
-  // Reusable clear button
-  const ClearButton = ({ onClick }: { onClick: () => void }) => (
-    <InputAdornment position="end">
-      <IconButton size="small" onClick={onClick} aria-label={t("common.clear")}>
-        <FontAwesomeIcon icon={faTimesCircle} />
-      </IconButton>
-    </InputAdornment>
+  const roleOptions = useMemo(
+    () => [{ id: 0, type: t("search_bar.all_roles") }, ...roles],
+    [roles, t]
+  );
+
+  const departmentOptions = useMemo(
+    () => [{ id: 0, name: t("search_bar.all_departments") }, ...departments],
+    [departments, t]
   );
 
   return (
@@ -54,9 +61,7 @@ const SearchBar = ({
             </InputAdornment>
           ),
           endAdornment: searchTerm ? (
-            <ClearButton
-              onClick={() => dispatch({ type: "SET_SEARCH_TERM", payload: "" })}
-            />
+            <ClearButton onClick={handleClearSearchTerm} />
           ) : null,
         }}
       />
@@ -136,4 +141,4 @@ const SearchBar = ({
   );
 };
 
-export default SearchBar;
+export default memo(SearchBar);

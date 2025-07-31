@@ -1,48 +1,55 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import { RoleService } from "./roleService";
 import type { RoleViewModel } from "../models/RoleViewModel";
 
-// Vitest way to mock axios
 vi.mock("axios");
-const mockedAxios = axios as unknown as {
-  get: ReturnType<typeof vi.fn>;
-  post: ReturnType<typeof vi.fn>;
-  put: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
-};
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("RoleService", () => {
+  const tokenValue = "fake-jwt-token";
+  const baseUrl = `${import.meta.env.VITE_BASE_URL}/api/role`;
   let service: RoleService;
-  const token = "test-token";
 
   beforeEach(() => {
     service = new RoleService();
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation((key) => {
+      if (key === "token") return tokenValue;
+      return null;
+    });
+  });
 
-    // Simulate localStorage for token
-    vi.stubGlobal("localStorage", {
-      getItem: vi
-        .fn()
-        .mockImplementation((key) => (key === "token" ? token : null)),
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetAllMocks();
+  });
+
+  it("should throw error if token not found", async () => {
+    vi.spyOn(Storage.prototype, "getItem").mockReturnValueOnce(null);
+
+    await expect(service.getAllRoles()).rejects.toThrowError(
+      "No authentication token found"
+    );
+  });
+
+  it("getAllRoles should call axios.get with correct headers and URL and return data", async () => {
+    const rolesMock: RoleViewModel[] = [
+      { id: 1, type: "Admin" },
+      { id: 2, type: "User" },
+    ];
+
+    mockedAxios.get.mockResolvedValueOnce({ data: rolesMock });
+
+    const result = await service.getAllRoles();
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(baseUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenValue}`,
+      },
+      withCredentials: true,
     });
 
-    vi.clearAllMocks();
-  });
-
-  it("should handle getAllRoles API failure", async () => {
-    mockedAxios.get.mockRejectedValueOnce({ response: { data: "Error!" } });
-    await expect(service.getAllRoles()).rejects.toThrow("Error!");
-  });
-
-  it("getAllRoles caches response", async () => {
-    const roles: RoleViewModel[] = [{ id: 1, name: "Admin" }] as any;
-    mockedAxios.get.mockResolvedValueOnce({ data: roles });
-
-    const result1 = await service.getAllRoles();
-    const result2 = await service.getAllRoles(); // Should use cache
-
-    expect(result1).toEqual(roles);
-    expect(result2).toEqual(roles);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(rolesMock);
   });
 });

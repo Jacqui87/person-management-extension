@@ -8,7 +8,7 @@ import { PersonViewModel } from "../../models/PersonViewModel";
 import { useTranslation } from "react-i18next";
 import { FormikProps } from "formik";
 import { PersonState, PersonAction } from "../../state/personReducer";
-import { useDeletePerson, usePeople } from "../../hooks/personHooks";
+import { useDeletePerson, usePeople } from "../../hooks/usePeopleHooks";
 
 interface PersonFormButtonsProps {
   person: PersonViewModel;
@@ -32,7 +32,6 @@ const PersonFormButtons = ({
   setSnackbarStatus,
 }: PersonFormButtonsProps) => {
   const { t } = useTranslation();
-
   const { data: people, error } = usePeople();
   const deletePersonMutation = useDeletePerson();
 

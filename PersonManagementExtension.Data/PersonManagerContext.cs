@@ -30,7 +30,7 @@ public class PersonManagerContext(DbContextOptions<PersonManagerContext> options
         Email = "alice.smith@test.net",
         Department = 1,
         Password = "Password1!",
-        CultureCode = "",
+        CultureCode = "en-GB",
         DateOfBirth = new DateOnly(1980, 10, 25),
         Biography = "Trail running, world cuisines, community projects"
       },

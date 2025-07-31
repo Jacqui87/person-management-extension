@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import { personReducer, initialState } from "../state/personReducer";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -18,6 +18,8 @@ const MainPage = () => {
   const [state, dispatch] = useReducer(personReducer, initialState);
 
   useEffect(() => {
+    let mounted = true;
+
     const doLogin = async () => {
       dispatch({ type: "SET_AUTHENTICATING", payload: true });
 
@@ -25,16 +27,23 @@ const MainPage = () => {
       const token = localStorage.getItem("token");
       if (token) {
         const data = await login({ password: "", email: "", token });
-        if (data != null && data.user) {
-          handleLogin(data.user);
-        } else {
-          dispatch({ type: "SET_AUTHENTICATING", payload: false });
+        if (mounted) {
+          if (data != null && data.user) {
+            handleLogin(data.user);
+          } else {
+            dispatch({ type: "SET_AUTHENTICATING", payload: false });
+          }
         }
       } else {
-        dispatch({ type: "SET_AUTHENTICATING", payload: false });
+        if (mounted) dispatch({ type: "SET_AUTHENTICATING", payload: false });
       }
     };
+
     doLogin();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const loadDepartments = async () => {
@@ -47,49 +56,52 @@ const MainPage = () => {
     dispatch({ type: "SET_ROLES", payload: result });
   };
 
-  const handleLogin = async (user: {
-    email: string | null;
-    password: string | null;
-    token: string | null;
-  }) => {
-    // A helper to handle successful login
-    const handleLoginSuccess = async (loginData: any) => {
-      const lang = loginData.user.cultureCode || "en-GB";
-      i18n.changeLanguage(lang);
+  const handleLogin = useCallback(
+    async (user: {
+      email: string | null;
+      password: string | null;
+      token: string | null;
+    }) => {
+      // A helper to handle successful login
+      const handleLoginSuccess = async (loginData: any) => {
+        const lang = loginData.user.cultureCode || "en-GB";
+        i18n.changeLanguage(lang);
 
-      dispatch({ type: "SET_TOKEN_INVALID", payload: false });
-      localStorage.setItem("token", loginData.session.token);
-      dispatch({ type: "LOGIN", payload: loginData.user });
+        dispatch({ type: "SET_TOKEN_INVALID", payload: false });
+        localStorage.setItem("token", loginData.session.token);
+        dispatch({ type: "LOGIN", payload: loginData.user });
 
-      await loadRoles();
-      await loadDepartments();
-    };
+        await loadRoles();
+        await loadDepartments();
+      };
 
-    // Try login once
-    let loginData = await login(user);
-    if (loginData && loginData.session && loginData.session.token) {
-      await handleLoginSuccess(loginData);
-      dispatch({ type: "SET_AUTHENTICATING", payload: false });
-      return;
-    }
+      // Try login once
+      let loginData = await login(user);
+      if (loginData && loginData.session && loginData.session.token) {
+        await handleLoginSuccess(loginData);
+        dispatch({ type: "SET_AUTHENTICATING", payload: false });
+        return;
+      }
 
-    // If first login fails it means there is an invalid token - remove the token
-    localStorage.removeItem("token");
+      // If first login fails it means there is an invalid token - remove the token
+      localStorage.removeItem("token");
 
-    // Try login second time
-    loginData = await login({
-      email: user.email,
-      password: user.password,
-      token: "",
-    });
-    if (loginData && loginData.session && loginData.session.token) {
-      await handleLoginSuccess(loginData);
-      dispatch({ type: "SET_AUTHENTICATING", payload: false });
-    }
+      // Try login second time
+      loginData = await login({
+        email: user.email,
+        password: user.password,
+        token: "",
+      });
+      if (loginData && loginData.session && loginData.session.token) {
+        await handleLoginSuccess(loginData);
+        dispatch({ type: "SET_AUTHENTICATING", payload: false });
+      }
 
-    // If second login fails it means someone who isn't registered is trying to login
-    dispatch({ type: "SET_TOKEN_INVALID", payload: true });
-  };
+      // If second login fails it means someone who isn't registered is trying to login
+      dispatch({ type: "SET_TOKEN_INVALID", payload: true });
+    },
+    []
+  );
 
   return (
     <>

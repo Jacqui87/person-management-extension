@@ -1,50 +1,57 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import { DepartmentService } from "./departmentService";
-import type { PersonViewModel } from "../models/PersonViewModel";
 import type { DepartmentViewModel } from "../models/DepartmentViewModel";
-import type { RoleViewModel } from "../models/RoleViewModel";
 
-// Vitest way to mock axios
 vi.mock("axios");
-const mockedAxios = axios as unknown as {
-  get: ReturnType<typeof vi.fn>;
-  post: ReturnType<typeof vi.fn>;
-  put: ReturnType<typeof vi.fn>;
-  delete: ReturnType<typeof vi.fn>;
-};
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("DepartmentService", () => {
+  const tokenValue = "fake-jwt-token";
+  const baseUrl = `${import.meta.env.VITE_BASE_URL}/api/department`;
   let service: DepartmentService;
-  const token = "test-token";
 
   beforeEach(() => {
     service = new DepartmentService();
+    // Mock localStorage.getItem to return token
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation((key) => {
+      if (key === "token") return tokenValue;
+      return null;
+    });
+  });
 
-    // Simulate localStorage for token
-    vi.stubGlobal("localStorage", {
-      getItem: vi
-        .fn()
-        .mockImplementation((key) => (key === "token" ? token : null)),
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.resetAllMocks();
+  });
+
+  it("should throw error if no authentication token found", async () => {
+    // Mock to simulate missing token
+    vi.spyOn(Storage.prototype, "getItem").mockReturnValueOnce(null);
+
+    await expect(service.getAllDepartments()).rejects.toThrowError(
+      "No authentication token found"
+    );
+  });
+
+  it("getAllDepartments should call axios.get with correct headers and url and return data", async () => {
+    const departmentsMock: DepartmentViewModel[] = [
+      { id: 1, name: "Dept A" },
+      { id: 2, name: "Dept B" },
+    ];
+
+    mockedAxios.get.mockResolvedValueOnce({ data: departmentsMock });
+
+    const result = await service.getAllDepartments();
+
+    expect(mockedAxios.get).toHaveBeenCalledWith(baseUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenValue}`,
+      },
+      withCredentials: true,
     });
 
-    vi.clearAllMocks();
-  });
-
-  it("should handle getAllDepartments API failure", async () => {
-    mockedAxios.get.mockRejectedValueOnce({ response: { data: "Error!" } });
-    await expect(service.getAllDepartments()).rejects.toThrow("Error!");
-  });
-
-  it("getAllDepartments caches response", async () => {
-    const departments: DepartmentViewModel[] = [{ id: 1, name: "HR" }] as any;
-    mockedAxios.get.mockResolvedValueOnce({ data: departments });
-
-    const result1 = await service.getAllDepartments();
-    const result2 = await service.getAllDepartments(); // should use cache
-
-    expect(result1).toEqual(departments);
-    expect(result2).toEqual(departments);
-    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(departmentsMock);
   });
 });

@@ -29,7 +29,7 @@ const LoginScreen = ({ onLogin, tokenInvalid }: Props) => {
     setLoading(true);
     setError("");
     try {
-      onLogin({
+      await onLogin({
         password,
         email,
         token: localStorage.getItem("token"),

@@ -29,7 +29,7 @@ Users can choose their preferred language from a dropdown in the interface. This
 | **User Language Preference**         | Language selection UI with persistence on login.                         | ✅     |
 | **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage, fix/remove 4 skipped tests.   | ❌     |
 | **API Improvements**                 | Move from `PUT` to `PATCH` for partial updates.                          | ❌     |
-| **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.               | ❌     |
+| **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.               | ✅     |
 | **Improved UX Features**             | Clearable search and MUI Autocomplete dropdowns.                         | ✅     |
 | **Profile Photo Upload**             | Support uploading profile photos via Azure Blob Storage integration.     | ❌     |
 | **Security - Email Verification**    | Send email with link or code to verify updates.                          | ❌     |
@@ -55,8 +55,9 @@ Users can choose their preferred language from a dropdown in the interface. This
 
 - Implemented lazy loading of key React components using React.lazy and Suspense.
 - Reduced initial load time by deferring non-essential component loading.
+- Integrated **TanStack Query** for efficient, declarative data fetching, caching, and synchronization across the frontend.
 
-#### 4. English/Welsh Internationalisation (not yet configurable by a user)
+#### 4. English/Welsh Internationalisation
 
 - Added bilingual support via react-i18next for all UI labels and messages.
 - Users can select preferred language; translation keys are well-organized by domain.
@@ -83,7 +84,6 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 
 #### 3. **Frontend Enhancements**
 
-- Integrate [TanStack Query](https://tanstack.com/query) for data fetching and caching.
 - Support for profile photo uploads (via Azure Blob Storage).
 
 #### 4. **Security Enhancements**
@@ -115,6 +115,10 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 ---
 
 ## 📸 Screenshots
+
+### ✅ Improved search UI
+
+![Improved search UI](screenshots/improved_search_UI.png)
 
 ### ✅ Updated Swagger API
 

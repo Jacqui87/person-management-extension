@@ -3,7 +3,7 @@ import TextField from "@mui/material/TextField";
 import { PersonViewModel } from "../../models/PersonViewModel";
 import { useTranslation } from "react-i18next";
 import { FormikProps } from "formik";
-import { useIsEmailUnique } from "../../hooks/personHooks";
+import { useIsEmailUnique } from "../../hooks/usePeopleHooks";
 
 interface EmailFieldProps {
   personId: number;
@@ -19,7 +19,6 @@ const EmailField = ({
   handleFieldChange,
 }: EmailFieldProps) => {
   const { t } = useTranslation();
-
   const isEmailUnique = useIsEmailUnique(formik.values.email, personId);
 
   useEffect(() => {

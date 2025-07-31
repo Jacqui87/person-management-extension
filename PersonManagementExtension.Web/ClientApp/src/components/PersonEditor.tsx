@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -7,9 +7,8 @@ import { CircularProgress } from "@mui/material";
 import { ADMIN_ROLE_ID } from "../constants/roles";
 import { PersonState, PersonAction } from "../state/personReducer";
 import { PersonViewModel } from "../models/PersonViewModel";
-import { DepartmentViewModel } from "../models/DepartmentViewModel";
-import { RoleViewModel } from "../models/RoleViewModel";
-import { usePeople, useAddPerson, useUpdatePerson } from "../hooks/personHooks";
+import { usePeople } from "../hooks/usePeopleHooks";
+import { personFormik } from "../elements/PersonForm/personFormik";
 import FirstnameField from "../elements/PersonForm/FirstnameField";
 import LastnameField from "../elements/PersonForm/LastnameField";
 import DobField from "../elements/PersonForm/DobField";
@@ -20,7 +19,6 @@ import RoleSelect from "../elements/PersonForm/RoleSelect";
 import DepartmentSelect from "../elements/PersonForm/DepartmentSelect";
 import BiographyField from "../elements/PersonForm/BiographyField";
 import PersonFormButtons from "../elements/PersonForm/PersonFormButtons";
-import { personFormik } from "../elements/PersonForm/personFormik";
 
 interface PersonEditorProps {
   state: PersonState;
@@ -39,12 +37,14 @@ const PersonEditor = ({
 }: PersonEditorProps) => {
   const { t } = useTranslation();
   const { isLoading } = usePeople();
-
-  const currentUser = state.loggedInUser;
-  const departments: DepartmentViewModel[] = state.departments;
-  const roles: RoleViewModel[] = state.roles;
-
   const [passwordChanged, setPasswordChanged] = useState(false);
+
+  const canEdit = useMemo(
+    () =>
+      state.loggedInUser?.role === ADMIN_ROLE_ID ||
+      state.loggedInUser?.id === person.id,
+    [state.loggedInUser, person.id]
+  );
 
   const today = new Date();
   const eighteenYearsAgo = new Date(
@@ -55,7 +55,7 @@ const PersonEditor = ({
   const defaultDob = eighteenYearsAgo.toISOString().split("T")[0];
 
   const formik = personFormik({
-    currentUser: currentUser,
+    currentUser: state.loggedInUser,
     dispatch: dispatch,
     person: person,
     defaultDob: defaultDob,
@@ -63,20 +63,19 @@ const PersonEditor = ({
     setSnackbarStatus: setSnackbarStatus,
   });
 
-  const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    formik.handleChange(e);
-
-    if (e.target.name === "password") {
-      setPasswordChanged(true);
-    }
-  };
-
-  const canEdit =
-    currentUser?.role === ADMIN_ROLE_ID || currentUser?.id === person.id;
+  const handleFieldChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      formik.handleChange(e);
+      if (e.target.name === "password") {
+        setPasswordChanged(true);
+      }
+    },
+    [formik]
+  );
 
   return (
     <>
-      {!currentUser ? (
+      {!state.loggedInUser ? (
         <>{t("common.unathorised_access")}</>
       ) : (
         <>
@@ -139,21 +138,19 @@ const PersonEditor = ({
                   handleFieldChange={handleFieldChange}
                 />
 
-                {person.id !== currentUser.id &&
-                  currentUser.role === ADMIN_ROLE_ID && (
+                {person.id !== state.loggedInUser.id &&
+                  state.loggedInUser.role === ADMIN_ROLE_ID && (
                     <RoleSelect
                       canEdit={canEdit}
                       formik={formik}
-                      roles={roles}
                       handleFieldChange={handleFieldChange}
                     />
                   )}
 
-                {currentUser.role === ADMIN_ROLE_ID && (
+                {state.loggedInUser.role === ADMIN_ROLE_ID && (
                   <DepartmentSelect
                     canEdit={canEdit}
                     formik={formik}
-                    departments={departments}
                     handleFieldChange={handleFieldChange}
                   />
                 )}
@@ -166,7 +163,7 @@ const PersonEditor = ({
 
                 <PersonFormButtons
                   person={person}
-                  currentUser={currentUser}
+                  currentUser={state.loggedInUser}
                   canEdit={canEdit}
                   state={state}
                   dispatch={dispatch}

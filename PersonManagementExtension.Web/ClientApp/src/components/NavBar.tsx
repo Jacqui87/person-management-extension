@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -17,14 +18,14 @@ const NavBar = ({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     // Invalidate React Query cache for people data
     await queryClient.invalidateQueries({ queryKey: ["people"] });
 
     dispatch({ type: "SET_PEOPLE", payload: [] });
     dispatch({ type: "LOGOUT" });
     dispatch({ type: "SET_AUTHENTICATING", payload: false });
-  };
+  }, [dispatch, queryClient]);
 
   return (
     <AppBar position="static" color="primary">
@@ -45,4 +46,8 @@ const NavBar = ({
   );
 };
 
-export default NavBar;
+export default memo(
+  NavBar,
+  (prevProps, nextProps) =>
+    prevProps.state.loggedInUser === nextProps.state.loggedInUser
+);

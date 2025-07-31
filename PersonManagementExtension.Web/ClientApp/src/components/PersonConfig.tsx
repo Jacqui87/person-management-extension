@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PersonAction, PersonState } from "../state/personReducer";
 import Box from "@mui/material/Box";
@@ -10,7 +10,7 @@ import SearchBar from "./SearchBar";
 import { ADMIN_ROLE_ID } from "../constants/roles";
 import theme from "../theme";
 import ActionSnackbar from "../elements/ActionSnackbar";
-import { usePeople, useFilteredPeople } from "../hooks/personHooks";
+import { usePeople, useFilteredPeople } from "../hooks/usePeopleHooks";
 
 // Styled layout containers
 const ContentWrapper = styled(Box)({
@@ -67,27 +67,67 @@ const PersonConfig = ({
 
   const { data: people, isLoading, isError, error } = usePeople();
 
+  // Admin filtering logic
+  const isAdmin = state.loggedInUser?.role === ADMIN_ROLE_ID;
+
+  const visiblePeople = useMemo(() => {
+    if (isAdmin) return filteredPeople;
+    return filteredPeople.filter((p) => p.id === state.loggedInUser!.id);
+  }, [isAdmin, filteredPeople, state.loggedInUser]);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      dispatch({
+        type: "SET_SELECTED_PERSON",
+        payload: state.loggedInUser,
+      });
+    }
+  }, [isAdmin, state.loggedInUser, dispatch]);
+
   useEffect(() => {
     if (people) {
       dispatch({ type: "SET_PEOPLE", payload: people });
     }
   }, [people, dispatch]);
 
-  const handleSnackbarClose = (
-    _event?: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarStatus("closed");
-  };
+  const handleSnackbarClose = useCallback(
+    (_event?: React.SyntheticEvent | Event, reason?: string) => {
+      if (reason === "clickaway") {
+        return;
+      }
+      setSnackbarStatus("closed");
+    },
+    []
+  );
 
-  // Admin filtering logic
-  const isAdmin = state.loggedInUser?.role === ADMIN_ROLE_ID;
-  const visiblePeople = isAdmin
-    ? filteredPeople
-    : filteredPeople.filter((p) => p.id === state.loggedInUser!.id);
+  const handleSelect = useCallback(
+    async (id: number) => {
+      const selectedPerson = people?.find((p) => p.id === id) || null;
+      dispatch({
+        type: "SET_SELECTED_PERSON",
+        payload: selectedPerson,
+      });
+    },
+    [people, dispatch]
+  );
+
+  const handleAddNew = useCallback(() => {
+    dispatch({
+      type: "SET_SELECTED_PERSON",
+      payload: {
+        id: 0,
+        firstName: "",
+        lastName: "",
+        role: 1,
+        department: 1,
+        dateOfBirth: "",
+        password: "",
+        email: "",
+        cultureCode: "en-GB",
+        biography: "",
+      },
+    });
+  }, [dispatch]);
 
   // Optional: handle loading and error states
   if (isLoading) return <div>{t("common.loading_people")}</div>;
@@ -101,30 +141,8 @@ const PersonConfig = ({
           <SearchBar state={state} dispatch={dispatch} />
           <PersonList
             people={visiblePeople}
-            onSelect={async (id: number) => {
-              const selectedPerson = people?.find((p) => p.id === id) || null;
-              dispatch({
-                type: "SET_SELECTED_PERSON",
-                payload: selectedPerson,
-              });
-            }}
-            onAddNew={() =>
-              dispatch({
-                type: "SET_SELECTED_PERSON",
-                payload: {
-                  id: 0,
-                  firstName: "",
-                  lastName: "",
-                  role: 1,
-                  department: 1,
-                  dateOfBirth: "",
-                  password: "",
-                  email: "",
-                  cultureCode: "en-GB",
-                  biography: "",
-                },
-              })
-            }
+            onSelect={handleSelect}
+            onAddNew={handleAddNew}
           />
         </LeftPane>
       )}
@@ -139,15 +157,6 @@ const PersonConfig = ({
           />
         ) : (
           <PersonSummary isAdmin={isAdmin} />
-        )}
-
-        {!isAdmin && (
-          <PersonEditor
-            state={state}
-            dispatch={dispatch}
-            person={state.loggedInUser!}
-            setSnackbarStatus={setSnackbarStatus}
-          />
         )}
       </RightPane>
 

@@ -1,7 +1,34 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import PersonEditor from "./PersonEditor";
+import { Box, CircularProgress } from "@mui/material";
+
+// --- Mock useDepartments ---
+
+const mockDepartments = [
+  { id: 1, name: "Department A" },
+  { id: 2, name: "Department B" },
+];
+
+const useDepartmentsMock = vi.fn();
+
+vi.mock("../../hooks/useDepartmentHooks", () => ({
+  useDepartments: () => useDepartmentsMock(),
+}));
+
+// --- Mock useRoles ---
+
+const mockRoles = [
+  { id: 1, type: "Admin" },
+  { id: 2, type: "User" },
+];
+
+const useRolesMock = vi.fn();
+
+vi.mock("../../hooks/useRoleHooks", () => ({
+  useRoles: () => useRolesMock(),
+}));
 
 // --- Mocks for all form fields and buttons ---
 
@@ -56,27 +83,71 @@ vi.mock("../elements/PersonForm/DobField", () => ({
   ),
 }));
 
+// DepartmentSelect mock now uses useDepartmentsMock internally and handles loading
 vi.mock("../elements/PersonForm/DepartmentSelect", () => ({
-  default: ({ canEdit, formik, handleFieldChange, departments }: any) => (
-    <select
-      data-testid="DepartmentSelect"
-      disabled={!canEdit}
-      value={formik.values.department || ""}
-      onChange={handleFieldChange}
-      onBlur={formik.handleBlur}
-    >
-      {departments.map((dept: any) => (
-        <option key={dept.id} value={dept.id}>
-          {dept.name}
-        </option>
-      ))}
-    </select>
-  ),
+  default: ({ canEdit, formik, handleFieldChange }: any) => {
+    const { data: departments, isLoading } = useDepartmentsMock();
+
+    if (isLoading) {
+      return (
+        <Box
+          data-testid="DepartmentLoading"
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    return (
+      <select
+        data-testid="DepartmentSelect"
+        disabled={!canEdit}
+        value={formik.values.department || ""}
+        onChange={handleFieldChange}
+        onBlur={formik.handleBlur}
+      >
+        {departments?.map((dept: any) => (
+          <option key={dept.id} value={dept.id}>
+            {dept.name}
+          </option>
+        ))}
+      </select>
+    );
+  },
 }));
 
+// RoleSelect mock uses useRolesMock internally and handles loading
 vi.mock("../elements/PersonForm/RoleSelect", () => ({
-  default: ({ canEdit, formik, handleFieldChange, roles }: any) =>
-    canEdit ? (
+  default: ({ canEdit, formik, handleFieldChange }: any) => {
+    const { data: roles, isLoading } = useRolesMock();
+
+    if (isLoading) {
+      return (
+        <Box
+          data-testid="RoleLoading"
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (!roles) return null;
+
+    if (!canEdit) return null;
+
+    return (
       <select
         data-testid="RoleSelect"
         disabled={!canEdit}
@@ -90,15 +161,14 @@ vi.mock("../elements/PersonForm/RoleSelect", () => ({
           </option>
         ))}
       </select>
-    ) : null,
+    );
+  },
 }));
 
 vi.mock("../elements/PersonForm/EmailField", () => {
-  // We mock useIsEmailUnique internally here if necessary
   return {
     default: ({ canEdit, formik, handleFieldChange }: any) => {
-      useEffect(() => {
-        // Simulate clearing uniqueness error
+      React.useEffect(() => {
         formik.setFieldError("email", undefined);
       }, [formik.values.email]);
 
@@ -132,17 +202,7 @@ vi.mock("../elements/PersonForm/LanguageSelect", () => ({
 }));
 
 vi.mock("../elements/PersonForm/PasswordFields", () => ({
-  default: ({
-    canEdit,
-    passwordChanged,
-    formik,
-    handleFieldChange,
-  }: {
-    canEdit: boolean;
-    passwordChanged: boolean;
-    formik: any;
-    handleFieldChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  }) => (
+  default: ({ canEdit, passwordChanged, formik, handleFieldChange }: any) => (
     <>
       <input
         data-testid="PasswordInput"
@@ -164,7 +224,7 @@ vi.mock("../elements/PersonForm/PasswordFields", () => ({
 }));
 
 vi.mock("../elements/PersonForm/PersonFormButtons", () => ({
-  default: ({ formik }: { formik: any }) => (
+  default: ({ formik }: any) => (
     <button
       data-testid="PersonFormButtons"
       onClick={() => formik.handleSubmit()}
@@ -174,7 +234,7 @@ vi.mock("../elements/PersonForm/PersonFormButtons", () => ({
   ),
 }));
 
-// Mock personFormik to return mock handlers and values
+// Mock personFormik implementations to track calls & provide values
 const mockFormikHandleChange = vi.fn();
 const mockFormikHandleSubmit = vi.fn();
 
@@ -201,16 +261,15 @@ vi.mock("../elements/PersonForm/personFormik", () => ({
   })),
 }));
 
-// Mock usePeople hook
+// Mock usePeople hook and mutations
 const mockUsePeople = vi.fn();
 
-vi.mock("../hooks/personHooks", () => ({
+vi.mock("../hooks/usePeopleHooks", () => ({
   usePeople: () => mockUsePeople(),
   useAddPerson: vi.fn(() => ({ mutate: vi.fn() })),
   useUpdatePerson: vi.fn(() => ({ mutate: vi.fn() })),
 }));
 
-// Mock useTranslation to just echo keys
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string) => key,
@@ -238,8 +297,8 @@ const initialState = {
   loggedInUser: adminUser,
   people: [],
   selectedPerson: null,
-  departments: [{ id: 1, name: "Department A" }],
-  roles: [{ id: 2, type: "Role B" }],
+  departments: mockDepartments,
+  roles: mockRoles,
   searchTerm: "",
   filterRole: 0,
   filterDepartment: 0,
@@ -256,6 +315,17 @@ describe("PersonEditor Full Test Suite", () => {
     dispatchMock = vi.fn();
     snackbarMock = vi.fn();
     mockUsePeople.mockReturnValue({ isLoading: false });
+
+    useDepartmentsMock.mockReturnValue({
+      data: mockDepartments,
+      isLoading: false,
+    });
+
+    useRolesMock.mockReturnValue({
+      data: mockRoles,
+      isLoading: false,
+    });
+
     mockFormikHandleChange.mockClear();
     mockFormikHandleSubmit.mockClear();
   });
@@ -326,23 +396,14 @@ describe("PersonEditor Full Test Suite", () => {
     expect(screen.getByTestId("LanguageSelect")).toBeDefined();
     expect(screen.getByTestId("PasswordInput")).toBeDefined();
 
-    // Admin editing other person - RoleSelect and DepartmentSelect present
     expect(screen.getByTestId("RoleSelect")).toBeDefined();
     expect(screen.getByTestId("DepartmentSelect")).toBeDefined();
   });
 
   it("does not render RoleSelect and DepartmentSelect for non-admin editing self", () => {
     const fakeUser_user = {
-      id: 123,
-      firstName: "Jane",
-      lastName: "Doe",
-      dateOfBirth: "1990-05-15",
-      email: "jane.doe@example.com",
-      department: 1,
-      password: "secret123",
-      role: 1,
-      cultureCode: "en-GB",
-      biography: "Software developer with 10 years experience.",
+      ...fakeUser,
+      role: 1, // non-admin role
     };
 
     render(
