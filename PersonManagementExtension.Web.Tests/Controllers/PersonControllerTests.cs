@@ -5,6 +5,7 @@ using PersonManagementExtension.Services.Dtos;
 using PersonManagementExtension.Services;
 using PersonManagementExtension.Web.Controllers;
 using PersonManagementExtension.Web.ViewModels;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace PersonManagementExtension.Web.Tests.Controllers;
 
@@ -195,27 +196,41 @@ public class PersonControllerTests
       StatusCode = StatusCodes.Success,
       Data = true
     };
-    var personViewModel = new PersonViewModel
+
+    var existingPerson = new Person
     {
       Id = 1,
-      FirstName = "Updated",
-      LastName = "Name",
+      FirstName = "Peter",
+      LastName = "Rabbit",
       Role = 1,
-      Email = "updated.email@example.com",
-      Password = "newpassword",
-      Department = 4,
-      DateOfBirth = new DateOnly(1995, 7, 7)
+      Email = "peter@rabbit.com",
+      Password = "password",
+      Department = 3,
+      DateOfBirth = new DateOnly(1985, 2, 3)
     };
 
-    _personService.UpdateAsync(1, Arg.Any<Person>()).Returns(serviceResult);
+    _personService.GetByIdAsync(1).Returns(existingPerson);
+
+    Person capturedPerson = null!;
+    _personService.UpdateAsync(1, Arg.Do<Person>(p => capturedPerson = p)).Returns(serviceResult);
+
+    var patchDoc = new JsonPatchDocument<PersonViewModel>();
+    patchDoc.Replace(p => p.FirstName, "Benjamin");
+    patchDoc.Replace(p => p.Email, "benjamin@bunny.com");
 
     // Act
-    var result = await _controller.UpdatePerson(1, personViewModel);
+    var result = await _controller.UpdatePerson(1, patchDoc);
 
     // Assert
     var okResult = Assert.IsType<OkObjectResult>(result.Result);
     var returnedValue = Assert.IsType<bool>(okResult.Value);
     Assert.True(returnedValue);
+
+    // Additional asserts to verify patch applied correctly
+    Assert.Equal("Benjamin", capturedPerson.FirstName);
+    Assert.Equal("benjamin@bunny.com", capturedPerson.Email);
+    Assert.Equal(existingPerson.LastName, capturedPerson.LastName); // unchanged
+    Assert.Equal(existingPerson.Role, capturedPerson.Role); // unchanged
   }
 
   [Fact]

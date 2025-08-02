@@ -47,7 +47,7 @@ export const usePersonFormik = ({
     validateOnChange: true,
     validateOnBlur: true,
     onSubmit: (values) => {
-      const toSave = { ...values } as PersonViewModel;
+      const { confirmPassword, ...toSave } = values;
 
       if (person.id === 0) {
         addPersonMutation.mutate(toSave, {

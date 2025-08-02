@@ -9,6 +9,13 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace PersonManagementExtension.Services;
 
+public interface IAuthService
+{
+  Task<List<Session>> GetAllSessionsAsync();
+  Task<LoginCredentials?> LoginAsync(LoginRequest request);
+  Task<Person?> GetMostRecentUserAsync();
+}
+
 public class AuthService(PersonManagerContext context, ILogger<AuthService> logger) : IAuthService
 {
   public static string SecretKey = "your-256-bit-secret-your-256-bit-secret";

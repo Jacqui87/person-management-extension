@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import PersonList from "./PersonList";
 import type { PersonViewModel } from "../models/PersonViewModel";
 
+// --- Mock i18next useTranslation ---
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key, // simple passthrough for testing
+  }),
+}));
+
 describe("PersonList Component", () => {
   const samplePeople: PersonViewModel[] = [
     {

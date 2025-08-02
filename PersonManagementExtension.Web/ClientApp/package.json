@@ -20,6 +20,7 @@
     "@types/react": "^18.2.29",
     "@types/react-dom": "^18.2.14",
     "axios": "^1.11.0",
+    "fast-json-patch": "^3.1.1",
     "formik": "^2.4.6",
     "i18next": "^21.9.1",
     "i18next-http-backend": "^3.0.2",

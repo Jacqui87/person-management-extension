@@ -21,7 +21,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+  .AddNewtonsoftJson(options =>
+  {
+    options.SerializerSettings.ContractResolver =
+      new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+  });
 
 builder.Services.AddFluentValidationAutoValidation();        // Enables automatic model validation via FluentValidation
 builder.Services.AddFluentValidationClientsideAdapters();    // (Optional) Enables client-side validation integration if needed

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PersonViewModel } from "../models/PersonViewModel";
 import { PersonService } from "../services/personService";
+import { compare } from "fast-json-patch";
 import { useMemo } from "react";
 
 const personService = new PersonService();
@@ -34,7 +35,21 @@ export function useAddPerson() {
 export function useUpdatePerson() {
   const queryClient = useQueryClient();
   return useMutation<void, Error, PersonViewModel>({
-    mutationFn: (person) => personService.update(person),
+    mutationFn: (updatedPerson) => {
+      const people =
+        queryClient.getQueryData<PersonViewModel[]>(["people"]) || [];
+      const originalPerson = people.find((p) => p.id === updatedPerson.id);
+
+      if (!originalPerson) {
+        throw new Error(
+          `Original person with id ${updatedPerson.id} not found in cache`
+        );
+      }
+
+      // Generate JSON Patch document comparing original and updated person
+      const patch = compare(originalPerson, updatedPerson);
+      return personService.update(updatedPerson.id, patch);
+    },
     onSuccess: (_, person) => {
       queryClient.invalidateQueries({ queryKey: ["people"] });
       queryClient.invalidateQueries({ queryKey: ["person", person.id] });

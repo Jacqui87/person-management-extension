@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import axios from "axios";
 import { PersonService } from "./personService";
 import type { PersonViewModel } from "../models/PersonViewModel";
+import { Operation } from "fast-json-patch";
 
 vi.mock("axios");
 
@@ -119,35 +120,24 @@ describe("PersonService", () => {
     });
   });
 
-  it("update should call axios.put with person and correct URL and headers", async () => {
-    const personToUpdate: PersonViewModel = {
-      id: 5,
-      firstName: "Update",
-      lastName: "Person",
-      dateOfBirth: "1990-05-15",
-      email: "update@example.com",
-      department: 1,
-      password: "pass",
-      role: 2,
-      cultureCode: "en-GB",
-      biography: "",
-    };
+  it("update should call axios.patch with person and correct URL and headers", async () => {
+    const id = 5;
+    const patch: Operation[] = [
+      { op: "replace", path: "/firstName", value: "Updated" },
+      { op: "replace", path: "/email", value: "updated@example.com" },
+    ];
 
-    mockedAxios.put.mockResolvedValueOnce({});
+    mockedAxios.patch.mockResolvedValueOnce({});
 
-    await service.update(personToUpdate);
+    await service.update(id, patch);
 
-    expect(mockedAxios.put).toHaveBeenCalledWith(
-      `${baseUrl}/5`,
-      personToUpdate,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${tokenValue}`,
-        },
-        withCredentials: true,
-      }
-    );
+    expect(mockedAxios.patch).toHaveBeenCalledWith(`${baseUrl}/5`, patch, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokenValue}`,
+      },
+      withCredentials: true,
+    });
   });
 
   it("delete should call axios.delete with correct URL and headers", async () => {

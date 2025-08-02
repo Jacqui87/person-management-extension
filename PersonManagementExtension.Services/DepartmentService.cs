@@ -4,6 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace PersonManagementExtension.Services;
 
+public interface IDepartmentService
+{
+    Task<List<Department>> GetAllAsync();
+}
+
 public class DepartmentService(PersonManagerContext context, ILogger<DepartmentService> logger) : IDepartmentService
 {
     public async Task<List<Department>> GetAllAsync()

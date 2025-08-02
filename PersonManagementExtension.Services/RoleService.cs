@@ -4,6 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace PersonManagementExtension.Services;
 
+public interface IRoleService
+{
+    Task<List<Role>> GetAllAsync();
+}
+
 public class RoleService(PersonManagerContext context, ILogger<RoleService> logger) : IRoleService
 {
     public async Task<List<Role>> GetAllAsync()

@@ -7,6 +7,13 @@ import {
 } from "../state/personReducer";
 import { PersonViewModel } from "../models/PersonViewModel";
 
+// Mock i18next useTranslation
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key, // simple passthrough for testing
+  }),
+}));
+
 describe("personReducer", () => {
   beforeAll(() => {
     Object.defineProperty(window, "localStorage", {

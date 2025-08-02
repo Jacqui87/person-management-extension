@@ -4,6 +4,7 @@ using PersonManagementExtension.Web.ViewModels;
 using PersonManagementExtension.Services;
 using Microsoft.AspNetCore.Authorization;
 using StatusCodes = PersonManagementExtension.Services.Dtos.StatusCodes;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace PersonManagementExtension.Web.Controllers;
 
@@ -50,7 +51,7 @@ public class PersonController(IAuthService authService, IPersonService service) 
     };
   }
 
-  [HttpPut("{id:int}")]
+  [HttpPatch("{id:int}")]
   [ProducesResponseType((int)StatusCodes.Forbidden)]
   [ProducesResponseType((int)StatusCodes.NotFound)]
   [ProducesResponseType((int)StatusCodes.NoContent)]
@@ -58,16 +59,28 @@ public class PersonController(IAuthService authService, IPersonService service) 
   [ProducesResponseType((int)StatusCodes.Success, Type = typeof(bool))]
   [ProducesResponseType((int)StatusCodes.BadRequest)]
   [ProducesResponseType((int)StatusCodes.Error)]
-  public async Task<ActionResult<bool>> UpdatePerson(int id, [FromBody] PersonViewModel person)
+  public async Task<ActionResult<bool>> UpdatePerson(int id, [FromBody] JsonPatchDocument<PersonViewModel> patchDoc)
   {
-    var updated = await service.UpdateAsync(id, MapToDomainModel(person));
-    return updated.StatusCode switch
+    var existingPerson = await service.GetByIdAsync(id);
+    if (existingPerson == null)  return NotFound();
+    
+    var personToPatch = MapToViewModel(existingPerson);
+    patchDoc.ApplyTo(personToPatch, ModelState);
+
+    try {
+      var updated = await service.UpdateAsync(id, MapToDomainModel(personToPatch));
+      return updated.StatusCode switch
+      {
+        StatusCodes.Forbidden => StatusCode((int)StatusCodes.Forbidden),
+        StatusCodes.NotFound => NotFound(),
+        StatusCodes.NoContent => NoContent(),
+        _ => Ok(updated.Data),
+      };
+    }
+    catch(Exception)
     {
-      StatusCodes.Forbidden => StatusCode((int)StatusCodes.Forbidden),
-      StatusCodes.NotFound => NotFound(),
-      StatusCodes.NoContent => NoContent(),
-      _ => Ok(updated.Data),
-    };
+      return BadRequest();
+    }
   }
 
   [HttpDelete("{id:int}")]

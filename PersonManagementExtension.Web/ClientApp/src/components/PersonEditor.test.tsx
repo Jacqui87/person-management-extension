@@ -4,8 +4,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import PersonEditor from "./PersonEditor";
 import { Box, CircularProgress } from "@mui/material";
 
-// --- Mock useDepartments ---
+// --- Mock i18next useTranslation ---
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key, // simple passthrough for testing
+  }),
+}));
 
+// --- Mock useDepartments ---
 const mockDepartments = [
   { id: 1, name: "Department A" },
   { id: 2, name: "Department B" },
@@ -18,7 +24,6 @@ vi.mock("../../hooks/useDepartmentHooks", () => ({
 }));
 
 // --- Mock useRoles ---
-
 const mockRoles = [
   { id: 1, type: "Admin" },
   { id: 2, type: "User" },

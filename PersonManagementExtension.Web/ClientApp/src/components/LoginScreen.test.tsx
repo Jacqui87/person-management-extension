@@ -1,3 +1,4 @@
+import { act } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -45,14 +46,16 @@ describe("LoginScreen", () => {
     const mockOnLogin = vi.fn();
     render(<LoginScreen onLogin={mockOnLogin} tokenInvalid={false} />);
 
-    const emailInput = screen.getByLabelText(/person_editor.email/i);
-    const passwordInput = screen.getByLabelText(/person_editor.password/i);
-    const button = screen.getByRole("button", { name: /login.login/i });
+    await act(async () => {
+      const emailInput = screen.getByLabelText(/person_editor.email/i);
+      const passwordInput = screen.getByLabelText(/person_editor.password/i);
+      const button = screen.getByRole("button", { name: /login.login/i });
 
-    await userEvent.type(emailInput, "test@example.com");
-    await userEvent.type(passwordInput, "pass123");
+      await userEvent.type(emailInput, "test@example.com");
+      await userEvent.type(passwordInput, "pass123");
 
-    fireEvent.click(button);
+      fireEvent.click(button);
+    });
 
     expect(mockOnLogin).toHaveBeenCalledWith({
       email: "test@example.com",
@@ -69,14 +72,16 @@ describe("LoginScreen", () => {
 
     render(<LoginScreen onLogin={throwingOnLogin} tokenInvalid={false} />);
 
-    const emailInput = screen.getByLabelText(/person_editor.email/i);
-    const passwordInput = screen.getByLabelText(/person_editor.password/i);
-    const button = screen.getByRole("button", { name: /login.login/i });
+    await act(async () => {
+      const emailInput = screen.getByLabelText(/person_editor.email/i);
+      const passwordInput = screen.getByLabelText(/person_editor.password/i);
+      const button = screen.getByRole("button", { name: /login.login/i });
 
-    await userEvent.type(emailInput, "fail@example.com");
-    await userEvent.type(passwordInput, "wrongpass");
+      await userEvent.type(emailInput, "fail@example.com");
+      await userEvent.type(passwordInput, "wrongpass");
 
-    fireEvent.click(button);
+      fireEvent.click(button);
+    });
 
     // Because onLogin throws synchronously in this code,
     // error message should be set and rendered.

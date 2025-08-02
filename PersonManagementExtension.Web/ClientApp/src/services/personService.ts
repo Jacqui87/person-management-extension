@@ -1,5 +1,6 @@
 import axios from "axios";
 import { PersonViewModel } from "../models/PersonViewModel";
+import { Operation } from "fast-json-patch";
 
 const BASE_URL = `${import.meta.env.VITE_BASE_URL}/api/person`;
 
@@ -38,8 +39,8 @@ export class PersonService {
     });
   }
 
-  async update(person: PersonViewModel): Promise<void> {
-    await axios.put(`${BASE_URL}/${person.id}`, person, {
+  async update(id: number, patch: Operation[]): Promise<void> {
+    await axios.patch(`${BASE_URL}/${id}`, patch, {
       headers: getAuthHeaders(),
       withCredentials: true,
     });

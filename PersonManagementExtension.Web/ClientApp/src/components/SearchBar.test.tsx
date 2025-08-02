@@ -4,6 +4,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import SearchBar from "./SearchBar";
 import { PersonState, PersonAction } from "../state/personReducer";
 
+// --- Mock i18next useTranslation ---
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key, // simple passthrough for testing
+  }),
+}));
+
 describe("SearchBar", () => {
   const baseState: PersonState = {
     loggedInUser: null,
