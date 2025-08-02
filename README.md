@@ -10,13 +10,13 @@ This repository continues that work — evolving it toward a more robust, produc
 
 ### 🌐 Bilingual Support (Cymorth Dwyieithog)
 
-The application now fully supports both **English** (`en-GB`) and **Welsh** (`cy-GB`) across the entire user interface — including form labels, validation messages, error feedback, navigation items, and instructional text.
+The application fully supports both **English** (`en-GB`) and **Welsh** (`cy-GB`) throughout the user interface — including form labels, validation messages, error feedback, navigation, and instructional text.
 
 Users can choose their preferred language from a dropdown in the interface. This preference is saved and automatically applied the next time they log in, ensuring a consistent experience in their selected language.
 
 ---
 
-## 🚀 Improvements in Progress
+## 🚀 Improvements Overview
 
 ## ✅ Completed vs ❌ Planned Enhancements
 
@@ -30,8 +30,8 @@ Users can choose their preferred language from a dropdown in the interface. This
 | **TanStack Query**                   | Add TanStack Query for improved data fetching and caching.               | ✅     |
 | **Improved UX Features**             | Clearable search and MUI Autocomplete dropdowns.                         | ✅     |
 | **ESLint Integration**               | Integrated ESLint with TypeScript rules for consistency and quality.     | ✅     |
+| **API Improvements**                 | Replaced PUT with PATCH for efficient partial updates using JSON Patch.  | ✅     |
 | **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage                                | ❌     |
-| **API Improvements**                 | Move from `PUT` to `PATCH` for partial updates.                          | ❌     |
 | **Profile Photo Upload**             | Support uploading profile photos via Azure Blob Storage integration.     | ❌     |
 | **Security - Email Verification**    | Send email with link or code to verify updates.                          | ❌     |
 | **Bulk Operations**                  | Add bulk upload/edit support for people, departments, roles.             | ❌     |
@@ -44,34 +44,31 @@ Users can choose their preferred language from a dropdown in the interface. This
 
 #### 1. Codebase Refinement
 
-- Extracted role and department logic into dedicated backend and frontend modules (RoleService, DepartmentService, controllers).
-- Improved separation of concerns, simplified testing, and enhanced scalability.
+Separated role and department logic into dedicated backend and frontend modules, enhancing modularity, easing testing, and improving scalability.
 
 #### 2. Targeted Testing Improvements
 
-- Reorganized tests to align with new service boundaries.
-- Made tests more modular and maintainable by focusing on specific domain logic.
+Reorganized tests by service boundaries to increase modularity and maintainability, focusing on specific domain logic.
 
 #### 3. Frontend Performance Optimisation
 
-- Implemented lazy loading of key React components using React.lazy and Suspense.
-- Reduced initial load time by deferring non-essential component loading.
-- Integrated **TanStack Query** for efficient, declarative data fetching, caching, and synchronization across the frontend.
+Implemented lazy loading for React components and integrated TanStack Query to optimize data fetching, caching, and reduce initial load times.
 
 #### 4. English/Welsh Internationalisation
 
-- Added bilingual support via react-i18next for all UI labels and messages.
-- Users can select preferred language; translation keys are well-organized by domain.
+Added bilingual UI support with react-i18next, enabling users to select their language with well-structured translation keys.
 
 #### 5. Clearable Search & Autocomplete Dropdowns
 
-- Enhanced filtering UI with clearable search inputs and MUI Autocomplete for roles and departments.
-- Improved user experience, accessibility, and integrated translation support.
+Improved filter UI by adding clearable inputs and MUI Autocomplete components for roles and departments, enhancing UX and accessibility.
 
 #### 6. ESLint Integration
 
-- Added ESLint with TypeScript-specific rules to enforce code quality and consistency.
-- Improved developer experience with better linting feedback during development.
+Configured ESLint with TypeScript rules to enforce code quality, providing better developer feedback during development.
+
+#### 7. API Improvements
+
+Updated backend API to use PATCH with JSON Patch for partial updates instead of PUT, sending minimal change payloads. Frontend was adapted to generate and send JSON Patch documents with proper headers, improving efficiency and accurately reflecting partial updates.
 
 ---
 
@@ -84,36 +81,32 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 - Increase test coverage and add more edge case scenarios.
 - Fix or remove skipped tests (currently 4 are skipped).
 
-#### 2. **API Improvements**
-
-- Replace `PUT` with `PATCH` for partial updates.
-
-#### 3. **Frontend Enhancements**
+#### 2. **Frontend Enhancements**
 
 - Support for profile photo uploads (via Azure Blob Storage).
 
-#### 4. **Security Enhancements**
+#### 3. **Security Enhancements**
 
 - Add email verification for address updates (e.g., send a verification link or code to confirm changes).
 
-#### 5. **Bulk Operations**
+#### 4. **Bulk Operations**
 
 - Implement bulk upload/edit features for users, departments, and roles.
 
-#### 6. **Role & Department Management**
+#### 5. **Role & Department Management**
 
 - Expand admin functionality to manage departments and roles dynamically.
 
-#### 7. **DevOps & Tooling**
+#### 6. **DevOps & Tooling**
 
 - Set up CI/CD pipelines for automated testing, linting, and deployment.
 
-#### 8. **Refresh Token Support**
+#### 7. **Refresh Token Support**
 
 - Add refresh tokens to extend JWT-based authentication.
 - Enables seamless session renewal without forcing frequent logins.
 
-#### 9. **End-to-End (E2E) Testing**
+#### 8. **End-to-End (E2E) Testing**
 
 - Add automated UI tests using Cypress or Playwright.
 - Improve confidence in production-readiness and reduce regression risk.
