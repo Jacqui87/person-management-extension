@@ -32,13 +32,13 @@ Users can choose their preferred language from a dropdown in the interface. This
 | **ESLint Integration**               | Integrated ESLint with TypeScript rules for consistency and quality.     | ✅     |
 | **API Improvements**                 | Replaced PUT with PATCH for efficient partial updates using JSON Patch.  | ✅     |
 | **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage                                | ❌     |
-| **Profile Photo Upload**             | Support uploading profile photos via Azure Blob Storage integration.     | ❌     |
-| **Security - Email Verification**    | Send email with link or code to verify updates.                          | ❌     |
 | **Bulk Operations**                  | Add bulk upload/edit support for people, departments, roles.             | ❌     |
 | **Role/Department Admin**            | Allow admin users to manage roles and departments via UI.                | ❌     |
-| **CI/CD & Tooling**                  | Set up CI/CD pipelines for automated tests, linting, deployment.         | ❌     |
 | **Refresh Token Support**            | Add refresh token handling to extend sessions without re-login.          | ❌     |
 | **End-to-End (E2E) Testing**         | Add Cypress or Playwright tests to cover key user workflows.             | ❌     |
+| **Profile Photo Upload**             | Support uploading profile photos via Azure Blob Storage integration.     | ❌     |
+| **Security - Email Verification**    | Send email with link or code to verify updates.                          | ❌     |
+| **CI/CD & Tooling**                  | Set up CI/CD pipelines for automated tests, linting, deployment.         | ❌     |
 
 ### ✅ Completed
 
@@ -79,7 +79,6 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 #### 1. **Testing Coverage (Frontend & Backend)**
 
 - Increase test coverage and add more edge case scenarios.
-- Fix or remove skipped tests (currently 4 are skipped).
 
 #### 2. **Bulk Operations**
 
@@ -99,9 +98,11 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 - Add automated UI tests using Cypress or Playwright.
 - Improve confidence in production-readiness and reduce regression risk.
 
-### 🛠️ Improvements for a real work scenario
+---
 
-_*(taken from the original [“What I would do given more time to complete this task”](https://github.com/Jacqui87/product-senior-developer-home-exercise?tab=readme-ov-file#what-i-would-do-given-more-time-to-complete-this-task). These additional enhancements focus on critical features and tooling needed for reliable, maintainable, and secure production deployment.)*_
+### 🛠️ Improvements Considered but Not Included in This Repository
+
+_*(Taken from the original [“What I would do given more time to complete this task”](https://github.com/Jacqui87/product-senior-developer-home-exercise?tab=readme-ov-file#what-i-would-do-given-more-time-to-complete-this-task). These additional improvements highlight important features and tooling necessary for a reliable, maintainable, and secure production deployment. They are outside the scope of this repository and thus have not been implemented here.)*_
 
 #### 1. **Frontend Enhancements**
 
