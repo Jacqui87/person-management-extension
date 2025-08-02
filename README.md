@@ -81,35 +81,39 @@ _*(Adapted and expanded from the original [“What I would do given more time to
 - Increase test coverage and add more edge case scenarios.
 - Fix or remove skipped tests (currently 4 are skipped).
 
-#### 2. **Frontend Enhancements**
-
-- Support for profile photo uploads (via Azure Blob Storage).
-
-#### 3. **Security Enhancements**
-
-- Add email verification for address updates (e.g., send a verification link or code to confirm changes).
-
-#### 4. **Bulk Operations**
+#### 2. **Bulk Operations**
 
 - Implement bulk upload/edit features for users, departments, and roles.
 
-#### 5. **Role & Department Management**
+#### 3. **Role & Department Management**
 
 - Expand admin functionality to manage departments and roles dynamically.
 
-#### 6. **DevOps & Tooling**
-
-- Set up CI/CD pipelines for automated testing, linting, and deployment.
-
-#### 7. **Refresh Token Support**
+#### 4. **Refresh Token Support**
 
 - Add refresh tokens to extend JWT-based authentication.
 - Enables seamless session renewal without forcing frequent logins.
 
-#### 8. **End-to-End (E2E) Testing**
+#### 5. **End-to-End (E2E) Testing**
 
 - Add automated UI tests using Cypress or Playwright.
 - Improve confidence in production-readiness and reduce regression risk.
+
+### 🛠️ Improvements for a real work scenario
+
+_*(taken from the original [“What I would do given more time to complete this task”](https://github.com/Jacqui87/product-senior-developer-home-exercise?tab=readme-ov-file#what-i-would-do-given-more-time-to-complete-this-task). These additional enhancements focus on critical features and tooling needed for reliable, maintainable, and secure production deployment.)*_
+
+#### 1. **Frontend Enhancements**
+
+- Implement profile photo upload functionality using Azure Blob Storage for scalable image management.
+
+#### 2. **Security Enhancements**
+
+- Add email verification for address updates to improve security and trust by confirming user identity before changes take effect.
+
+#### 3. **DevOps & Tooling**
+
+- Set up CI/CD pipelines for automated testing, and deployment.
 
 ---
 
