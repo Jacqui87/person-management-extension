@@ -5,20 +5,19 @@ using PersonManagementExtension.Services;
 using Microsoft.AspNetCore.Authorization;
 using StatusCodes = PersonManagementExtension.Services.Dtos.StatusCodes;
 using Microsoft.AspNetCore.JsonPatch;
+using System.Security.Claims;
 
 namespace PersonManagementExtension.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class PersonController(IAuthService authService, IPersonService service) : ControllerBase
+public class PersonController(IPersonService service) : ControllerBase
 {
   [HttpGet]
   public async Task<ActionResult<PersonViewModel[]>> Get()
   {
     var people = await service.GetAllAsync();
-
-    // Returning an empty array with 200 OK is preferred REST behavior
     return Ok(people.Select(MapToViewModel));
   }
 
@@ -27,7 +26,6 @@ public class PersonController(IAuthService authService, IPersonService service) 
   {
     var person = await service.GetByIdAsync(id);
     if (person == null) return NotFound();
-
     return Ok(MapToViewModel(person));
   }
 
@@ -86,8 +84,13 @@ public class PersonController(IAuthService authService, IPersonService service) 
   [HttpDelete("{id:int}")]
   public async Task<ActionResult> DeletePerson(int id)
   {
-    var user = await authService.GetMostRecentUserAsync();
-    var deleted = await service.DeleteAsync(id, user?.Id);
+    var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!int.TryParse(userIdString, out var userId))
+    {
+      return Unauthorized();
+    }
+
+    var deleted = await service.DeleteAsync(id, userId);
     if (!deleted) return NotFound();
 
     return NoContent();

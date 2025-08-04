@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { PersonAction, PersonState } from "../state/personReducer";
 import Box from "@mui/material/Box";
-import { styled } from "@mui/system";
+import { styled } from "@mui/material/styles";
 import PersonEditor from "./PersonEditor";
 import PersonList from "./PersonList";
 import PersonSummary from "./PersonSummary";

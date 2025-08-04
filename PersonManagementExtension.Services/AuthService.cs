@@ -13,7 +13,6 @@ public interface IAuthService
 {
   Task<List<Session>> GetAllSessionsAsync();
   Task<LoginCredentials?> LoginAsync(LoginRequest request);
-  Task<Person?> GetMostRecentUserAsync();
 }
 
 public class AuthService(PersonManagerContext context, ILogger<AuthService> logger) : IAuthService
@@ -40,8 +39,10 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
       return await TokenLoginAsync(request.Token);
     }
 
-    var user = await context.People
-      .FirstOrDefaultAsync(p => p.Email == request.Email && p.Password == request.Password);
+    var user = await context.People.FirstOrDefaultAsync(p =>
+      p.Email == request.Email
+      && p.Password == request.Password
+      && (p.Role == 1 || p.Role == 2));
     if (user == null) return null;
 
     var jwtToken = GetJwtToken(user);
@@ -54,18 +55,6 @@ public class AuthService(PersonManagerContext context, ILogger<AuthService> logg
       User = user,
       Session = session
     };
-  }
-
-  public async Task<Person?> GetMostRecentUserAsync()
-  {
-    var recentSession = await context.Sessions
-      .OrderByDescending(s => s.CreatedAt)
-      .FirstOrDefaultAsync();
-
-    if (recentSession == null) return null;
-
-    var user = await context.People.FindAsync(recentSession.UserId);
-    return user;
   }
 
   #region Helpers

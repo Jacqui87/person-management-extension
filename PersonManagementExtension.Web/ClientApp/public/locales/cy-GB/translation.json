@@ -5,9 +5,11 @@
     "delete": "Dileu",
     "loading": "Llwytho...",
     "people": "Pobl",
-    "loading_people": "Wrthi'n llwytho pobl...",
-    "invalid_credentials": "Tystiolaeth annilys",
-    "unathorised_access": "Mynediad heb awdurdod"
+    "loading_people": "Llwytho pobl...",
+    "invalid_credentials": "Manylion mewngofnodi annilys",
+    "unathorised_access": "Mynediad heb awdurdod",
+    "unassigned": "heb ei aseinio",
+    "disabled": "anabl"
   },
   "login": {
     "failed": "Methodd y mewngofnodi. Gwiriwch eich manylion.",

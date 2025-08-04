@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { styled } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -19,6 +20,11 @@ import RoleSelect from "../elements/PersonForm/RoleSelect";
 import DepartmentSelect from "../elements/PersonForm/DepartmentSelect";
 import BiographyField from "../elements/PersonForm/BiographyField";
 import PersonFormButtons from "../elements/PersonForm/PersonFormButtons";
+import RoleIcon from "../elements/PersonForm/RoleIcon";
+
+const Title = styled(Typography)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
 
 interface PersonEditorProps {
   state: PersonState;
@@ -92,11 +98,19 @@ const PersonEditor = ({
             </Box>
           ) : (
             <Box p={3}>
-              <Typography variant="h5" gutterBottom>
-                {person.id === 0
-                  ? t("person_editor.add")
-                  : t("person_editor.edit")}
-              </Typography>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                width="100%"
+              >
+                <Title variant="h5" gutterBottom>
+                  {person.id === 0
+                    ? t("person_editor.add")
+                    : t("person_editor.edit")}
+                </Title>
+                <RoleIcon roleId={person.role} />
+              </Box>
 
               <Stack spacing={2}>
                 <FirstnameField
@@ -111,23 +125,28 @@ const PersonEditor = ({
                   handleFieldChange={handleFieldChange}
                 />
 
-                <DobField
-                  canEdit={canEdit}
-                  formik={formik}
-                  defaultDob={defaultDob}
-                  handleFieldChange={handleFieldChange}
-                />
+                <Stack direction="row" spacing={2}>
+                  <Box flex={1}>
+                    <DobField
+                      canEdit={canEdit}
+                      formik={formik}
+                      defaultDob={defaultDob}
+                      handleFieldChange={handleFieldChange}
+                    />
+                  </Box>
+                  <Box flex={1}>
+                    <LanguageSelect
+                      canEdit={canEdit}
+                      formik={formik}
+                      handleFieldChange={handleFieldChange}
+                    />
+                  </Box>
+                </Stack>
 
                 <EmailField
                   canEdit={canEdit}
                   formik={formik}
                   personId={person.id}
-                  handleFieldChange={handleFieldChange}
-                />
-
-                <LanguageSelect
-                  canEdit={canEdit}
-                  formik={formik}
                   handleFieldChange={handleFieldChange}
                 />
 
@@ -138,22 +157,27 @@ const PersonEditor = ({
                   handleFieldChange={handleFieldChange}
                 />
 
-                {person.id !== state.loggedInUser.id &&
-                  state.loggedInUser.role === ADMIN_ROLE_ID && (
-                    <RoleSelect
-                      canEdit={canEdit}
-                      formik={formik}
-                      handleFieldChange={handleFieldChange}
-                    />
-                  )}
-
-                {state.loggedInUser.role === ADMIN_ROLE_ID && (
-                  <DepartmentSelect
-                    canEdit={canEdit}
-                    formik={formik}
-                    handleFieldChange={handleFieldChange}
-                  />
-                )}
+                <Stack direction="row" spacing={2}>
+                  <Box flex={1}>
+                    {person.id !== state.loggedInUser.id &&
+                      state.loggedInUser.role === ADMIN_ROLE_ID && (
+                        <RoleSelect
+                          canEdit={canEdit}
+                          formik={formik}
+                          handleFieldChange={handleFieldChange}
+                        />
+                      )}
+                  </Box>
+                  <Box flex={1}>
+                    {state.loggedInUser.role === ADMIN_ROLE_ID && (
+                      <DepartmentSelect
+                        canEdit={canEdit}
+                        formik={formik}
+                        handleFieldChange={handleFieldChange}
+                      />
+                    )}
+                  </Box>
+                </Stack>
 
                 <BiographyField
                   canEdit={canEdit}

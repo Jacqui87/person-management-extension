@@ -6,21 +6,32 @@ using PersonManagementExtension.Services;
 using PersonManagementExtension.Web.Controllers;
 using PersonManagementExtension.Web.ViewModels;
 using Microsoft.AspNetCore.JsonPatch;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using StatusCodes = PersonManagementExtension.Services.Dtos.StatusCodes;
 
 namespace PersonManagementExtension.Web.Tests.Controllers;
 
 public class PersonControllerTests
 {
   private readonly IPersonService _personService;
-  private readonly IAuthService _authService;
   private readonly PersonController _controller;
 
   public PersonControllerTests()
   {
     _personService = Substitute.For<IPersonService>();
-    _authService = Substitute.For<IAuthService>();
+    _controller = new PersonController(_personService);
 
-    _controller = new PersonController(_authService, _personService);
+    var claims = new List<Claim>
+    {
+      new Claim(ClaimTypes.NameIdentifier, "1") // match user.Id
+    };
+    var identity = new ClaimsIdentity(claims, "TestAuthType");
+    var principal = new ClaimsPrincipal(identity);
+    _controller.ControllerContext = new ControllerContext
+    {
+      HttpContext = new DefaultHttpContext { User = principal }
+    };
   }
 
   [Fact]
@@ -252,7 +263,17 @@ public class PersonControllerTests
       DateOfBirth = DateOnly.Parse("1980-01-01")
     };
 
-    _authService.GetMostRecentUserAsync().Returns(Task.FromResult<Person?>(user));
+    var claims = new List<Claim>
+    {
+      new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+    };
+    var identity = new ClaimsIdentity(claims, "TestAuthType");
+    var principal = new ClaimsPrincipal(identity);
+    _controller.ControllerContext = new ControllerContext
+    {
+      HttpContext = new DefaultHttpContext { User = principal }
+    };
+
     _personService.DeleteAsync(idToDelete, user.Id).Returns(Task.FromResult(true));
 
     // Act
@@ -281,7 +302,17 @@ public class PersonControllerTests
       DateOfBirth = DateOnly.Parse("1980-01-01")
     };
 
-    _authService.GetMostRecentUserAsync().Returns(Task.FromResult<Person?>(user));
+    var claims = new List<Claim>
+    {
+      new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+    };
+    var identity = new ClaimsIdentity(claims, "TestAuthType");
+    var principal = new ClaimsPrincipal(identity);
+    _controller.ControllerContext = new ControllerContext
+    {
+      HttpContext = new DefaultHttpContext { User = principal }
+    };
+
     _personService.DeleteAsync(idToDelete, user.Id).Returns(Task.FromResult(false));
 
     // Act

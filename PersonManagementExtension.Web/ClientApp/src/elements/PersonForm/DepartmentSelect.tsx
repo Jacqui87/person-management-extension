@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { PersonViewModel } from "../../models/PersonViewModel";
@@ -19,6 +20,11 @@ const DepartmentSelect = ({
 }: DepartmentSelectProps) => {
   const { t } = useTranslation();
   const { data: departments, isLoading } = useDepartments();
+
+  const departmentOptions = useMemo(
+    () => [{ id: 0, name: t("common.unassigned") }, ...(departments ?? [])],
+    [departments, t]
+  );
 
   return (
     <>
@@ -46,9 +52,9 @@ const DepartmentSelect = ({
           error={formik.touched.department && Boolean(formik.errors.department)}
           helperText={formik.touched.department && formik.errors.department}
         >
-          {departments?.map((dept) => (
+          {departmentOptions?.map((dept) => (
             <MenuItem key={dept.id} value={dept.id}>
-              {dept.name}
+              <>{dept.name}</>
             </MenuItem>
           ))}
         </TextField>

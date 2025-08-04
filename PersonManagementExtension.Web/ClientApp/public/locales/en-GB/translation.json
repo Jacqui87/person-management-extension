@@ -7,7 +7,9 @@
     "people": "People",
     "loading_people": "Loading people...",
     "invalid_credentials": "Invalid credentials",
-    "unathorised_access": "Unathorised access"
+    "unathorised_access": "Unauthorised access",
+    "unassigned": "unassigned",
+    "disabled": "disabled"
   },
   "login": {
     "failed": "Login failed. Please check your credentials.",

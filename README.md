@@ -31,6 +31,7 @@ Users can choose their preferred language from a dropdown in the interface. This
 | **Improved UX Features**             | Clearable search and MUI Autocomplete dropdowns.                         | ✅     |
 | **ESLint Integration**               | Integrated ESLint with TypeScript rules for consistency and quality.     | ✅     |
 | **API Improvements**                 | Replaced PUT with PATCH for efficient partial updates using JSON Patch.  | ✅     |
+| **Admin Controls**                   | Admins can now disable/enable user accounts via the UI.                  | ✅     |
 | **Test Coverage (Frontend/Backend)** | Expand unit tests, add edge case coverage                                | ❌     |
 | **Bulk Operations**                  | Add bulk upload/edit support for people, departments, roles.             | ❌     |
 | **Role/Department Admin**            | Allow admin users to manage roles and departments via UI.                | ❌     |
@@ -69,6 +70,12 @@ Configured ESLint with TypeScript rules to enforce code quality, providing bette
 #### 7. API Improvements
 
 Updated backend API to use PATCH with JSON Patch for partial updates instead of PUT, sending minimal change payloads. Frontend was adapted to generate and send JSON Patch documents with proper headers, improving efficiency and accurately reflecting partial updates.
+
+#### 9. Admin Controls: Enable/Disable Users
+
+Admins now have the ability to disable or re-enable user accounts directly from the form UI. This action updates the user’s `isActive` status via the backend API, which affects their ability to log in or be assigned roles.
+
+This improves administrative control and allows the system to gracefully handle leavers or suspended users without requiring deletion.
 
 ---
 
@@ -131,3 +138,7 @@ _*(Taken from the original [“What I would do given more time to complete this 
 ### ✅ UI available in Welsh - includes a language drop-down which is automatically applied the next time they log in.
 
 ![UI available in Welsh - includes a language drop-down which is automatically applied the next time they log in](screenshots/welsh_ui.png)
+
+### ✅ Improved form UI – includes ability for admins to disable or re-enable users
+
+![Improved form UI – includes ability for admins to disable or re-enable users](screenshots/updatedUserAssignment.png)
