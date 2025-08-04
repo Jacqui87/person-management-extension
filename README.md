@@ -71,7 +71,7 @@ Configured ESLint with TypeScript rules to enforce code quality, providing bette
 
 Updated backend API to use PATCH with JSON Patch for partial updates instead of PUT, sending minimal change payloads. Frontend was adapted to generate and send JSON Patch documents with proper headers, improving efficiency and accurately reflecting partial updates.
 
-#### 9. Admin Controls: Enable/Disable Users
+#### 8. Admin Controls: Enable/Disable Users
 
 Admins now have the ability to disable or re-enable user accounts directly from the form UI. This action updates the user’s `isActive` status via the backend API, which affects their ability to log in or be assigned roles.
 
